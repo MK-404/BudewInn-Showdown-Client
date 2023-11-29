@@ -36,3 +36,5 @@ package-lock.json
 /replay.pokemonshowdown.com/caches/
 /replay.pokemonshowdown.com/theme/wrapper.inc.php
 /replay.pokemonshowdown.com/ads.txt
+\!\! build full.bat
+\!\! build index.bat
