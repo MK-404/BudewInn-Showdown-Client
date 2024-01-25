@@ -494,6 +494,7 @@ class BattleTooltips {
 		Flying: "Supersonic Skystrike",
 		Ground: "Tectonic Rage",
 		Fairy: "Twinkle Tackle",
+		Stellar: "",
 		"???": "",
 	};
 
@@ -516,6 +517,7 @@ class BattleTooltips {
 		Flying: "Max Airstream",
 		Ground: "Max Quake",
 		Fairy: "Max Starfall",
+		Stellar: "",
 		"???": "",
 	};
 
@@ -1120,7 +1122,7 @@ class BattleTooltips {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
 					if (ability === 'orichalcumpulse') {
-						stats.atk = Math.floor(stats.atk * 1.3);
+						stats.atk = Math.floor(stats.atk * 1.3333);
 					}
 					let allyActive = clientPokemon?.side.active;
 					if (allyActive) {
@@ -1185,7 +1187,7 @@ class BattleTooltips {
 				speedModifiers.push(2);
 			}
 			if (ability === 'hadronengine') {
-				stats.spa = Math.floor(stats.spa * 1.3);
+				stats.spa = Math.floor(stats.spa * 1.3333);
 			}
 		}
 		if (item === 'choicespecs' && !clientPokemon?.volatiles['dynamax']) {
@@ -1460,6 +1462,9 @@ class BattleTooltips {
 		if (move.id === 'terablast' && pokemon.terastallized) {
 			moveType = pokemon.terastallized as TypeName;
 		}
+		if (move.id === 'terastarstorm' && pokemon.getSpeciesForme() === 'Terapagos-Stellar') {
+			moveType = 'Stellar';
+		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
 		if (move.id === 'aurawheel' && pokemon.getSpeciesForme() === 'Morpeko-Hangry') {
@@ -1665,11 +1670,17 @@ class BattleTooltips {
 				value.modify(2, "Acrobatics + no item");
 			}
 		}
-		if (['crushgrip', 'wringout'].includes(move.id) && target) {
+		let variableBPCap = ['crushgrip', 'wringout'].includes(move.id) ? 120 : move.id === 'hardpress' ? 100 : undefined;
+		if (variableBPCap && target) {
 			value.set(
-				Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1,
+				Math.floor(
+					Math.floor((variableBPCap * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100
+				) || 1,
 				'approximate'
 			);
+		}
+		if (move.id === 'terablast' && pokemon.terastallized === 'Stellar') {
+			value.set(100, 'Tera Stellar boost');
 		}
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
 			value.modify(2, 'Brine + target below half HP');
@@ -1871,9 +1882,6 @@ class BattleTooltips {
 		if (['psn', 'tox'].includes(pokemon.status) && move.category === 'Physical') {
 			value.abilityModify(1.5, "Toxic Boost");
 		}
-		if (this.battle.gen > 2 && serverPokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
-			if (!value.tryAbility("Guts")) value.modify(0.5, 'Burn');
-		}
 		if (['Rock', 'Ground', 'Steel'].includes(moveType) && this.battle.weather === 'sandstorm') {
 			if (value.tryAbility("Sand Force")) value.weatherModify(1.3, "Sandstorm", "Sand Force");
 		}
@@ -1999,10 +2007,17 @@ class BattleTooltips {
 
 		// Terastal base power floor
 		if (
-			pokemon.terastallized && pokemon.terastallized === move.type && value.value < 60 && move.priority <= 0 &&
-			!move.multihit && !((move.basePower === 0 || move.basePower === 150) && (move as any).basePowerCallback)
+			pokemon.terastallized && (pokemon.terastallized === move.type || pokemon.terastallized === 'Stellar') &&
+			value.value < 60 && move.priority <= 0 && !move.multihit && !(
+				(move.basePower === 0 || move.basePower === 150) && move.basePowerCallback
+			)
 		) {
 			value.set(60, 'Tera type BP minimum');
+		}
+
+		// Burn isn't really a base power modifier, so it needs to be applied after the Tera BP floor
+		if (this.battle.gen > 2 && serverPokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
+			if (!value.tryAbility("Guts")) value.modify(0.5, 'Burn');
 		}
 
 		if (
@@ -2030,6 +2045,7 @@ class BattleTooltips {
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
 		'Dragon Fang': 'Dragon',
+		'Fairy Feather': 'Fairy',
 		'Hard Stone': 'Rock',
 		'Magnet': 'Electric',
 		'Metal Coat': 'Steel',
