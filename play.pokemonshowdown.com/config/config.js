@@ -18,7 +18,12 @@ Config.defaultserver = {
 	altport: 80,
 	registered: true,
 	https: true,
+	//TODO: fare un sistema di news che le prende tramite un fetch ad un .json, file che verrà scritto tramite un apposito comando di discord (overseer)
 	//TODO: lo scrivo qui ma è per la macchina che fa girare tutto: quando pusho su github il client (prima devo pushare il server), fa fetchare su github prima gli sprite poi il client, e alla fine poi builda da solo 
+	//TODO: utilizzare lo stesso enviroment.config.js per server.js e showdown
+	//TODO: utilizzare il manager di processi di node: nodemon, invece di pm2
+	//TODO: finire redirect sprite, deve mandare lo stesso codice di risultato, esempio 404, 202 ecc
+	//TODO: sperimentare con i proxy_set_header di nginx, specialmente con quello dell'ip. Devo capire se manda le richieste con l'ip degli effettivi utenti o se lo proxa col mio
 };
 
 Config.roomsFirstOpenScript = function () {

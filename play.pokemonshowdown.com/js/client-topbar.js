@@ -469,7 +469,7 @@
 			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
-			'click img': 'avatars'
+			'click img': 'avatarsinn'
 		},
 		update: function () {
 			var name = app.user.get('name');
@@ -477,8 +477,8 @@
 			var settings = app.user.get('settings');
 
 			var buf = '';
-			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
-			buf += '<p><button class="button" name="avatars">Avatar...</button></p>';
+			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" style="vertical-align:middle;cursor:pointer" onerror="this.onerror=null; this.remove();"/>' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
+			buf += '<p><button class="button" name="avatars">Normal Avatar</button>  <button class="button" name="avatarsinn">Custom Avatar</button>  <button class="button" name="avatarsgym">Gym</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
@@ -548,9 +548,11 @@
 			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments" class="button"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
 			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Nessuno mi vede: <button name="secretavatar">Secret Avatar</button></label></p>';	
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting" class="button">Text formatting</button></label></p>';
 
+			
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
@@ -662,6 +664,15 @@
 		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
+		avatarsinn: function () {
+			app.addPopup(AvatarsPopupInn);
+		},
+		avatarsgym: function () {
+			app.addPopup(AvatarsPopupGym);
+		},
+		secretavatar: function () {
+			app.addPopup(SecretAvatar);
+		},		
 		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
@@ -714,10 +725,10 @@
 		initialize: function () {
 			var cur = +app.user.get('avatar');
 			var buf = '';
-			buf += '<p>Choose an avatar or <button name="close" class="button">Cancel</button></p>';
+			buf += '<p>Scegli un avatar o <button name="close" class="button">Chiudi</button></p>';
 
 			buf += '<div class="avatarlist">';
-			for (var i = 1; i <= 293; i++) {
+			for (var i = 1; i <= 293; i++) { //TODO MK, poi devo sistemare il class="button" negli altri menu
 				if (i === 162 || i === 168) continue;
 				var offset = '-' + (((i - 1) % 16) * 80 + 1) + 'px -' + (Math.floor((i - 1) / 16) * 80 + 1) + 'px';
 				buf += '<button name="setAvatar" value="' + i + '" style="background-position:' + offset + '" class="option pixelated' + (i === cur ? ' cur' : '') + '" title="/avatar ' + i + '"></button>';
@@ -738,7 +749,92 @@
 			this.close();
 		}
 	});
+	
+	var AvatarsPopupInn = this.AvatarsPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function () {
+			var cur = +app.user.get('avatar');
+			var buf = '';
+			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
 
+			buf += '<div class="avatarlistinn">';
+			for (var i = 9000; i <= 9200; i++) {
+				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
+			}
+			buf += '</div><div style="clear:left"></div>';
+
+			buf += '<p><button name="close">Cancel</button></p>';
+			this.$el.html(buf).css('max-width', 740);
+		},
+		setAvatar: function (avatar) {
+			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+			if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+				avatar = window.BattleAvatarNumbers[avatar];
+			}
+			app.send('/avatar ' + avatar);
+			app.send('/cmd userdetails ' + app.user.get('userid'));
+			Storage.prefs('avatar', avatar);
+			this.close();
+		}
+	});
+	
+	var AvatarsPopupGym = Popup.extend({
+		type: 'semimodal',
+		initialize: function () {
+			var cur = +app.user.get('avatar');
+			var buf = '';
+			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
+
+			buf += '<div class="avatarlistinn">';
+			for (var i = 10000; i <= 10018; i++) {
+				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
+			}
+			buf += '</div><div style="clear:left"></div>';
+
+			buf += '<p><button name="close">Cancel</button></p>';
+			this.$el.html(buf).css('max-width', 820);
+		},
+		setAvatar: function (avatar) {
+			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+			if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+				avatar = window.BattleAvatarNumbers[avatar];
+			}
+			app.send('/avatar ' + avatar);
+			app.send('/cmd userdetails ' + app.user.get('userid'));
+			Storage.prefs('avatar', avatar);
+			this.close();
+		}
+	});	
+	
+	var SecretAvatar = Popup.extend({
+		type: 'semimodal',
+		initialize: function () {
+			var cur = +app.user.get('avatar');
+			var buf = '';
+			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
+
+			buf += '<div class="avatarlistinn">';
+			for (var i = 9201; i <= 9220; i++) {
+				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
+			}
+			buf += '</div><div style="clear:left"></div>';
+
+			buf += '<p><button name="close">Cancel</button></p>';
+			this.$el.html(buf).css('max-width', 740);
+		},
+		setAvatar: function (avatar) {
+			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+			if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+				avatar = window.BattleAvatarNumbers[avatar];
+			}
+			app.send('/avatar ' + avatar);
+			app.send('/cmd userdetails ' + app.user.get('userid'));
+			Storage.prefs('avatar', avatar);
+			this.close();
+		}
+	});
+
+	
 	var TabListPopup = this.TabListPopup = Popup.extend({
 		type: 'semimodal',
 		renderRooms: function (rooms) {
@@ -799,7 +895,7 @@
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Official</strong></p>';
 			buf += '<div class="bglist">';
-
+			//TODO MK
 			buf += '<button name="setBg" value="charizards" class="option' + (cur === 'charizards' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 0) + 'px"></span>Charizards</button>';
 			buf += '<button name="setBg" value="horizon" class="option' + (cur === 'horizon' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 1) + 'px"></span>Horizon</button>';
 			buf += '<button name="setBg" value="waterfall" class="option' + (cur === 'waterfall' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 2) + 'px"></span>Waterfall</button>';
