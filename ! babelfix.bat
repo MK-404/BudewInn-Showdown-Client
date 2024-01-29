@@ -1,0 +1,1 @@
+npm i @babel/plugin-proposal-logical-assignment-operators && npm i @babel/plugin-proposal-nullish-coalescing-operator && npm i @babel/plugin-proposal-optional-chaining && npm i @babel/plugin-proposal-object-rest-spread && npm i @babel/plugin-proposal-optional-catch-binding
