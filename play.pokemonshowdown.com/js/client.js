@@ -1,3 +1,4 @@
+/* exported toId */
 function toId() {
 	// toId has been renamed toID
 	alert("You have an old extension/script for Pokemon Showdown which is incompatible with this client. It needs to be removed or updated.");
@@ -20,7 +21,7 @@ function toId() {
 	}
 
 	$(document).on('keydown', function (e) {
-		if (e.keyCode == 27) { // Esc
+		if (e.keyCode === 27) { // Esc
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
@@ -405,7 +406,7 @@ function toId() {
 			this.supports = {};
 
 			// down
-			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
+			// if (document.location.hostname === 'play.pokemonshowdown.com' || document.location.hostname === 'smogtours.psim.us') this.down = true;
 			// this.down = true;
 
 			this.addRoom('');
@@ -419,7 +420,8 @@ function toId() {
 				// 		type: 'modal'
 				// 	});
 			} else {
-				if (document.location.hostname === Config.routes.client || Config.testclient) {
+				var hostname = document.location.hostname;
+				if (hostname === Config.routes.client || Config.testclient || hostname.startsWith(Config.defaultserver.id + '-')) {
 					this.addRoom('rooms', null, true);
 				} else {
 					this.addRoom('lobby', null, true);
@@ -458,7 +460,8 @@ function toId() {
 					var settings = Dex.prefs('serversettings') || {};
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
-					Backbone.history.start({ pushState: !Config.testclient });
+					var useHistory = !Config.testclient && (location.pathname.slice(-5) !== '.html');
+					Backbone.history.start({ pushState: useHistory });
 					app.ignore = app.loadIgnore();
 				});
 			}
@@ -696,6 +699,11 @@ function toId() {
 				Object.assign(Config.customcolors, data);
 			});
 
+			// get coil values too
+			$.get('/config/coil.json', {}, function (data) {
+				Object.assign(LadderRoom.COIL_B, data);
+			});
+
 			this.initializeConnection();
 		},
 		/**
@@ -727,9 +735,43 @@ function toId() {
 		 */
 		initializeConnection: function () {
 			Storage.whenPrefsLoaded(function () {
-				// if (Config.server.id !== 'smogtours') Config.server.afd = true;
+				app.setAFD();
 				app.connect();
 			});
+		},
+		setAFD: function (mode) {
+			if (mode === undefined) {
+				// init
+				if (typeof BattleTextAFD !== 'undefined') {
+					for (var id in BattleTextNotAFD) {
+						if (!BattleTextAFD[id]) {
+							BattleTextAFD[id] = BattleTextNotAFD[id];
+						} else {
+							var combined = {};
+							Object.assign(combined, BattleTextNotAFD[id]);
+							Object.assign(combined, BattleTextAFD[id]);
+							BattleTextAFD[id] = combined;
+						}
+					}
+				}
+
+				if (Config.server.afd) {
+					mode = true;
+				} else if (Dex.prefs('afd') !== undefined) {
+					mode = Dex.prefs('afd');
+				} else {
+					// uncomment on April Fools' Day
+					// mode = true;
+				}
+			}
+
+			Dex.afdMode = mode;
+
+			if (mode === true) {
+				BattleText = BattleTextAFD;
+			} else {
+				BattleText = BattleTextNotAFD;
+			}
 		},
 		/**
 		 * This function establishes the actual connection to the sim server.
@@ -756,7 +798,7 @@ function toId() {
 
 			var self = this;
 			var constructSocket = function () {
-				if (location.host === 'localhost.psim.us' || /[0-9]+.[0-9]+.[0-9]+.[0-9]+\.psim\.us/.test(location.host)) {
+				if (location.host === 'localhost.psim.us' || /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.psim\.us/.test(location.host)) {
 					// normally we assume HTTPS means HTTPS, but make an exception for
 					// localhost and IPs which generally can't have a signed cert anyway.
 					Config.server.port = 8000;
@@ -909,7 +951,7 @@ function toId() {
 		},
 		submitSend: function (e) {
 			// Most of the code relating to this is nightmarish because of some dumb choices
-			// made when writing the original Backbone code. At least in the Preact client, event
+			// made when writing the original Backbone code. At least in the client rewrite, event
 			// handling is a lot more straightforward because it doesn't rely on Backbone's event
 			// dispatch system.
 			var target = e.currentTarget;
@@ -936,7 +978,7 @@ function toId() {
 				this.loadingTeam = true;
 				$.get(app.user.getActionPHP(), {
 					act: 'getteam',
-					teamid: team.teamid,
+					teamid: team.teamid
 				}, Storage.safeJSON(function (data) {
 					app.loadingTeam = false;
 					if (data.actionerror) {
@@ -946,6 +988,7 @@ function toId() {
 					team.team = data.team;
 					team.loaded = true;
 					callback(team);
+					Storage.saveTeams();
 					var entry = app.loadingTeamQueue.shift();
 					if (entry) {
 						app.loadTeam(entry[0], entry[1]);
@@ -1239,6 +1282,15 @@ function toId() {
 					document.location.reload(true);
 					break;
 
+				case 'openpage':
+					// main server only, side servers don't get this
+					if (Config.server.id !== 'showdown') break;
+					var uri = parts[1];
+					if (!BattleLog.interstice.isWhitelisted(uri)) {
+						uri = BattleLog.interstice.getURI(uri);
+					}
+					this.openInNewWindow(uri);
+					break;
 				case 'c':
 				case 'chat':
 					if (parts[1] === '~') {
@@ -1308,7 +1360,7 @@ function toId() {
 			var columnChanged = false;
 
 			window.NonBattleGames = { rps: 'Rock Paper Scissors' };
-			for (var i = 3; i <= 9; i = i + 2) {
+			for (var i = 3; i <= 9; i += 2) {
 				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
 			}
 			window.BattleFormats = {};
@@ -1335,6 +1387,7 @@ function toId() {
 					var tournamentShow = true;
 					var partner = false;
 					var bestOfDefault = false;
+					var teraPreviewDefault = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1348,6 +1401,7 @@ function toId() {
 						if (code & 16) teambuilderLevel = 50;
 						if (code & 32) partner = true;
 						if (code & 64) bestOfDefault = true;
+						if (code & 128) teraPreviewDefault = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1412,6 +1466,7 @@ function toId() {
 						challengeShow: challengeShow,
 						tournamentShow: tournamentShow,
 						bestOfDefault: bestOfDefault,
+						teraPreviewDefault: teraPreviewDefault,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
 						partner: partner,
@@ -1484,9 +1539,13 @@ function toId() {
 				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
-						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure|replays?|forgotpassword|devdiscord)$/;
+
+						// keep this in sync with .htaccess
+						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|news|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy\-dlc\-link)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
+						if (target === 'requesthelp') target = 'view-help-request--other';
+
 						if (isReplayLink) {
 							if (!target || target === 'search') {
 								target = '.';
@@ -1633,6 +1692,7 @@ function toId() {
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
+				'resources': ResourceRoom,
 				'constructor': ChatRoom
 			};
 			var typeTable = {
@@ -1669,7 +1729,7 @@ function toId() {
 				if (this.curSideRoom === oldRoom) this.curSideRoom = room;
 				if (this.sideRoom === oldRoom) this.sideRoom = room;
 			}
-			if (['', 'teambuilder', 'ladder', 'rooms'].indexOf(room.id) < 0) {
+			if (['', 'teambuilder', 'ladder', 'rooms', 'resources'].indexOf(room.id) < 0) {
 				if (room.isSideRoom) {
 					this.sideRoomList.push(room);
 				} else {
@@ -1706,7 +1766,6 @@ function toId() {
 			}
 
 			room.focus(null, focusTextbox);
-			return;
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
@@ -1732,7 +1791,6 @@ function toId() {
 			if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
@@ -1756,7 +1814,6 @@ function toId() {
 			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		/**
 		 * This is the function for handling the two-panel layout
@@ -2282,14 +2339,14 @@ function toId() {
 		notifications: null,
 		subtleNotification: false,
 		notify: function (title, body, tag, once) {
-			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (once && app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
 			if (!this.notifications) {
 				this.notifications = {};
 				needsTabbarUpdate = true;
 			}
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) {
 				this.notifications[tag] = {};
 			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
 				// old desktop client
@@ -2343,7 +2400,7 @@ function toId() {
 			}
 		},
 		subtleNotifyOnce: function () {
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (this.notifications || this.subtleNotification) return;
 			this.subtleNotification = true;
 			this.notificationClass = ' subtle-notifying';
@@ -2613,7 +2670,7 @@ function toId() {
 			} else {
 				app.addPopupMessage("You are already registered!");
 			}
-		},
+		}
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
@@ -2636,13 +2693,13 @@ function toId() {
 	});
 
 	Config.groups = Config.groups || {
-		'~': {
-			name: "Administrator (~)",
+		'#': {
+			name: "Room Owner (#)",
 			type: 'leadership',
 			order: 10001
 		},
-		'#': {
-			name: "Room Owner (#)",
+		'~': {
+			name: "Administrator (~)",
 			type: 'leadership',
 			order: 10002
 		},
@@ -2665,11 +2722,6 @@ function toId() {
 			name: "Driver (%)",
 			type: 'staff',
 			order: 10006
-		},
-		'\u00a7': {
-			name: "Section Leader (\u00a7)",
-			type: 'staff',
-			order: 10007
 		},
 		'*': {
 			name: "Bot (*)",
@@ -2861,7 +2913,7 @@ function toId() {
 			app.addPopup(UserOptionsPopup, {
 				name: this.data.name,
 				userid: this.data.userid,
-				friended: this.data.friended,
+				friended: this.data.friended
 			});
 		}
 	}, {
@@ -3030,7 +3082,7 @@ function toId() {
 				'<p><b>2.</b> Follow US laws (PS is based in the US). No porn (minors use PS), don\'t distribute pirated material, and don\'t slander others.</p>' +
 				'<p><b>3.</b>&nbsp;No sex. Don\'t discuss anything sexually explicit, not even in private messages, not even if you\'re both adults.</p>' +
 				'<p><b>4.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc). Don\'t impersonate staff if you\'re not.</p>' +
-				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with &amp; next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
+				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with ~ next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
 				'<p>(Note: The First Amendment does not apply to PS, since PS is not a government organization.)</p>' +
 				'<p><b>Chat</b></p>' +
 				'<p><b>1.</b> Do not spam, flame, or troll. This includes advertising, raiding, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting logs in the lobby.</p>' +
@@ -3042,7 +3094,7 @@ function toId() {
 			if (!warning) {
 				buf += '<p><b>Usernames</b></p>' +
 					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
-					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or ~ next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
 					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
 					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
 					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';

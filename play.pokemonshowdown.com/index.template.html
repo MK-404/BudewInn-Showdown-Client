@@ -1,24 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
-           .............
-       ,...................
-     ,..................========
-    ....~=##############=======+
-   ...##################=======.
-  ..=######+...,    +##=======,..
-  ..=###### ., .....  +=====+,....
-     ###########~,..  ======
-  .....##############~=====+....., pokemonshowdown.com
-  ..........###########====......
-    ............#######,==......
-  =###.,........+#####+ .......
-  ####################~......,
-  #################+======,
-     ++++++++++++ =======+
+                      ,///////,
+      +#########+     ///////,
+   +###############+  ///////
+  +#################+,//////,
+ +###################,/////,
+ ########+   +########////
+                     ////,  PokemonShowdown.com
+ ########+   +########///
+ +###################+//
+  +#################+
+   +###############+
+      +#########+///////,
+                ///////,
 
-Viewing source We're open source! Check us out on GitHub!
-https://github.com/Zarel/Pokemon-Showdown
-https://github.com/Zarel/Pokemon-Showdown-Client (you are here)
+Viewing source? We're open source! Check us out on GitHub!
+https://github.com/smogon/pokemon-showdown
+https://github.com/smogon/pokemon-showdown-client (you are here)
 
 Also visit us in the Dev chatroom:
 https://psim.us/dev
@@ -42,9 +40,8 @@ https://psim.us/dev
 <!-- head custom -->
 
 <div id="header" class="header">
-	<img class="logo" src="./pokemonshowdownbeta.png"
-		srcset="./pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown! (beta)"
-		width="146" height="44" />
+	<img class="logo" src="./pokemonshowdownbeta.png" srcset="./pokemonshowdownbeta@2x.png 2x"
+		alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" />
 	<div class="maintabbarbottom"></div>
 </div>
 <div class="ps-room scrollable" id="mainmenu">
@@ -106,13 +103,15 @@ https://psim.us/dev
 <script src="./js/battle.js"></script>
 <script src="./js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
 <script src="./js/lib/color-thief.min.js"></script>
-<script src="./data/pokedex.js"></script><!--//spostato qui altrimenti non caricava i dati quando il client viene avviato in /teambuilder -->
+<script src="./data/pokedex.js"></script>
+<!--//spostato qui altrimenti non caricava i dati quando il client viene avviato in /teambuilder -->
 <script src="./avatars/gym.js"></script>
 
 <script>
 	LM.innerHTML += ' DONE<br />Loading client...';
 </script>
 
+<script src="./data/commands.js?"></script>
 <script src="./js/client.js"></script>
 <script src="./js/client-topbar.js"></script>
 <script src="./js/client-mainmenu.js"></script>

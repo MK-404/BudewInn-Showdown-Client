@@ -1,3 +1,4 @@
+/** @type {import('../play.pokemonshowdown.com/src/client-main').PSConfig} */
 var Config = Config || {};
 
 Config.version = "0";
@@ -5,7 +6,14 @@ Config.version = "0";
 Config.bannedHosts = ['cool.jit.su', 'pokeball-nixonserver.rhcloud.com'];
 
 Config.whitelist = [
-	'wikipedia.org',
+	'wikipedia.org'
+
+	// The full list is maintained outside of this repository so changes to it
+	// don't clutter the commit log. Feel free to copy our list for your own
+	// purposes; it's here: https://play.pokemonshowdown.com/config/config.js
+
+	// If you would like to change our list, simply message Zarel on Smogon or
+	// Discord.
 ];
 
 // `defaultserver` specifies the server to use when the domain name in the
@@ -24,10 +32,10 @@ Config.roomsFirstOpenScript = function () {
 };
 
 Config.customcolors = {
-	
+
 	"mkaya": "pqhfa97b",
 	"pala97": "vzir7urz",
-	
+
 	"peonygymleader": "s4nmqutt",
 	"kabucapopalestra": "k1j0j3mp",
 	"capopalestrasofora": "z4bgmnho",
@@ -41,5 +49,5 @@ Config.customcolors = {
 	"azzurragymleader": "zlhuz0gj",
 	"capopalestrafabia": "a56nunyg",
 	"gymleadermelania": "sxnhbl2e",
-	"capopalestramilo": "4j37cqhj",	
+	"capopalestramilo": "4j37cqhj",
 };;

@@ -1,0 +1,217 @@
+/*********************************************************userlist * Icone Userlist *********************************************************/
+/*---------- Altro ------------*/
+[id$="-userlist-user-lightjoy"] {
+    background: rgba(175, 218, 234, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/namegif/shaymin.png")right no-repeat;
+}
+
+[id$="-userlist-user-myridar"] {
+    background: rgba(175, 218, 234, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/namegif/shiny.png")right no-repeat;
+}
+
+/*---------- Campioni ------------*/
+[id$="-userlist-user-penultimocampione"] {
+    background: rgba(175, 218, 234, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/namegif/crown2.png")right no-repeat;
+}
+
+[id$="-userlist-user-campione"] {
+    background: rgba(175, 218, 234, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/namegif/crown.png")right no-repeat;
+}
+
+/*---------- Capopalestra ------------*/
+li[id$="-userlist-user-tulipa"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Psico.png")right no-repeat;
+}
+
+li[id$="-userlist-user-brassius"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Erba.png")right no-repeat;
+}
+
+li[id$="-userlist-user-lima"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Spettro.png")right no-repeat;
+}
+
+li[id$="-userlist-user-algaro"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Acqua.png")right no-repeat;
+}
+
+li[id$="-userlist-user-grusha"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Ghiaccio.png")right no-repeat;
+}
+
+li[id$="-userlist-user-kissara"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Elettro.png")right no-repeat;
+}
+
+li[id$="-userlist-user-ubaldocapopalestra"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Normale.png")right no-repeat;
+}
+
+li[id$="-userlist-user-aceria"] {
+    background: rgba(0, 0, 0, 0)url("https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/Medaglia Coleottero.png")right no-repeat;
+}
+
+/********************************************************* * Colori Chat *********************************************************/
+/*---------- Capopalestra ------------*/
+li[id$="-userlist-user-tulipa"] strong,
+li[id$="-userlist-user-tulipa"] span,
+.chat.chatmessage-tulipa span,
+li[id$="-userlist-user-tulipa"] em[style],
+.chat.chatmessage-tulipa strong {
+    color: #9126a5 !important;
+    text-shadow: #e373ae 1px 1px 0, #e373ae 1px -1px 0, #e373ae -1px 1px 0, #e373ae -1px -1px 0;
+}
+
+li[id$="-userlist-user-brassius"] strong,
+li[id$="-userlist-user-brassius"] span,
+.chat.chatmessage-brassius span,
+li[id$="-userlist-user-brassius"] em[style],
+.chat.chatmessage-brassius strong {
+    color: #63bc5b !important;
+    text-shadow: #3b6838 1px 1px 0, #3b6838 1px -1px 0, #3b6838 -1px 1px 0, #3b6838 -1px -1px 0;
+}
+
+li[id$="-userlist-user-lima"] strong,
+li[id$="-userlist-user-lima"] span,
+.chat.chatmessage-lima span,
+li[id$="-userlist-user-lima"] em[style],
+.chat.chatmessage-lima strong {
+    color: #506dae !important;
+    text-shadow: #3a3699 1px 1px 0, #3a3699 1px -1px 0, #3a3699 -1px 1px 0, #3a3699 -1px -1px 0;
+}
+
+li[id$="-userlist-user-algaro"] strong,
+li[id$="-userlist-user-algaro"] span,
+.chat.chatmessage-algaro span,
+li[id$="-userlist-user-algaro"] em[style],
+.chat.chatmessage-algaro strong {
+    color: #6bcaf3 !important;
+    text-shadow: #426995 1px 1px 0, #426995 1px -1px 0, #426995 -1px 1px 0, #426995 -1px -1px 0;
+}
+
+li[id$="-userlist-user-grusha"] strong,
+li[id$="-userlist-user-grusha"] span,
+.chat.chatmessage-grusha span,
+li[id$="-userlist-user-grusha"] em[style],
+.chat.chatmessage-grusha strong {
+    color: #0db8c9 !important;
+    text-shadow: #fff 1px 1px 0, #fff 1px -1px 0, #fff -1px 1px 0, #fff -1px -1px 0;
+}
+
+li[id$="-userlist-user-kissara"] strong,
+li[id$="-userlist-user-kissara"] span,
+.chat.chatmessage-kissara span,
+li[id$="-userlist-user-kissara"] em[style],
+.chat.chatmessage-kissara strong {
+    color: #f4ff58 !important;
+    text-shadow: #ffe600 1px 1px 0, #ffe600 1px -1px 0, #ffe600 -1px 1px 0, #ffe600 -1px -1px 0;
+}
+
+li[id$="-userlist-user-ubaldocapopalestra"] strong,
+li[id$="-userlist-user-ubaldocapopalestra"] span,
+.chat.chatmessage-ubaldocapopalestra span,
+li[id$="-userlist-user-ubaldocapopalestra"] em[style],
+.chat.chatmessage-ubaldocapopalestra strong {
+    color: #fff !important;
+    text-shadow: #cccccc 1px 1px 0, #cccccc 1px -1px 0, #cccccc -1px 1px 0, #cccccc -1px -1px 0;
+}
+
+li[id$="-userlist-user-aceria"] strong,
+li[id$="-userlist-user-aceria"] span,
+.chat.chatmessage-aceria span,
+li[id$="-userlist-user-aceria"] em[style],
+.chat.chatmessage-aceria strong {
+    color: #00e297 !important;
+    text-shadow: #c8ff00 1px 1px 0, #c8ff00 1px -1px 0, #c8ff00 -1px 1px 0, #c8ff00 -1px -1px 0;
+}
+
+/*---------- Utenti ------------*/
+li[id$='-userlist-user-mkaya'] strong,
+li[id$='-userlist-user-mkaya'] span,
+.chat.chatmessage-mkaya span,
+li[id$='-userlist-user-mkaya'] em[style],
+.chat.chatmessage-mkaya strong {
+    color: #1C78EF !important;
+    text-shadow: #0F4582 1px 1px 0, #0F4582 1px -1px 0, #0F4582 -1px 1px 0, #0F4582 -1px -1px 0;
+}
+
+li[id$='-userlist-user-mk'] strong,
+li[id$='-userlist-user-mk'] span,
+.chat.chatmessage-mkaya span,
+li[id$='-userlist-user-mk'] em[style],
+.chat.chatmessage-mkaya strong {
+    color: #1C78EF !important;
+    text-shadow: #0F4582 1px 1px 0, #0F4582 1px -1px 0, #0F4582 -1px 1px 0, #0F4582 -1px -1px 0;
+}
+
+/********************************************************* * Colori Battaglie *********************************************************/
+.color-mkaya {
+    color: #4b99ff;
+    text-shadow: #0f4582 0.5px 0.5px 2px, #0f4582 0.5px -0.5px 2px, #0f4582 -0.5px 0.5px 2px, #0f4582 -0.5px -0.5px 2px;
+}
+
+.color-mk {
+    color: #4b99ff;
+    text-shadow: #0f4582 0.5px 0.5px 2px, #0f4582 0.5px -0.5px 2px, #0f4582 -0.5px 0.5px 2px, #0f4582 -0.5px -0.5px 2px;
+}
+
+/********************************************************* * Global *********************************************************/
+
+
+.mypokemon {
+    width: 90px;
+    height: 90px;
+    position: absolute;
+    left: -60px;
+    bottom: -15px;
+    overflow: hidden;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+i.subtle {
+    opacity: 0.25;
+    filter: alpha(opacity=25);
+}
+
+i.subtle:hover {
+    opacity: 1.0;
+    filter: alpha(opacity=100);
+}
+
+
+.popupmenu,
+popupmenu li {
+    margin: -2px 0 -1px 0;
+    padding: 0;
+    list-style: none;
+    font-size: 8pt;
+}
+
+
+
+
+a.ilink {
+    text-decoration: none;
+    color: #224488;
+}
+
+a.ilink:hover {
+    text-decoration: underline;
+    color: #6688CC;
+}
+
+a.ilink.yours {
+    color: #55388B;
+}

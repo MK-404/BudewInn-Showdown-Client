@@ -86,6 +86,8 @@
 					return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
 				case 'ladder':
 					return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><button class="closebutton" name="closeRoom" value="' + 'ladder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
+				case 'resources':
+					return buf + '><i class="fa fa-question-circle"></i> <span>Resources</span></a><button class="closebutton" name="closeRoom" value="' + 'resources" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
 				case 'battles':
 					return buf + '><i class="fa fa-caret-square-o-right"></i> <span>Battles</span></a><button class="closebutton" name="closeRoom" value="' + 'battles" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
 				case 'rooms':
@@ -119,7 +121,7 @@
 					if (room.title && room.title.charAt(0) === '[') {
 						var closeBracketIndex = room.title.indexOf(']');
 						if (closeBracketIndex > 0) {
-							return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + BattleLog.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+							return buf + ' draggable="true"><i class="text">' + BattleLog.escapeHTML(room.title.slice(1, closeBracketIndex)) + '</i><span>' + BattleLog.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 						}
 					}
 					return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
@@ -130,7 +132,12 @@
 			this.$('.logo').show();
 			this.$('.maintabbar').removeClass('minitabbar');
 
-			var buf = '<ul>' + this.renderRoomTab(app.rooms['']) + this.renderRoomTab(app.rooms['teambuilder']) + this.renderRoomTab(app.rooms['ladder']) + '</ul>';
+			var buf = '<ul>' + (
+				this.renderRoomTab(app.rooms['']) +
+				this.renderRoomTab(app.rooms['teambuilder']) +
+				this.renderRoomTab(app.rooms['ladder']) +
+				this.renderRoomTab(app.rooms['resources'])
+			) + '</ul>';
 			var sideBuf = '';
 
 			var notificationCount = app.rooms[''].notifications ? 1 : 0;
@@ -469,7 +476,8 @@
 			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
-			'click img': 'avatarsinn'
+			'click img': 'avatarsinn',
+			'keydown input[name=statustext]': 'editstatus'
 		},
 		update: function () {
 			var name = app.user.get('name');
@@ -479,6 +487,12 @@
 			var buf = '';
 			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button class="button" name="avatars">Normal Avatar</button>  <button class="button" name="avatarsinn">Custom Avatar</button>  <button class="button" name="avatarsgym">Gym</button></p>';
+			if (!this.editingStatus) {
+				buf += '<p><button class="button" name="editstatus">Status...</button></p>';
+			} else {
+				buf += '<p><input name="statustext" />';
+				buf += '<button class="button" name="editstatus"><i class="fa fa-pencil"></i></button></p>';
+			}
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
@@ -506,7 +520,7 @@
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
-			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use 2D sprites instead of 3D models</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
 			buf += '<hr />';
@@ -536,7 +550,7 @@
 				"हिंदी": 'hindi',
 				"日本語": 'japanese',
 				"简体中文": 'simplifiedchinese',
-				"中文": 'traditionalchinese',
+				"中文": 'traditionalchinese'
 			};
 			buf += '<p><label class="optlabel">Language: <select name="language" class="button">';
 			for (var name in possibleLanguages) {
@@ -673,6 +687,29 @@
 		secretavatar: function () {
 			app.addPopup(SecretAvatar);
 		},
+		editstatus: function (ev) {
+			// from an input, key isn't enter
+			// there's no event if it's a click fsr
+			if (ev && ev.keyCode !== 13) return;
+			if (!this.editingStatus) {
+				this.editingStatus = true;
+				this.update();
+			} else {
+				var $input = $('input[name=statustext]');
+				var statusText = $input.val();
+				if (!toID(statusText).length) {
+					return;
+				}
+
+				app.send('/status ' + statusText);
+				var $editButton = $('button[name=editstatus]');
+				$editButton.text('Status updated!');
+				$editButton.attr('disabled', true);
+				$input.remove();
+
+				this.editingStatus = false;
+			}
+		},
 		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
@@ -756,15 +793,15 @@
 			var cur = +app.user.get('avatar'); //da implementare
 			var buf = '';
 			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
-			
+
 
 			buf += '<div class="avatarlistinn">';
 
 			const avatarList = await fetch("https://api.budewinn.it/avatar")
 			const avatarListJson = await avatarList.json()
 
-			for (avatar of avatarListJson) buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="background:url(https://api.budewinn.it/avatar/' + avatar + '.png) no-repeat"></button>';
-			
+			for (avatar of avatarListJson) buf += '<button class="option pixelated" name="setAvatar" value="' + avatar + '" title="/avatar ' + avatar + '" style="background:url(https://api.budewinn.it/avatar/' + avatar + '.png) no-repeat"></button>';
+
 			buf += '</div><div style="clear:left"></div>';
 
 			buf += '<p><button name="close">Cancel</button></p>';
@@ -794,14 +831,14 @@
 			buf += '<div class="avatarlistgen9" style="margin: 10px;padding: 12px;font-weight: bold;box-shadow: 0 4px 8px rgb(255 255 255 / 76%);overflow: hidden;border-radius: 35px;"><p style="font-size: large;">Paldea</p>';
 
 			for (avatar of AvatarsGymList.gen9) {
-				buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
+				buf += '<button class="option pixelated" name="setAvatar" value="' + avatar + '" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
 			}
 
 			buf += '</div>'
 			buf += '<div class="avatarlistgen8" style="margin: 10px;padding: 12px;font-weight: bold;box-shadow: 0 4px 8px rgb(255 255 255 / 76%);overflow: hidden;border-radius: 35px;"><p style="font-size: large;">Galar</p>';
 
 			for (avatar of AvatarsGymList.gen8) {
-				buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
+				buf += '<button class="option pixelated" name="setAvatar" value="' + avatar + '" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
 			}
 
 			buf += '</div></div><div style="clear:left"></div>';
@@ -1180,7 +1217,8 @@
 			buf += '<p>If this is your account:</p>';
 			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + BattleLog.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			if (data.special === '@gmail') {
-				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
+				buf += '<div id="g_id_onload" data-client_id="912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com" data-context="signin" data-ux_mode="popup" data-callback="gapiCallback" data-auto_prompt="false"></div>';
+				buf += '<div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="continue_with" data-size="large" data-logo_alignment="left" data-auto_select="true" data-itp_support="true" style="width:fit-content;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close" class="button">Cancel</button></p>';
 			} else {
 				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password" style="width:173px"><button type="button" name="showPassword" aria-label="Show password" style="float:right;margin:-21px 0 10px;padding: 2px 6px" class="button"><i class="fa fa-eye"></i></button></label></p>';
@@ -1196,50 +1234,14 @@
 
 			if (data.special === '@gmail') {
 				var self = this;
-				window.gapiRenderButton = function () {
-					if (!window.gapiAuthenticated) {
-						gapi.load('auth2', function () { // eslint-disable-line no-undef
-							window.gapiAuthenticated = gapi.auth2.init({ // eslint-disable-line no-undef
-								client_id: '912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com',
-							});
-							window.gapiAuthenticated.then(function () {
-								window.gapiAuthenticated = true;
-								window.gapiRenderButton();
-							});
-						});
-						return;
-					}
-					// they're trying again in a new popup, set a new .then so it still works
-					if (window.gapiAuthenticated.then) {
-						window.gapiAuthenticated.then(function () {
-							window.gapiAuthenticated = true;
-							window.gapiRenderButton();
-						});
-						return;
-					}
-					gapi.signin2.render('gapi-custom-signin', { // eslint-disable-line no-undef
-						'scope': 'profile email',
-						'width': 240,
-						'height': 50,
-						'longtitle': true,
-						'theme': 'dark',
-						'onsuccess': function (googleUser) {
-							// var profile = googleUser.getBasicProfile();
-							var id_token = googleUser.getAuthResponse().id_token;
-							self.close();
-							app.user.passwordRename(data.username, id_token, data.special);
-						},
-						'onfailure': function (googleUser) {
-							alert('sign-in failed');
-						}
-					});
+				window.gapiCallback = function (response) {
+					app.user.passwordRename(data.username, response.credential, data.special);
+					self.close();
 				};
-				if (window.gapiLoaded) return setTimeout(window.gapiRenderButton, 100);
-				window.gapiLoaded = true;
 
 				var script = document.createElement('script');
 				script.async = true;
-				script.src = 'https://apis.google.com/js/platform.js?onload=gapiRenderButton';
+				script.src = 'https://accounts.google.com/gsi/client';
 				document.getElementsByTagName('head')[0].appendChild(script);
 			}
 		},

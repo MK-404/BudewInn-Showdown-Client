@@ -79,7 +79,7 @@ var Replays = {
 			log: log.split('\n'),
 			isReplay: true,
 			paused: true,
-			autoresize: true,
+			autoresize: true
 		});
 
 		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
@@ -123,40 +123,40 @@ var Replays = {
 		valueElem.addClass('sel');
 
 		switch (type) {
-		case 'color':
-			if (value === 'dark') {
-				$(document.body).addClass('dark');
-			} else {
-				$(document.body).removeClass('dark');
-			}
-			break;
+			case 'color':
+				if (value === 'dark') {
+					$(document.body).addClass('dark');
+				} else {
+					$(document.body).removeClass('dark');
+				}
+				break;
 
-		case 'sound':
-			// remember this is reversed: sound[off] === muted[true]
-			this.muted = (value === 'off');
-			this.battle.setMute(this.muted);
-			this.$('.startsoundchooser').remove();
-			break;
+			case 'sound':
+				// remember this is reversed: sound[off] === muted[true]
+				this.muted = (value === 'off');
+				this.battle.setMute(this.muted);
+				this.$('.startsoundchooser').remove();
+				break;
 
-		case 'speed':
-			var fadeTable = {
-				hyperfast: 40,
-				fast: 50,
-				normal: 300,
-				slow: 500,
-				reallyslow: 1000
-			};
-			var delayTable = {
-				hyperfast: 1,
-				fast: 1,
-				normal: 1,
-				slow: 1000,
-				reallyslow: 3000
-			};
-			this.battle.messageShownTime = delayTable[value];
-			this.battle.messageFadeTime = fadeTable[value];
-			this.battle.scene.updateAcceleration();
-			break;
+			case 'speed':
+				var fadeTable = {
+					hyperfast: 40,
+					fast: 50,
+					normal: 300,
+					slow: 500,
+					reallyslow: 1000
+				};
+				var delayTable = {
+					hyperfast: 1,
+					fast: 1,
+					normal: 1,
+					slow: 1000,
+					reallyslow: 3000
+				};
+				this.battle.messageShownTime = delayTable[value];
+				this.battle.messageFadeTime = fadeTable[value];
+				this.battle.scene.updateAcceleration();
+				break;
 		}
 	},
 	update: function (state) {
@@ -202,7 +202,7 @@ var Replays = {
 	},
 	switchViewpoint: function () {
 		this.battle.switchViewpoint();
-	},
+	}
 };
 
 window.onload = function () {

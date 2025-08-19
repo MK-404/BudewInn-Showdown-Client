@@ -2,60 +2,69 @@
 <meta charset="utf-8" />
 <title>Styling</title>
 <script>
-/** @type {'?' | 'error' | 'success'} */
-var customCssLoaded = '?';
-function updateCustomCss() {
-  const message = document.getElementById('custom-css-message');
-  if (!message) return;
-  if (customCssLoaded === 'success') {
-    message.innerHTML = "<strong>Custom CSS was successfully loaded.</strong>";
+  /** @type {'?' | 'error' | 'success'} */
+  var customCssLoaded = '?';
+  function updateCustomCss() {
+    const message = document.getElementById('custom-css-message');
+    if (!message) return;
+    if (customCssLoaded === 'success') {
+      message.innerHTML = "<strong>Custom CSS was successfully loaded.</strong>";
+    }
   }
-}
-function customCssErrored() { customCssLoaded = 'error'; updateCustomCss(); }
-function customCssSuccess() { customCssLoaded = 'success'; updateCustomCss(); }
+  function customCssErrored() { customCssLoaded = 'error'; updateCustomCss(); }
+  function customCssSuccess() { customCssLoaded = 'success'; updateCustomCss(); }
 </script>
 
-<link rel="stylesheet" href="./battle.css?v1" />
+<link rel="stylesheet" href="./battle.css?v2" />
 <link rel="stylesheet" href="./custom.css" onerror="customCssErrored()" onload="customCssSuccess()" />
 <link rel="stylesheet" href="./font-awesome.css" />
 <style>
-html {
-  background: #EEE;
-  font: 12pt Verdana, sans-serif;
-}
-.wrapper {
-  max-width: 975px;
-  margin: 0 auto;
-}
-h1, h2, p {
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.light-container, .dark-container {
-  float: left;
-  width: 290px;
-  min-height: 50px;
-  margin-left: 10px;
-  padding: 8px 10px;
-  font-size: 10pt;
+  html {
+    background: #EEE;
+    font: 12pt Verdana, sans-serif;
+  }
 
-  background: #CCDDEE;
-  color: #000;
-  border: 1px solid #111;
-}
-.dark-container {
-  background: #223344;
-  color: #EEE;
-}
-.dark-container.code {
-  background: #333;
-  color: #DDD;
-  overflow-wrap: break-word;
-}
-.clear {
-  clear: both;
-}
+  .wrapper {
+    max-width: 975px;
+    margin: 0 auto;
+  }
+
+  h1,
+  h2,
+  p {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .light-container,
+  .dark-container {
+    float: left;
+    width: 290px;
+    min-height: 50px;
+    margin-left: 10px;
+    padding: 8px 10px;
+    font-size: 10pt;
+
+    background: #dde5ed;
+    color: #000;
+    border: 1px solid #111;
+  }
+
+  .dark-container {
+    background: #223344;
+    color: #EEE;
+  }
+
+  .dark-container.code {
+    background: #333;
+    color: #DDD;
+    overflow-wrap: break-word;
+  }
+
+  .clear {
+    clear: both;
+  }
 </style>
 
 <div class="wrapper">
@@ -63,10 +72,14 @@ h1, h2, p {
   <h1>Styling reference</h1>
 
   <p>
-    This is a reference of the out-of-the-box CSS available for bots and chat plugins to use.
+    This is a reference of the out-of-the-box CSS available for bots and chat plugins to use. The CSS for all of this is
+    in <code>battle-log.css</code>, because, since they could appear in battle logs, Replays needs them as well as the
+    client itself.
   </p>
   <p>
-    It's also useful for servers wanting to write custom CSS, to see how the changes look. <span id="custom-css-message">Add a file named <code>custom.css</code> in this directory and refresh to see how it looks.</span>
+    It's also useful for servers wanting to write custom CSS, to see how the changes look. <span
+      id="custom-css-message">Add a file named <code>custom.css</code> in this directory and refresh to see how it
+      looks.</span>
   </p>
   <script> updateCustomCss(); </script>
   <p>
@@ -76,10 +89,13 @@ h1, h2, p {
   <h2>Buttons and links</h2>
 
   <p>
-    Buttons and links are grouped together because they're kind of similar: If you click them, they perform an action. A link is just a special kind of button, a button that only performs navigation.
+    Buttons and links are grouped together because they're kind of similar: If you click them, they perform an action. A
+    link is just a special kind of button, a button that only performs navigation.
   </p>
   <p>
-    It's common practice to make important links look like buttons, but buttons should never look like links. Links should be implemented with an <code>&lt;a></code> tag, never with a button, so that they can be opened in a new window (by middle-clicking or right-clicking).
+    It's common practice to make important links look like buttons, but buttons should never look like links. Links
+    should be implemented with an <code>&lt;a></code> tag, never with a button, so that they can be opened in a new
+    window (by middle-clicking or right-clicking).
   </p>
   <p>
     Buttons always get the pointer-finger mouse cursor, like links. This helps reinforce that they're clickable.
@@ -88,7 +104,9 @@ h1, h2, p {
   <p><code>.button</code></p>
 
   <p>
-    Regular buttons always need <code>class="button"</code> to look like buttons &ndash; this is so you can apply other classes/styles if you want them to look like other things. You can also add the class to other elements, like links, to make them look like buttons.
+    Regular buttons always need <code>class="button"</code> to look like buttons &ndash; this is so you can apply other
+    classes/styles if you want them to look like other things. You can also add the class to other elements, like links,
+    to make them look like buttons.
   </p>
   <p>
     Notice the active (pressed down) styling.
@@ -108,10 +126,37 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
+  <p><code>.button.big, .button.small</code></p>
+
+  <p>
+    You may prefer buttons of different sizes. These should <em>never</em> be used next to each other, and <em>very
+      sparingly</em> otherwise. When next to each other, we use bold and non-bold buttons to show importance, like
+    above.
+  </p>
+
+  <div class="light-container">
+    <button class="button big">Big</button>
+    <button class="button">Normal</button>
+    <button class="button small">Small</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button big">Big</button>
+    <button class="button">Normal</button>
+    <button class="button small">Small</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button big">Big&lt;/button>
+    &lt;button class="button">Normal&lt;/button>
+    &lt;button class="button small">Small&lt;/button>
+  </div>
+  <div class="clear"></div>
+
   <p><code>.button.disabled, .button:disabled</code></p>
 
   <p>
-    Disabled buttons are faded out. Implementing <code>disabled</code> as a class lets you detect when they're moused-over (for tooltips) and clicked, and also lets you style links, if necessary. If <em>not</em> necessary, do set the <code>disabled</code> attribute instead, though, for accessibility reasons.
+    Disabled buttons are faded out. Implementing <code>disabled</code> as a class lets you detect when they're
+    moused-over (for tooltips) and clicked, and also lets you style links, if necessary. If <em>not</em> necessary, do
+    set the <code>disabled</code> attribute instead, though, for accessibility reasons.
   </p>
 
   <div class="light-container">
@@ -128,47 +173,71 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
-  <p><code>.button.notifying, .button.subtle-notifying</code></p>
+  <p><code>.button.notifying</code></p>
 
   <p>
-    Notifying buttons are intended for situations where we're trying to get the user's attention. As usual, you can also style links or any other element.
+    Notifying buttons are intended for situations where we're trying to get the user's attention. As usual, you can also
+    style links or any other element.
   </p>
 
   <div class="light-container">
     <button class="button notifying">2 new battles!</button>
-    <button class="button subtle-notifying">5 unimportant battles</button>
   </div>
   <div class="dark-container dark">
     <button class="button notifying">2 new battles!</button>
-    <button class="button subtle-notifying">5 unimportant battles</button>
   </div>
   <div class="dark-container code dark">
     &lt;button class="button notifying">2 new battles!&lt;/button>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.button.subtle-notifying, .button.alt-notifying</code></p>
+
+  <p>
+    If you have different kinds of notifications, consider these.
+  </p>
+
+  <div class="light-container">
+    <button class="button subtle-notifying">5 unimportant battles</button>
+    <button class="button alt-notifying">2 weird battles!</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button subtle-notifying">5 unimportant battles</button>
+    <button class="button alt-notifying">2 weird battles!</button>
+  </div>
+  <div class="dark-container code dark">
     &lt;button class="button subtle-notifying">5 unimportant battles&lt;/button>
+    &lt;button class="button alt-notifying">2 weird battles!&lt;/button>
   </div>
   <div class="clear"></div>
 
   <p><code>.button.button-first, .button.button-middle, .button.button-last, .button.cur</code></p>
 
   <p>
-    These are used to group buttons together. <code>cur</code> works a lot like <code>disabled</code>, except the text isn't as greyed out, and is used to denote a current selection.
+    These are used to group buttons together. <code>cur</code> works a lot like <code>disabled</code>, except the text
+    isn't as greyed out, and is used to denote a current selection.
   </p>
 
   <div class="light-container">
-    <button class="button button-first cur">Charmander</button><button class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
+    <button class="button button-first cur">Charmander</button><button
+      class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
   </div>
   <div class="dark-container dark">
-    <button class="button button-first cur">Charmander</button><button class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
+    <button class="button button-first cur">Charmander</button><button
+      class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
   </div>
   <div class="dark-container code dark">
-    &lt;button class="button button-first cur">Charmander&lt;/button>&lt;button class="button button-middle">Squirtle&lt;/button>&lt;button class="button button-last">Bulbasaur&lt;/button>
+    &lt;button class="button button-first cur">Charmander&lt;/button>&lt;button class="button
+    button-middle">Squirtle&lt;/button>&lt;button class="button button-last">Bulbasaur&lt;/button>
   </div>
   <div class="clear"></div>
 
   <p><code>a</code></p>
 
   <p>
-    Links use browser default styling, including purple visited links. Dark mode lightens the default styling a bit (at a specificity of 2 classes, which you will hate when you're trying to make links look like other things), to keep them readable.
+    Links use a nicer blue than browser default, and visited links are a nicer purple. Dark mode lightens the default
+    styling a bit, to keep them readable. Hover styles use <code>:where(:hover)</code> for lowest specificity, so the
+    colors are easy to override.
   </p>
 
   <div class="light-container">
@@ -201,21 +270,43 @@ h1, h2, p {
 
   <p><code>.subtle</code></p>
 
-  <p>Subtle links are links that are unimportant. They look like normal text until moused over, because they would make text look unnecessarily cluttered.</p>
-  <p>Subtle buttons look a bit different because they're still intended to look vaguely clickable, just not attention-drawing.</p>
+  <p>Subtle links are links that are unimportant. They look like normal text until moused over, because they would make
+    text look unnecessarily cluttered.</p>
+  <p>Buttons can also be subtle. They'll look the same as subtle links (and not like buttons at all).</p>
   <p>Subtle links are used in credits, and for usernames in battle logs.</p>
 
   <div class="light-container">
-    <button class="subtle"><strong>Do the thing</strong></button>
-    <a href="./" class="subtle">Cancel</a>
+    Humans include <button class="subtle">Alice</button>
+    and <a href="./" class="subtle">Bob</a>.
   </div>
   <div class="dark-container dark">
-    <button class="subtle"><strong>Do the thing</strong></button>
-    <a href="./" class="subtle">Cancel</a>
+    Humans include <button class="subtle">Alice</button>
+    and <a href="./" class="subtle">Bob</a>.
   </div>
   <div class="dark-container code dark">
-    &lt;button class="subtle">&lt;strong>Do the thing&lt;/strong>&lt;/button>
-    &lt;a href="./" class="subtle">Cancel&lt;/a>
+    Humans include &lt;button class="subtle">Alice&lt;/button>
+    and &lt;a href="./" class="subtle">Bob&lt;/a>.
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.ilink</code></p>
+
+  <p>An ilink is just a link whose underline doesn't appear unless hovered, and also doesn't have a visited style. It's
+    sort of halfway between subtle links (which are entirely invisible unless hovered) and normal links (which are very
+    in-your-face about being clickable, with the underline and all).</p>
+  <p>Buttons can also be ilinks. They'll look the same as links (and not like buttons at all).</p>
+
+  <div class="light-container">
+    Humans include <button class="ilink">Alice</button>
+    and <a href="./" class="ilink">Bob</a>.
+  </div>
+  <div class="dark-container dark">
+    Humans include <button class="ilink">Alice</button>
+    and <a href="./" class="ilink">Bob</a>.
+  </div>
+  <div class="dark-container code dark">
+    Humans include &lt;button class="ilink">Alice&lt;/button>
+    and &lt;a href="./" class="ilink">Bob&lt;/a>.
   </div>
   <div class="clear"></div>
 
@@ -245,7 +336,8 @@ h1, h2, p {
   <p><code>.option, .option.sel</code></p>
 
   <p>
-    This is used for a button taking the role of <code>&lt;option></code> (in a drop-down selection menu). Normal button styling would look really cluttered, so option buttons are much subtler.
+    This is used for a button taking the role of <code>&lt;option></code> (in a drop-down selection menu). Normal button
+    styling would look really cluttered, so option buttons are much subtler.
   </p>
   <p>
     The currently-selected option should be given the <code>cur</code> class.
@@ -271,7 +363,8 @@ h1, h2, p {
   <p><code>.checkbox</code></p>
 
   <p>
-    This makes checkboxes and radio buttons look slightly nicer. We don't currently try to override the built-in checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
+    This makes checkboxes and radio buttons look slightly nicer. We don't currently try to override the built-in
+    checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
   </p>
 
   <div class="light-container">
@@ -352,20 +445,54 @@ h1, h2, p {
   <p><code>details.readmore</code></p>
 
   <p>
-    Does not require JavaScript! As you can see, it's implemented with <code>&lt;details></code> and <code>&lt;summary></code>.
+    Does not require JavaScript! As you can see, it's implemented with <code>&lt;details></code> and
+    <code>&lt;summary></code>.
   </p>
   <p>
-    For accessibility reasons, the "read more" button can only appear at the end of a line (using <code>&lt;/summary></code> to replace a <code>&lt;br /></code>).
+    For accessibility reasons, the "read more" button can only appear at the end of a line (using
+    <code>&lt;/summary></code> to replace a <code>&lt;br /></code>).
   </p>
 
   <div class="light-container">
-    <details class="readmore"><summary>This is<br />some text</summary>This is<br />some more</details>
+    <details class="readmore">
+      <summary>This is<br />some text</summary>This is<br />some more
+    </details>
   </div>
   <div class="dark-container dark">
-    <details class="readmore"><summary>This is<br />some text</summary>This is<br />some more</details>
+    <details class="readmore">
+      <summary>This is<br />some text</summary>This is<br />some more
+    </details>
   </div>
   <div class="dark-container code dark">
-    &lt;details class="readmore">&lt;summary>This is&lt;br />some text&lt;/summary>This is&lt;br />some more&lt;/details>
+    &lt;details class="readmore">&lt;summary>This is&lt;br />some text&lt;/summary>This is&lt;br />some
+    more&lt;/details>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>details.details, .details-preview, span.ilink</code></p>
+
+  <p>
+    A nicer looking details element. <code>.details-preview</code> can be used to show certain things only when
+    collapsed. <code>span.ilink</code> can be used to make a fake link (like "show more" below) for expanding it. Real
+    links (like "do something" below) will suppress the hover effect (because they do something other than expanding).
+  </p>
+
+  <div class="light-container">
+    <details class="details">
+      <summary>This is<span class="details-preview"> summarized <a href="." class="ilink">[do something]</a> <span
+            class="ilink">[show more]</span></summary>the full results
+    </details>
+  </div>
+  <div class="dark-container dark">
+    <details class="details">
+      <summary>This is<span class="details-preview"> summarized <a href="." class="ilink">[do something]</a><span
+            class="ilink">[show more]</span></span></summary>the full results
+    </details>
+  </div>
+  <div class="dark-container code dark">
+    &lt;details class="details">&lt;summary>This is&lt;span class="details-preview"> summarized &lt;a href="."
+    class="ilink">[do something]&lt;/a>&lt;span class="ilink">[show more]&lt;/span>&lt;/span>&lt;/summary>the full
+    results&lt;/details>
   </div>
   <div class="clear"></div>
 
@@ -392,6 +519,23 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
+  <p><code>.infobox, .gray</code></p>
+
+  <p>
+    Infoboxes are used for organization. Gray makes things gray.
+  </p>
+
+  <div class="light-container">
+    <div class="infobox">These are <span class="gray">used all over</span> Showdown.</div>
+  </div>
+  <div class="dark-container dark">
+    <div class="infobox">These are <span class="gray">used all over</span> Showdown.</div>
+  </div>
+  <div class="dark-container code dark">
+    &lt;div class="infobox">These are &lt;span class="gray">used all over&lt;/span> Showdown.&lt;/div>
+  </div>
+  <div class="clear"></div>
+
   <p><code>.message-error</code></p>
 
   <div class="light-container">
@@ -408,13 +552,18 @@ h1, h2, p {
   <p><code>.message-log</code></p>
 
   <div class="light-container">
-    <div class="message-log"><div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div></div>
+    <div class="message-log">
+      <div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div>
+    </div>
   </div>
   <div class="dark-container dark">
-    <div class="message-log"><div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div></div>
+    <div class="message-log">
+      <div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div>
+    </div>
   </div>
   <div class="dark-container code dark">
-    &lt;div class="message-log">&lt;div class="chat">&lt;small>[12:34] &lt;/small>&lt;strong>&lt;small>~&lt;/small>Zarel:&lt;/strong> &lt;q>Hello!&lt;/q>&lt;/div>&lt;/div>
+    &lt;div class="message-log">&lt;div class="chat">&lt;small>[12:34]
+    &lt;/small>&lt;strong>&lt;small>~&lt;/small>Zarel:&lt;/strong> &lt;q>Hello!&lt;/q>&lt;/div>&lt;/div>
   </div>
   <div class="clear"></div>
 

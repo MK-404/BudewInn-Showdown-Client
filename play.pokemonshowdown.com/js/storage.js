@@ -1,4 +1,4 @@
-function Storage() {}
+function Storage() { }
 
 Storage.initialize = function () {
 	if (window.nodewebkit) {
@@ -15,7 +15,7 @@ Storage.initialize = function () {
 Storage.safeJSON = function (callback) {
 	return function (data) {
 		if (data.length < 1) return;
-		if (data[0] == ']') data = data.substr(1);
+		if (data[0] === ']') data = data.substr(1);
 		return callback(JSON.parse(data));
 	};
 };
@@ -32,18 +32,18 @@ Storage.bg = {
 	changeCount: 0,
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
-	MENU_BUTTONS: 6,
+	MENU_BUTTONS: 7,
 	set: function (bgUrl, bgid, noSave) {
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);
 		} else if (bgid) {
 			try {
 				localStorage.setItem('showdown_bg', bgUrl + '\n' + bgid);
-			} catch (e) {}
+			} catch (e) { }
 		} else {
 			try {
 				localStorage.removeItem('showdown_bg');
-			} catch (e) {}
+			} catch (e) { }
 		}
 	},
 	/**
@@ -89,32 +89,32 @@ Storage.bg = {
 
 		if (!hues) {
 			switch (bgid) {
-			case 'horizon':
-				hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
-				attrib = '<a href="https://vtas.deviantart.com/art/Pokemon-Horizon-312267168" target="_blank" class="subtle">"Horizon" <small>background by Vivian Zou</small></a>';
-				break;
-			case 'ocean':
-				hues = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
-				attrib = '<a href="https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154" target="_blank" class="subtle">"Sunrise Ocean" <small>background by Quanyails</small></a>';
-				break;
-			case 'waterfall':
-				hues = ["119.31034482758622,37.66233766233767%", "184.36363636363635,23.012552301255226%", "108.92307692307692,37.14285714285714%", "70.34482758620689,20.567375886524818%", "98.39999999999998,36.76470588235296%", "140,38.18181818181818%"];
-				attrib = '<a href="https://yilx.deviantart.com/art/Irie-372292729" target="_blank" class="subtle">"Irie" <small>background by Samuel Teo</small></a>';
-				break;
-			case 'shaymin':
-				hues = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
-				attrib = '<a href="http://cargocollective.com/bluep" target="_blank" class="subtle">"Shaymin" <small>background by Daniel Kong</small></a>';
-				break;
-			case 'charizards':
-				hues = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
-				attrib = '<a href="https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
-				break;
-			case 'psday':
-				hues = ["24.705882352941174,25.37313432835821%", "260.4651162790697,59.44700460829492%", "165.3191489361702,46.07843137254901%", "16.363636363636367,42.63565891472869%", "259.04761904761904,34.05405405405405%", "24.705882352941174,25.37313432835821%"];
-				attrib = 'Pok&eacute;mon Showdown Day background <small>by LifeisDANK</small>';
-				break;
-			case 'digimon':
-				hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
+				case 'horizon':
+					hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
+					attrib = '<a href="https://vtas.deviantart.com/art/Pokemon-Horizon-312267168" target="_blank" class="subtle">"Horizon" <small>background by Vivian Zou</small></a>';
+					break;
+				case 'ocean':
+					hues = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
+					attrib = '<a href="https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154" target="_blank" class="subtle">"Sunrise Ocean" <small>background by Quanyails</small></a>';
+					break;
+				case 'waterfall':
+					hues = ["119.31034482758622,37.66233766233767%", "184.36363636363635,23.012552301255226%", "108.92307692307692,37.14285714285714%", "70.34482758620689,20.567375886524818%", "98.39999999999998,36.76470588235296%", "140,38.18181818181818%"];
+					attrib = '<a href="https://x.com/Yilxaevum" target="_blank" class="subtle">"Irie" <small>background by Samuel Teo</small></a>';
+					break;
+				case 'shaymin':
+					hues = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
+					attrib = '<a href="http://cargocollective.com/bluep" target="_blank" class="subtle">"Shaymin" <small>background by Daniel Kong</small></a>';
+					break;
+				case 'charizards':
+					hues = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
+					attrib = '<a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
+					break;
+				case 'psday':
+					hues = ["24.705882352941174,25.37313432835821%", "260.4651162790697,59.44700460829492%", "165.3191489361702,46.07843137254901%", "16.363636363636367,42.63565891472869%", "259.04761904761904,34.05405405405405%", "24.705882352941174,25.37313432835821%"];
+					attrib = 'Pok&eacute;mon Showdown Day background <small>by LifeisDANK</small>';
+					break;
+				case 'digimon':
+					hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
 			}
 		}
 		if (attrib) attrib = '<small style="display:block;padding-bottom:4px">' + attrib + '</small>';
@@ -171,7 +171,7 @@ Storage.bg = {
 				if (!noSave && Storage.bg.changeCount === changeCount) {
 					localStorage.setItem('showdown_bg', bgUrl + '\n' + Storage.bg.id + '\n' + hues.join('\n'));
 				}
-			} catch (e) {}
+			} catch (e) { }
 		};
 		img.src = bgUrl;
 	},
@@ -183,16 +183,15 @@ Storage.bg = {
 		var l = (max + min) / 2;
 		if (max === min) {
 			return '0, 0%';
-		} else {
-			var d = max - min;
-			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-			switch (max) {
+		}
+		var d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		switch (max) {
 			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
 			case g: h = (b - r) / d + 2; break;
 			case b: h = (r - g) / d + 4; break;
-			}
-			h /= 6;
 		}
+		h /= 6;
 		return '' + (h * 360) + ',' + (s * 100) + '%';
 	}
 };
@@ -203,7 +202,7 @@ try {
 		Storage.bg.load(bg[0], bg[1]);
 		if (bg.length >= 7) Storage.bg.loadHues(bg.slice(2));
 	}
-} catch (e) {}
+} catch (e) { }
 
 if (!Storage.bg.id) {
 	Storage.bg.load();
@@ -244,12 +243,12 @@ try {
 	if (window.localStorage) {
 		Storage.prefs.data = JSON.parse(localStorage.getItem('showdown_prefs')) || {};
 	}
-} catch (e) {}
+} catch (e) { }
 
 Storage.prefs.save = function () {
 	try {
 		localStorage.setItem('showdown_prefs', JSON.stringify(this.data));
-	} catch (e) {}
+	} catch (e) { }
 };
 
 /**
@@ -304,7 +303,7 @@ var updatePrefs = function () {
 	var oldShowjoins = Storage.prefs('showjoins');
 	if (oldShowjoins !== undefined && typeof oldShowjoins !== 'object') {
 		var showjoins = {};
-		var serverShowjoins = {global: (oldShowjoins ? 1 : 0)};
+		var serverShowjoins = { global: (oldShowjoins ? 1 : 0) };
 		var showroomjoins = Storage.prefs('showroomjoins');
 		for (var roomid in showroomjoins) {
 			serverShowjoins[roomid] = (showroomjoins[roomid] ? 1 : 0);
@@ -398,99 +397,99 @@ Storage.onMessage = function ($e) {
 	Storage.crossOriginFrame = e.source;
 	var data = e.data;
 	switch (data.charAt(0)) {
-	case 'c':
-		Config.server = JSON.parse(data.substr(1));
-		if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
-			var $link = $('<link rel="stylesheet" ' +
-				'href="//' + Config.routes.client + '/customcss.php?server=' +
-				encodeURIComponent(Config.server.id) + '" />');
-			$('head').append($link);
-		}
-		break;
-	case 'p':
-		var newData = JSON.parse(data.substr(1));
-		if (newData) Storage.prefs.data = newData;
-		Storage.prefs.save = function () {
-			var prefData = JSON.stringify(this.data);
-			Storage.postCrossOriginMessage('P' + prefData);
+		case 'c':
+			Config.server = JSON.parse(data.substr(1));
+			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
+				var $link = $('<link rel="stylesheet" ' +
+					'href="//' + Config.routes.client + '/customcss.php?server=' +
+					encodeURIComponent(Config.server.id) + '" />');
+				$('head').append($link);
+			}
+			break;
+		case 'p':
+			var newData = JSON.parse(data.substr(1));
+			if (newData) Storage.prefs.data = newData;
+			Storage.prefs.save = function () {
+				var prefData = JSON.stringify(this.data);
+				Storage.postCrossOriginMessage('P' + prefData);
 
-			// in Safari, cross-origin local storage is apparently treated as session
-			// storage, so mirror the storage in the current origin just in case
-			try {
-				localStorage.setItem('showdown_prefs', prefData);
-			} catch (e) {}
-		};
-		Storage.whenPrefsLoaded.load();
-		break;
-	case 't':
-		if (window.nodewebkit) return;
-		var oldTeams;
-		if (Storage.teams && Storage.teams.length) {
-			// Teams are still stored in the old location; merge them with the
-			// new teams.
-			oldTeams = Storage.teams;
-		}
-		Storage.loadPackedTeams(data.substr(1));
-		Storage.saveTeams = function () {
-			var packedTeams = Storage.packAllTeams(Storage.teams);
-			Storage.postCrossOriginMessage('T' + packedTeams);
-
-			// in Safari, cross-origin local storage is apparently treated as session
-			// storage, so mirror the storage in the current origin just in case
-			if (document.location.hostname === Config.routes.client) {
+				// in Safari, cross-origin local storage is apparently treated as session
+				// storage, so mirror the storage in the current origin just in case
 				try {
-					localStorage.setItem('showdown_teams_local', packedTeams);
-				} catch (e) {}
-			}
-		};
-		if (oldTeams) {
-			Storage.teams = Storage.teams.concat(oldTeams);
-			Storage.saveTeams();
-			localStorage.removeItem('showdown_teams');
-		}
-		if (data === 'tnull' && !Storage.teams.length) {
-			Storage.loadPackedTeams(localStorage.getItem('showdown_teams_local'));
-		}
-		Storage.whenTeamsLoaded.load();
-		break;
-	case 'a':
-		if (data === 'a0') {
-			Storage.noThirdParty = true;
-			Storage.whenTeamsLoaded.load();
+					localStorage.setItem('showdown_prefs', prefData);
+				} catch (e) { }
+			};
 			Storage.whenPrefsLoaded.load();
-		}
-		if (!window.nodewebkit) {
-			// for whatever reason, Node-Webkit doesn't let us make remote
-			// Ajax requests or something. Oh well, making them direct
-			// isn't a problem, either.
-
-			try {
-				// I really hope this is a Chrome bug that this can fail
-				Storage.crossOriginFrame.postMessage("", Storage.origin);
-			} catch (e) {
-				return;
+			break;
+		case 't':
+			if (window.nodewebkit) return;
+			var oldTeams;
+			if (Storage.teams && Storage.teams.length) {
+				// Teams are still stored in the old location; merge them with the
+				// new teams.
+				oldTeams = Storage.teams;
 			}
+			Storage.loadPackedTeams(data.substr(1));
+			Storage.saveTeams = function () {
+				var packedTeams = Storage.packAllTeams(Storage.teams);
+				Storage.postCrossOriginMessage('T' + packedTeams);
 
-			$.get = function (uri, data, callback, type) {
-				var idx = Storage.crossOriginRequestCount++;
-				Storage.crossOriginRequests[idx] = callback;
-				Storage.postCrossOriginMessage('R' + JSON.stringify([uri, data, idx, type]));
+				// in Safari, cross-origin local storage is apparently treated as session
+				// storage, so mirror the storage in the current origin just in case
+				if (document.location.hostname === Config.routes.client) {
+					try {
+						localStorage.setItem('showdown_teams_local', packedTeams);
+					} catch (e) { }
+				}
 			};
-			$.post = function (uri, data, callback, type) {
-				var idx = Storage.crossOriginRequestCount++;
-				Storage.crossOriginRequests[idx] = callback;
-				Storage.postCrossOriginMessage('S' + JSON.stringify([uri, data, idx, type]));
-			};
-		}
-		break;
-	case 'r':
-		var reqData = JSON.parse(data.slice(1));
-		var idx = reqData[0];
-		if (Storage.crossOriginRequests[idx]) {
-			Storage.crossOriginRequests[idx](reqData[1]);
-			delete Storage.crossOriginRequests[idx];
-		}
-		break;
+			if (oldTeams) {
+				Storage.teams = Storage.teams.concat(oldTeams);
+				Storage.saveTeams();
+				localStorage.removeItem('showdown_teams');
+			}
+			if (data === 'tnull' && !Storage.teams.length) {
+				Storage.loadPackedTeams(localStorage.getItem('showdown_teams_local'));
+			}
+			Storage.whenTeamsLoaded.load();
+			break;
+		case 'a':
+			if (data === 'a0') {
+				Storage.noThirdParty = true;
+				Storage.whenTeamsLoaded.load();
+				Storage.whenPrefsLoaded.load();
+			}
+			if (!window.nodewebkit) {
+				// for whatever reason, Node-Webkit doesn't let us make remote
+				// Ajax requests or something. Oh well, making them direct
+				// isn't a problem, either.
+
+				try {
+					// I really hope this is a Chrome bug that this can fail
+					Storage.crossOriginFrame.postMessage("", Storage.origin);
+				} catch (e) {
+					return;
+				}
+
+				$.get = function (uri, data, callback, type) {
+					var idx = Storage.crossOriginRequestCount++;
+					Storage.crossOriginRequests[idx] = callback;
+					Storage.postCrossOriginMessage('R' + JSON.stringify([uri, data, idx, type]));
+				};
+				$.post = function (uri, data, callback, type) {
+					var idx = Storage.crossOriginRequestCount++;
+					Storage.crossOriginRequests[idx] = callback;
+					Storage.postCrossOriginMessage('S' + JSON.stringify([uri, data, idx, type]));
+				};
+			}
+			break;
+		case 'r':
+			var reqData = JSON.parse(data.slice(1));
+			var idx = reqData[0];
+			if (Storage.crossOriginRequests[idx]) {
+				Storage.crossOriginRequests[idx](reqData[1]);
+				delete Storage.crossOriginRequests[idx];
+			}
+			break;
 	}
 };
 Storage.postCrossOriginMessage = function (data) {
@@ -538,7 +537,7 @@ Storage.initTestClient = function () {
 				data.sid = sid;
 				get(uri, data, callback, type);
 			} else {
-				app.addPopup(ProxyPopup, {uri: uri, callback: callback});
+				app.addPopup(ProxyPopup, { uri: uri, callback: callback });
 			}
 		};
 		var post = $.post;
@@ -546,7 +545,7 @@ Storage.initTestClient = function () {
 			if (type === 'html') {
 				uri += '&testclient';
 			}
-			if (uri[0] === '/') { //relative URI
+			if (uri[0] === '/') { // relative URI
 				uri = Dex.resourcePrefix + uri.substr(1);
 			}
 
@@ -560,7 +559,7 @@ Storage.initTestClient = function () {
 					src += '<input type=hidden name="' + i + '" value="' + BattleLog.escapeHTML(data[i]) + '">';
 				}
 				src += '<input type=submit value="Please click this button first."></form></body></html>';
-				app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
+				app.addPopup(ProxyPopup, { uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback });
 			}
 		};
 		Storage.whenPrefsLoaded.load();
@@ -588,7 +587,7 @@ Storage.loadTeams = function () {
 		if (window.localStorage) {
 			Storage.loadPackedTeams(localStorage.getItem('showdown_teams'));
 		}
-	} catch (e) {}
+	} catch (e) { }
 };
 
 /** returns false to add the team, true to not add it, 'rename' to add it under a diff name */
@@ -622,7 +621,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 };
 
 Storage.loadRemoteTeams = function (after) {
-	$.get(app.user.getActionPHP(), {act: 'getteams'}, Storage.safeJSON(function (data) {
+	$.get(app.user.getActionPHP(), { act: 'getteams' }, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
 			return app.addPopupMessage('Error loading uploaded teams: ' + data.actionerror);
 		}
@@ -652,7 +651,7 @@ Storage.loadRemoteTeams = function (after) {
 				// team comes down from loginserver as comma-separated list of mons
 				// to save bandwidth
 				var mons = team.team.split(',').map(function (mon) {
-					return {species: mon};
+					return { species: mon };
 				});
 				team.team = Storage.packTeam(mons);
 				Storage.teams.unshift(team);
@@ -694,7 +693,7 @@ Storage.getPackedTeams = function () {
 	var packedTeams = '';
 	try {
 		packedTeams = localStorage.getItem('showdown_teams');
-	} catch (e) {}
+	} catch (e) { }
 	if (packedTeams) return packedTeams;
 	return Storage.packAllTeams(this.teams);
 };
@@ -711,7 +710,7 @@ Storage.saveAllTeams = function () {
 	this.saveTeams();
 };
 
-Storage.deleteAllTeams = function () {};
+Storage.deleteAllTeams = function () { };
 
 /*********************************************************
  * Team importing and exporting
@@ -854,7 +853,7 @@ Storage.packTeam = function (team) {
 		}
 
 		// level
-		if (set.level && set.level != 100) {
+		if (set.level && set.level !== 100) {
 			buf += '|' + set.level;
 		} else {
 			buf += '|';
@@ -896,7 +895,8 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = buf.substring(i, j) || set.name;
+		var species = Dex.species.get(buf.substring(i, j) || set.name);
+		set.species = species.name;
 		i = j + 1;
 
 		// item
@@ -907,7 +907,6 @@ Storage.fastUnpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
-		var species = Dex.species.get(set.species);
 		if (species.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
 		set.ability = (species.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability] || '!!!ERROR!!!' : ability);
 		i = j + 1;
@@ -921,6 +920,11 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
@@ -938,7 +942,7 @@ Storage.fastUnpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1013,7 +1017,8 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
+		var species = Dex.species.get(buf.substring(i, j) || set.name);
+		set.species = species.name;
 		i = j + 1;
 
 		// item
@@ -1024,8 +1029,7 @@ Storage.unpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = Dex.abilities.get(buf.substring(i, j)).name;
-		var species = Dex.species.get(set.species);
-		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
+		set.ability = (species.abilities && ability in { '': 1, 0: 1, 1: 1, H: 1 } ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -1039,6 +1043,11 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
@@ -1056,7 +1065,7 @@ Storage.unpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1107,7 +1116,7 @@ Storage.unpackTeam = function (buf) {
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			set.teraType = misc[5];
 		}
-		if (j < 0) break;
+		if (j < 0 || buf.indexOf('|', j) < 0) break;
 		i = j + 1;
 	}
 
@@ -1239,7 +1248,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet = null;
 			teams.push(Storage.unpackLine(line));
 		} else if (!curSet) {
-			curSet = {name: '', species: '', gender: ''};
+			curSet = { name: '', species: '', gender: '' };
 			team.push(curSet);
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
@@ -1296,7 +1305,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
-			curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			curSet.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			for (var j = 0; j < evLines.length; j++) {
 				var evLine = $.trim(evLines[j]);
 				var spaceIndex = evLine.indexOf(' ');
@@ -1309,7 +1318,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
 			var ivLines = line.split(' / ');
-			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			curSet.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1397,7 +1406,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		if (curSet.ability) {
 			text += 'Ability: ' + curSet.ability + "  \n";
 		}
-		if (curSet.level && curSet.level != 100) {
+		if (curSet.level && curSet.level !== 100) {
 			text += 'Level: ' + curSet.level + "  \n";
 		}
 		if (curSet.shiny) {
@@ -1420,7 +1429,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		}
 		if (gen === 9) {
 			var species = Dex.species.get(curSet.species);
-			text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
+			text += 'Tera Type: ' + (curSet.teraType || species.requiredTeraType || species.types[0]) + "  \n";
 		}
 		if (!hidestats) {
 			var first = true;
@@ -1472,7 +1481,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 				}
 				if (!defaultIvs) {
 					for (var stat in BattleStatNames) {
-						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
+						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
 						if (first) {
 							text += 'IVs: ';
 							first = false;
@@ -1509,7 +1518,7 @@ Storage.initDirectory = function () {
 	var self = this;
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
-	if (!(dir.charAt(dir.length - 1) in {'/': 1, '\\': 1})) dir += '/';
+	if (!(dir.charAt(dir.length - 1) in { '/': 1, '\\': 1 })) dir += '/';
 	fs.stat(dir + 'Documents', function (err, stats) {
 		if (err || !stats.isDirectory()) {
 			fs.stat(dir + 'My Documents', function (err, stats) {
@@ -1535,8 +1544,8 @@ Storage.initDirectory2 = function () {
 				if (err) return;
 				if (stats.isDirectory()) {
 					self.dir = self.documentsDir + 'My Games/Pokemon Showdown/';
-					fs.mkdir(self.dir + 'Logs', function () {});
-					fs.mkdir(self.dir + 'Teams', function () {});
+					fs.mkdir(self.dir + 'Logs', function () { });
+					fs.mkdir(self.dir + 'Teams', function () { });
 
 					// load teams
 					self.nwLoadTeams();
@@ -1735,7 +1744,7 @@ Storage.nwDeleteTeamFile = function (filename, callback) {
 	var self = this;
 	fs.unlink(this.dir + 'Teams/' + filename, function (err) {
 		var directory = filename.split('/').slice(0, -1).join('/');
-		fs.rmdir(directory, function () {});
+		fs.rmdir(directory, function () { });
 
 		self.nwTeamsLeft--;
 		if (!self.nwTeamsLeft) {
@@ -1758,20 +1767,20 @@ Storage.nwSaveTeam = function (team) {
 	var filename = folder + '/' + splitFilename[splitFilename.length - 1];
 	try {
 		fs.mkdirSync(this.dir + 'Teams/' + folder);
-	} catch (e) {}
+	} catch (e) { }
 
 	if (team.filename && filename !== team.filename) {
 		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n'), function () {});
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n'), function () { });
 };
 
 Storage.nwSaveTeams = function () {
 	// should never happen
 	try {
 		console.log("nwSaveTeams called: " + new Error().stack);
-	} catch (e) {}
+	} catch (e) { }
 };
 
 Storage.nwDeleteTeam = function (team) {
@@ -1780,7 +1789,7 @@ Storage.nwDeleteTeam = function (team) {
 		var oldDirectory = oldFilename.split('/').slice(0, -1).join('/');
 		if (oldDirectory) oldDirectory = this.dir + 'Teams/' + oldDirectory;
 		fs.unlink(this.dir + 'Teams/' + oldFilename, function () {
-			if (oldDirectory) fs.rmdir(oldDirectory, function () {});
+			if (oldDirectory) fs.rmdir(oldDirectory, function () { });
 		});
 	}
 };
@@ -1800,7 +1809,7 @@ Storage.nwDoSaveAllTeams = function () {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n'), function () {});
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n'), function () { });
 	}
 };
 
@@ -1860,7 +1869,7 @@ Storage.nwLogChat = function (roomid, line) {
 	var timestamp = '[' + hours + ':' + minutes + '] ';
 
 	if (!this.chatLogStreams[roomid]) {
-		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags: 'a'});
+		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', { flags: 'a' });
 		this.chatLogStreams[roomid].write('\n\n\nLog starting ' + now + '\n\n');
 	}
 	this.chatLogStreams[roomid].write(timestamp + line + '\n');
@@ -1868,8 +1877,8 @@ Storage.nwLogChat = function (roomid, line) {
 
 // saving
 
-Storage.startLoggingChat = function () {};
-Storage.stopLoggingChat = function () {};
-Storage.logChat = function () {};
+Storage.startLoggingChat = function () { };
+Storage.stopLoggingChat = function () { };
+Storage.logChat = function () { };
 
 Storage.initialize();
