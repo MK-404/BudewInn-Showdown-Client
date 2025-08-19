@@ -111,16 +111,48 @@
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
 		},
-		updateRoomList: function () {
+		updateRoomList: async function () {
 			var rooms = app.roomsData;
 
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
-				var leftSide = '<button class="button" name="finduser" title="Find an online user"><span class="pixelated usercount" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms." ></span><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button> ';
+
+				if (app.user.attributes.named) {
+					try {
+						const preJson = await fetch("https://api.budewinn.it/mypokemon/" + app.user.attributes.userid)
+						const mypokemon = await preJson.json()
+
+						const imageSrc = `https://budewinn.it/sprites/gen5ani/${mypokemon}.gif`;
+						const altImageSrc = `https://budewinn.it/sprites/gen5/${mypokemon}.png`;
+
+						const checkImage = async (url) => {
+							try {
+								const response = await fetch(url);
+								if (!response.ok) {
+									throw new Error('Image not found');
+								}
+							} catch (err) {
+								return false;
+							}
+							return true;
+						};
+
+						const isImageValid = await checkImage(imageSrc);
+						const finalImageSrc = isImageValid ? imageSrc : altImageSrc;
+
+						var leftSide = '<button class="button" name="finduser" title="Find an online user"><div class="mypokemon pixelated" title="" style="background:url(' + finalImageSrc + ') no-repeat;background-size: contain;background-repeat: no-repeat;background-position: center"></div><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button> ';
+					} catch (err) {
+						var leftSide = '<button class="button" name="finduser" title="Find an online user"><span class="pixelated usercount" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms." ></span><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button> ';
+					}
+				} else var leftSide = '<button class="button" name="finduser" title="Find an online user"><span class="pixelated usercount" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms." ></span><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button> ';
+
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
+
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
+
+			this.$('.sdlink').html('<img src="https://cdn.discordapp.com/attachments/825074965384527922/1259486851111325786/image.png?ex=668bdc09&is=668a8a89&hm=7efaa9383709dded0588bca7e3194ec4858df70be80139af0785713f5956ff04&"></img>');
 
 			if (rooms.pspl) {
 				for (var i = 0; i < rooms.pspl.length; i++) {
@@ -196,10 +228,10 @@
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toID(target) === 'zarel') {
-					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
+					app.addPopup(Popup, { htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?" });
 					return;
 				}
-				app.addPopup(UserPopup, {name: target});
+				app.addPopup(UserPopup, { name: target });
 			});
 		},
 		refresh: function () {
@@ -243,9 +275,11 @@
 				return;
 			}
 			var self = this;
-			app.addPopup(FormatPopup, {format: format, sourceEl: button, selectType: 'watch', onselect: function (newFormat) {
-				self.changeFormat(newFormat);
-			}});
+			app.addPopup(FormatPopup, {
+				format: format, sourceEl: button, selectType: 'watch', onselect: function (newFormat) {
+					self.changeFormat(newFormat);
+				}
+			});
 		},
 		changeFormat: function (format) {
 			this.format = format;

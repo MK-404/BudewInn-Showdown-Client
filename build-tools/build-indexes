@@ -9,14 +9,14 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('caches/BudewInn-Showdown-Server')) {
-	child_process.execSync('git clone https://github.com/MK-404/BudewInn-Showdown-Server.git', {
+	/*child_process.execSync('git clone https://github.com/MK-404/BudewInn-Showdown-Server.git', {
 		cwd: 'caches',
-	});
+	});*/
 }
 
-process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', {cwd: 'caches/BudewInn-Showdown-Server'});
-child_process.execSync('npm run build', {cwd: 'caches/BudewInn-Showdown-Server'});
+/*process.stdout.write("Syncing data from Git repository... ");
+child_process.execSync('git pull', { cwd: 'caches/BudewInn-Showdown-Server' });*/
+child_process.execSync('npm run build', { cwd: 'caches/BudewInn-Showdown-Server' });
 console.log("DONE");
 
 const Dex = require('../caches/BudewInn-Showdown-Server/dist/sim/dex').Dex;
@@ -262,11 +262,11 @@ function requireNoCache(pathSpec) {
 		const id = entry[0];
 		let name = '';
 		switch (entry[1]) {
-		case 'pokemon': name = Dex.species.get(id).name; break;
-		case 'move': name = Dex.moves.get(id).name; break;
-		case 'item': name = Dex.items.get(id).name; break;
-		case 'ability': name = Dex.abilities.get(id).name; break;
-		case 'article': name = BattleArticleTitles[id] || ''; break;
+			case 'pokemon': name = Dex.species.get(id).name; break;
+			case 'move': name = Dex.moves.get(id).name; break;
+			case 'item': name = Dex.items.get(id).name; break;
+			case 'ability': name = Dex.abilities.get(id).name; break;
+			case 'article': name = BattleArticleTitles[id] || ''; break;
 		}
 		let res = '';
 		let nonAlnum = 0;
@@ -579,7 +579,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, ZU: 1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in { OU: 1, AG: 1, Uber: 1, UU: 1, RU: 1, NU: 1, PU: 1, ZU: 1, NFE: 1, LC: 1, DOU: 1, DUU: 1, "(DUU)": 1, New: 1, Legal: 1, Regular: 1, "Restricted Legendary": 1, "CAP LC": 1 }) {
 				let usedTier = tier;
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
@@ -640,189 +640,189 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
-			case 'leftovers':
-			case 'lifeorb':
-			case 'choiceband':
-			case 'choicescarf':
-			case 'choicespecs':
-			case 'eviolite':
-			case 'assaultvest':
-			case 'focussash':
-			case 'powerherb':
-			case 'rockyhelmet':
-			case 'heavydutyboots':
-			case 'expertbelt':
-			case 'salacberry':
-				greatItems.push(id);
-				break;
-			case 'mentalherb':
-				if (genNum > 4) greatItems.push(id);
-				else poorItems.push(id);
-				break;
-			case 'lumberry':
-				if (genNum === 2 || genNum > 6) goodItems.push(id);
-				else greatItems.push(id);
-				break;
-			case 'sitrusberry':
-				if (genNum > 6) goodItems.push(id);
-				else if (genNum > 3 && genNum < 7) greatItems.push(id);
-				else poorItems.push(id);
-				break;
-			case 'aguavberry':
-			case 'figyberry':
-			case 'iapapaberry':
-			case 'magoberry':
-			case 'wikiberry':
-				if (genNum >= 7) greatItems.push(id);
-				else poorItems.push(id);
-				break;
-			case 'berryjuice':
-				if (genNum === 2) poorItems.push(id);
-				else goodItems.push(id);
-				break;
-			case 'dragonfang':
-				if (genNum === 2) badItems.push(id);
-				else goodItems.push(id);
-				break;
-			case 'dragonscale':
-				if (genNum === 2) goodItems.push(id);
-				else badItems.push(id);
-				break;
-			case 'mail':
-				if (genNum >= 6) unreleasedItems.push(id);
-				else goodItems.push(id);
-				break;
-			// Legendaries
-			case 'adamantorb':
-			case 'griseousorb':
-			case 'lustrousorb':
-			case 'blueorb':
-			case 'redorb':
-			case 'souldew':
-			// Other
-			// fallsthrough
-			case 'stick':
-			case 'thickclub':
-			case 'lightball':
-			case 'luckypunch':
-			case 'quickpowder':
-			case 'metalpowder':
-			case 'deepseascale':
-			case 'deepseatooth':
-				specificItems.push(id);
-				break;
-			// Fling-only
-			case 'rarebone':
-			case 'belueberry':
-			case 'blukberry':
-			case 'cornnberry':
-			case 'durinberry':
-			case 'hondewberry':
-			case 'magostberry':
-			case 'nanabberry':
-			case 'nomelberry':
-			case 'pamtreberry':
-			case 'pinapberry':
-			case 'pomegberry':
-			case 'qualotberry':
-			case 'rabutaberry':
-			case 'razzberry':
-			case 'spelonberry':
-			case 'tamatoberry':
-			case 'watmelberry':
-			case 'wepearberry':
-			case 'energypowder':
-			case 'electirizer':
-			case 'oldamber':
-			case 'dawnstone':
-			case 'dubiousdisc':
-			case 'duskstone':
-			case 'firestone':
-			case 'icestone':
-			case 'leafstone':
-			case 'magmarizer':
-			case 'moonstone':
-			case 'ovalstone':
-			case 'prismscale':
-			case 'protector':
-			case 'reapercloth':
-			case 'sachet':
-			case 'shinystone':
-			case 'sunstone':
-			case 'thunderstone':
-			case 'upgrade':
-			case 'waterstone':
-			case 'whippeddream':
-			case 'bottlecap':
-			case 'goldbottlecap':
-			case 'galaricacuff':
-			case 'chippedpot':
-			case 'crackedpot':
-			case 'galaricawreath':
-				badItems.push(id);
-				break;
-			// outclassed items
-			case 'aspearberry':
-			case 'bindingband':
-			case 'cheriberry':
-			case 'destinyknot':
-			case 'enigmaberry':
-			case 'floatstone':
-			case 'ironball':
-			case 'jabocaberry':
-			case 'oranberry':
-			case 'machobrace':
-			case 'pechaberry':
-			case 'persimberry':
-			case 'poweranklet':
-			case 'powerband':
-			case 'powerbelt':
-			case 'powerbracer':
-			case 'powerlens':
-			case 'powerweight':
-			case 'rawstberry':
-			case 'ringtarget':
-			case 'rowapberry':
-			case 'bigroot':
-			case 'focusband':
-			// gen 2
-			case 'psncureberry':
-			case 'przcureberry':
-			case 'burntberry':
-			case 'bitterberry':
-			case 'iceberry':
-			case 'berry':
-				poorItems.push(id);
-				break;
-			default:
-				if (
-					item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || item.name.startsWith("Fossilized ") ||
-					item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
-				) {
+				case 'leftovers':
+				case 'lifeorb':
+				case 'choiceband':
+				case 'choicescarf':
+				case 'choicespecs':
+				case 'eviolite':
+				case 'assaultvest':
+				case 'focussash':
+				case 'powerherb':
+				case 'rockyhelmet':
+				case 'heavydutyboots':
+				case 'expertbelt':
+				case 'salacberry':
+					greatItems.push(id);
+					break;
+				case 'mentalherb':
+					if (genNum > 4) greatItems.push(id);
+					else poorItems.push(id);
+					break;
+				case 'lumberry':
+					if (genNum === 2 || genNum > 6) goodItems.push(id);
+					else greatItems.push(id);
+					break;
+				case 'sitrusberry':
+					if (genNum > 6) goodItems.push(id);
+					else if (genNum > 3 && genNum < 7) greatItems.push(id);
+					else poorItems.push(id);
+					break;
+				case 'aguavberry':
+				case 'figyberry':
+				case 'iapapaberry':
+				case 'magoberry':
+				case 'wikiberry':
+					if (genNum >= 7) greatItems.push(id);
+					else poorItems.push(id);
+					break;
+				case 'berryjuice':
+					if (genNum === 2) poorItems.push(id);
+					else goodItems.push(id);
+					break;
+				case 'dragonfang':
+					if (genNum === 2) badItems.push(id);
+					else goodItems.push(id);
+					break;
+				case 'dragonscale':
+					if (genNum === 2) goodItems.push(id);
+					else badItems.push(id);
+					break;
+				case 'mail':
+					if (genNum >= 6) unreleasedItems.push(id);
+					else goodItems.push(id);
+					break;
+				// Legendaries
+				case 'adamantorb':
+				case 'griseousorb':
+				case 'lustrousorb':
+				case 'blueorb':
+				case 'redorb':
+				case 'souldew':
+				// Other
+				// fallsthrough
+				case 'stick':
+				case 'thickclub':
+				case 'lightball':
+				case 'luckypunch':
+				case 'quickpowder':
+				case 'metalpowder':
+				case 'deepseascale':
+				case 'deepseatooth':
+					specificItems.push(id);
+					break;
+				// Fling-only
+				case 'rarebone':
+				case 'belueberry':
+				case 'blukberry':
+				case 'cornnberry':
+				case 'durinberry':
+				case 'hondewberry':
+				case 'magostberry':
+				case 'nanabberry':
+				case 'nomelberry':
+				case 'pamtreberry':
+				case 'pinapberry':
+				case 'pomegberry':
+				case 'qualotberry':
+				case 'rabutaberry':
+				case 'razzberry':
+				case 'spelonberry':
+				case 'tamatoberry':
+				case 'watmelberry':
+				case 'wepearberry':
+				case 'energypowder':
+				case 'electirizer':
+				case 'oldamber':
+				case 'dawnstone':
+				case 'dubiousdisc':
+				case 'duskstone':
+				case 'firestone':
+				case 'icestone':
+				case 'leafstone':
+				case 'magmarizer':
+				case 'moonstone':
+				case 'ovalstone':
+				case 'prismscale':
+				case 'protector':
+				case 'reapercloth':
+				case 'sachet':
+				case 'shinystone':
+				case 'sunstone':
+				case 'thunderstone':
+				case 'upgrade':
+				case 'waterstone':
+				case 'whippeddream':
+				case 'bottlecap':
+				case 'goldbottlecap':
+				case 'galaricacuff':
+				case 'chippedpot':
+				case 'crackedpot':
+				case 'galaricawreath':
 					badItems.push(id);
-				} else if (item.name.startsWith("TR")) {
-					badItems.push(id);
-				} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
-					if (genNum >= 6) {
-						unreleasedItems.push(id);
-					} else if (item.name === "Flying Gem") {
-						greatItems.push(id);
+					break;
+				// outclassed items
+				case 'aspearberry':
+				case 'bindingband':
+				case 'cheriberry':
+				case 'destinyknot':
+				case 'enigmaberry':
+				case 'floatstone':
+				case 'ironball':
+				case 'jabocaberry':
+				case 'oranberry':
+				case 'machobrace':
+				case 'pechaberry':
+				case 'persimberry':
+				case 'poweranklet':
+				case 'powerband':
+				case 'powerbelt':
+				case 'powerbracer':
+				case 'powerlens':
+				case 'powerweight':
+				case 'rawstberry':
+				case 'ringtarget':
+				case 'rowapberry':
+				case 'bigroot':
+				case 'focusband':
+				// gen 2
+				case 'psncureberry':
+				case 'przcureberry':
+				case 'burntberry':
+				case 'bitterberry':
+				case 'iceberry':
+				case 'berry':
+					poorItems.push(id);
+					break;
+				default:
+					if (
+						item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || item.name.startsWith("Fossilized ") ||
+						item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
+					) {
+						badItems.push(id);
+					} else if (item.name.startsWith("TR")) {
+						badItems.push(id);
+					} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
+						if (genNum >= 6) {
+							unreleasedItems.push(id);
+						} else if (item.name === "Flying Gem") {
+							greatItems.push(id);
+						} else {
+							goodItems.push(id);
+						}
+					} else if (item.name.endsWith(" Drive")) {
+						specificItems.push(id);
+					} else if (item.name.endsWith(" Memory")) {
+						specificItems.push(id);
+					} else if (item.name.startsWith("Rusted")) {
+						specificItems.push(id);
+					} else if (item.itemUser) {
+						specificItems.push(id);
+					} else if (item.megaStone) {
+						specificItems.push(id);
 					} else {
 						goodItems.push(id);
 					}
-				} else if (item.name.endsWith(" Drive")) {
-					specificItems.push(id);
-				} else if (item.name.endsWith(" Memory")) {
-					specificItems.push(id);
-				} else if (item.name.startsWith("Rusted")) {
-					specificItems.push(id);
-				} else if (item.itemUser) {
-					specificItems.push(id);
-				} else if (item.megaStone) {
-					specificItems.push(id);
-				} else {
-					goodItems.push(id);
-				}
 			}
 		}
 		items.push(...greatItems);
@@ -1209,6 +1209,7 @@ process.stdout.write("Building `data/pokedex.js`... ");
 
 {
 	const Pokedex = requireNoCache('../caches/BudewInn-Showdown-Server/dist/data/pokedex.js').Pokedex;
+	console.log(Pokedex);
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Dex.data.FormatsData[id]) {

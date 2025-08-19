@@ -56,7 +56,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, { name: name, sourceEl: e.currentTarget });
 		},
 		toggleMute: function () {
 			var muted = !Dex.prefs('mute');
@@ -79,50 +79,50 @@
 				if (title) buf += ' title="' + BattleLog.escapeHTML(title) + '"';
 			}
 			switch (room ? room.type : id) {
-			case '':
-			case 'mainmenu':
-				return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
-			case 'teambuilder':
-				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
-			case 'ladder':
-				return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><button class="closebutton" name="closeRoom" value="' + 'ladder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
-			case 'battles':
-				return buf + '><i class="fa fa-caret-square-o-right"></i> <span>Battles</span></a><button class="closebutton" name="closeRoom" value="' + 'battles" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
-			case 'rooms':
-				return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
-			case 'battle':
-				var name = BattleLog.escapeHTML(room.title);
-				var offset = id.startsWith('game-') ? 5 : 7;
-				var idChunks = id.substr(offset).split('-');
-				var formatid;
-				if (idChunks.length <= 1) {
-					if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
-				} else {
-					formatid = idChunks[0];
-				}
-				if (!name) {
-					var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
-					var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
-					if (p1 && p2) {
-						name = '' + BattleLog.escapeHTML(p1) + ' v. ' + BattleLog.escapeHTML(p2);
-					} else if (p1 || p2) {
-						name = '' + BattleLog.escapeHTML(p1) + BattleLog.escapeHTML(p2);
+				case '':
+				case 'mainmenu':
+					return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
+				case 'teambuilder':
+					return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
+				case 'ladder':
+					return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><button class="closebutton" name="closeRoom" value="' + 'ladder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
+				case 'battles':
+					return buf + '><i class="fa fa-caret-square-o-right"></i> <span>Battles</span></a><button class="closebutton" name="closeRoom" value="' + 'battles" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
+				case 'rooms':
+					return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				case 'battle':
+					var name = BattleLog.escapeHTML(room.title);
+					var offset = id.startsWith('game-') ? 5 : 7;
+					var idChunks = id.substr(offset).split('-');
+					var formatid;
+					if (idChunks.length <= 1) {
+						if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
 					} else {
-						name = '(empty room)';
+						formatid = idChunks[0];
 					}
-				}
-				return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
-			case 'chat':
-				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
-			case 'html':
-			default:
-				if (room.title && room.title.charAt(0) === '[') {
-					var closeBracketIndex = room.title.indexOf(']');
-					if (closeBracketIndex > 0) {
-						return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + BattleLog.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+					if (!name) {
+						var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
+						var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
+						if (p1 && p2) {
+							name = '' + BattleLog.escapeHTML(p1) + ' v. ' + BattleLog.escapeHTML(p2);
+						} else if (p1 || p2) {
+							name = '' + BattleLog.escapeHTML(p1) + BattleLog.escapeHTML(p2);
+						} else {
+							name = '(empty room)';
+						}
 					}
-				}
-				return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				case 'chat':
+					return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				case 'html':
+				default:
+					if (room.title && room.title.charAt(0) === '[') {
+						var closeBracketIndex = room.title.indexOf(']');
+						if (closeBracketIndex > 0) {
+							return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + BattleLog.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+						}
+					}
+					return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			}
 		},
 		updateTabbar: function () {
@@ -224,7 +224,7 @@
 			e.preventDefault();
 			var $target = $(e.currentTarget);
 			if ($target.hasClass('minilogo')) {
-				app.addPopup(TabListPopup, {sourceEl: e.currentTarget});
+				app.addPopup(TabListPopup, { sourceEl: e.currentTarget });
 				return;
 			}
 			var id = $target.attr('href');
@@ -390,15 +390,15 @@
 		updateVolume: function (e) {
 			var val = Number(e.currentTarget.value);
 			switch (e.currentTarget.name) {
-			case 'effectvolume':
-				this.setEffectVolume(val);
-				break;
-			case 'musicvolume':
-				this.setMusicVolume(val);
-				break;
-			case 'notifvolume':
-				this.setNotifVolume(val);
-				break;
+				case 'effectvolume':
+					this.setEffectVolume(val);
+					break;
+				case 'musicvolume':
+					this.setMusicVolume(val);
+					break;
+				case 'notifvolume':
+					this.setNotifVolume(val);
+					break;
 			}
 		},
 		setMute: function (e) {
@@ -477,7 +477,7 @@
 			var settings = app.user.get('settings');
 
 			var buf = '';
-			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" style="vertical-align:middle;cursor:pointer" onerror="this.onerror=null; this.remove();"/>' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
+			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button class="button" name="avatars">Normal Avatar</button>  <button class="button" name="avatarsinn">Custom Avatar</button>  <button class="button" name="avatarsgym">Gym</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
@@ -548,11 +548,11 @@
 			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments" class="button"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
 			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
-			buf += '<p><label class="optlabel">Nessuno mi vede: <button name="secretavatar">Secret Avatar</button></label></p>';	
+			buf += '<p><label class="optlabel">Nessuno mi vede: <button name="secretavatar">Secret Avatar</button></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting" class="button">Text formatting</button></label></p>';
 
-			
+
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
@@ -672,7 +672,7 @@
 		},
 		secretavatar: function () {
 			app.addPopup(SecretAvatar);
-		},		
+		},
 		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
@@ -728,7 +728,7 @@
 			buf += '<p>Scegli un avatar o <button name="close" class="button">Chiudi</button></p>';
 
 			buf += '<div class="avatarlist">';
-			for (var i = 1; i <= 293; i++) { //TODO MK, poi devo sistemare il class="button" negli altri menu
+			for (var i = 1; i <= 293; i++) {
 				if (i === 162 || i === 168) continue;
 				var offset = '-' + (((i - 1) % 16) * 80 + 1) + 'px -' + (Math.floor((i - 1) / 16) * 80 + 1) + 'px';
 				buf += '<button name="setAvatar" value="' + i + '" style="background-position:' + offset + '" class="option pixelated' + (i === cur ? ' cur' : '') + '" title="/avatar ' + i + '"></button>';
@@ -749,22 +749,27 @@
 			this.close();
 		}
 	});
-	
+
 	var AvatarsPopupInn = this.AvatarsPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function () {
-			var cur = +app.user.get('avatar');
+		initialize: async function () {
+			var cur = +app.user.get('avatar'); //da implementare
 			var buf = '';
 			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
+			
 
 			buf += '<div class="avatarlistinn">';
-			for (var i = 9000; i <= 9200; i++) {
-				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
-			}
+
+			const avatarList = await fetch("https://api.budewinn.it/avatar")
+			const avatarListJson = await avatarList.json()
+
+			for (avatar of avatarListJson) buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="background:url(https://api.budewinn.it/avatar/' + avatar + '.png) no-repeat"></button>';
+			
 			buf += '</div><div style="clear:left"></div>';
 
 			buf += '<p><button name="close">Cancel</button></p>';
-			this.$el.html(buf).css('max-width', 740);
+
+			this.$el.html(buf).attr('style', ' max-width: 780px; position:absolute; margin:0px; top: 151px; right: 10px');
 		},
 		setAvatar: function (avatar) {
 			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
@@ -777,7 +782,7 @@
 			this.close();
 		}
 	});
-	
+
 	var AvatarsPopupGym = Popup.extend({
 		type: 'semimodal',
 		initialize: function () {
@@ -786,13 +791,23 @@
 			buf += '<p>Scegli un avatar o <button name="close">Chiudi</button></p>';
 
 			buf += '<div class="avatarlistinn">';
-			for (var i = 10000; i <= 10018; i++) {
-				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
+			buf += '<div class="avatarlistgen9" style="margin: 10px;padding: 12px;font-weight: bold;box-shadow: 0 4px 8px rgb(255 255 255 / 76%);overflow: hidden;border-radius: 35px;"><p style="font-size: large;">Paldea</p>';
+
+			for (avatar of AvatarsGymList.gen9) {
+				buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
 			}
-			buf += '</div><div style="clear:left"></div>';
+
+			buf += '</div>'
+			buf += '<div class="avatarlistgen8" style="margin: 10px;padding: 12px;font-weight: bold;box-shadow: 0 4px 8px rgb(255 255 255 / 76%);overflow: hidden;border-radius: 35px;"><p style="font-size: large;">Galar</p>';
+
+			for (avatar of AvatarsGymList.gen8) {
+				buf += '<button class="option pixelated" name="setAvatar" value="'+avatar+'" title="/avatar ' + avatar + '" style="padding:1px;background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
+			}
+
+			buf += '</div></div><div style="clear:left"></div>';
 
 			buf += '<p><button name="close">Cancel</button></p>';
-			this.$el.html(buf).css('max-width', 820);
+			this.$el.html(buf).css('max-width', 760);
 		},
 		setAvatar: function (avatar) {
 			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
@@ -804,8 +819,8 @@
 			Storage.prefs('avatar', avatar);
 			this.close();
 		}
-	});	
-	
+	});
+
 	var SecretAvatar = Popup.extend({
 		type: 'semimodal',
 		initialize: function () {
@@ -815,12 +830,12 @@
 
 			buf += '<div class="avatarlistinn">';
 			for (var i = 9201; i <= 9220; i++) {
-				buf += '<button name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '"><img src="https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i +'.png" onerror="this.onerror=null; this.remove();"></img></button>';
+				buf += '<button class="option pixelated" name="setAvatar" value="' + i + (i === cur ? ' class="cur"' : '') + '" title="/avatar ' + i + '" style="background:url(https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/sprites/trainers/' + i + '.png) no-repeat"></button>';
 			}
 			buf += '</div><div style="clear:left"></div>';
 
 			buf += '<p><button name="close">Cancel</button></p>';
-			this.$el.html(buf).css('max-width', 740);
+			this.$el.html(buf).css('max-width', 780);
 		},
 		setAvatar: function (avatar) {
 			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
@@ -834,7 +849,7 @@
 		}
 	});
 
-	
+
 	var TabListPopup = this.TabListPopup = Popup.extend({
 		type: 'semimodal',
 		renderRooms: function (rooms) {
@@ -943,7 +958,7 @@
 				popup.$('.cur').removeClass('cur');
 				Storage.bg.set(e.target.result, 'custom');
 			} else {
-				app.addPopup(ConfirmBackgroundPopup, {bgUrl: e.target.result});
+				app.addPopup(ConfirmBackgroundPopup, { bgUrl: e.target.result });
 			}
 		};
 		reader.readAsDataURL(file);

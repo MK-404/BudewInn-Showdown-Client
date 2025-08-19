@@ -178,8 +178,8 @@ function toId() {
 				Storage.prefs('serversettings', self.get('settings'));
 			});
 
-			var replaceList = {'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ'};
-			var normalizeList = {'A': 'ÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄ', 'B': 'ḂḄḆ', 'C': 'ĆĈĊČÇḈƇ', 'D': 'ḊĎḌḐḒḎ', 'E': 'ÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚ', 'F': 'Ḟ', 'G': 'ǴĜḠĞĠǦĢǤƓ', 'H': 'ĤḢḦȞḤḨḪ', 'I': 'ÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬ', 'J': 'Ĵ', 'K': 'ḰǨḲĶḴƘⱩꝀꝂꝄ', 'L': 'ĿĹĽḶḸĻḼḺŁȽⱢⱠꝈ', 'M': 'ḾṀṂ', 'N': 'ǸŃÑṄŇṆŅṊṈ', 'O': 'ÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘ', 'P': 'ṔṖ', 'Q': '', 'R': 'ŔṘŘȐȒṚṜŖṞ', 'S': 'ŚṤŜṠŠṦṢṨȘŞⱾ', 'T': 'ṪŤṬȚŢṰṮ', 'U': 'ÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴ', 'V': 'ṼṾ', 'W': 'ẀẂŴẆẄẈ', 'X': 'ẊẌ', 'Y': 'ỲÝŶỸȲẎŸỶỴƳ', 'Z': 'ŹẐŻŽẒẔ', 'a': 'ẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁ', 'b': 'ḃḅḇ', 'c': 'ćĉċčçḉƈ', 'd': 'ḋďḍḑḓḏ', 'e': 'èéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛ', 'f': '', 'g': 'ǵĝḡğġǧģǥ', 'h': 'ĥḣḧȟḥḩḫẖ', 'i': 'ìíîĩīĭïḯỉǐȉȋịįḭ', 'j': 'ĵǰ', 'k': 'ḱǩḳķḵ', 'l': 'ŀĺľḷḹļḽḻ', 'm': 'ḿṁṃ', 'n': 'ǹńñṅňṇņṋṉ', 'o': 'òóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộ', 'p': 'ṕṗ', 'q': '', 'r': 'ŕṙřȑȓṛṝŗṟ', 's': 'śṥŝṡšṧṣṩșşȿ', 't': 'ṫẗťṭțţṱṯ', 'u': 'ùúûũṹūṻŭüǜǘǖǚủůűǔȕȗụṳ', 'v': 'ṽṿ', 'w': 'ẁẃŵẇẅẘẉ', 'x': 'ẋẍ', 'y': 'ỳýŷỹȳẏÿỷẙỵƴ', 'z': 'źẑżžẓẕ'};
+			var replaceList = { 'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ' };
+			var normalizeList = { 'A': 'ÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄ', 'B': 'ḂḄḆ', 'C': 'ĆĈĊČÇḈƇ', 'D': 'ḊĎḌḐḒḎ', 'E': 'ÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚ', 'F': 'Ḟ', 'G': 'ǴĜḠĞĠǦĢǤƓ', 'H': 'ĤḢḦȞḤḨḪ', 'I': 'ÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬ', 'J': 'Ĵ', 'K': 'ḰǨḲĶḴƘⱩꝀꝂꝄ', 'L': 'ĿĹĽḶḸĻḼḺŁȽⱢⱠꝈ', 'M': 'ḾṀṂ', 'N': 'ǸŃÑṄŇṆŅṊṈ', 'O': 'ÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘ', 'P': 'ṔṖ', 'Q': '', 'R': 'ŔṘŘȐȒṚṜŖṞ', 'S': 'ŚṤŜṠŠṦṢṨȘŞⱾ', 'T': 'ṪŤṬȚŢṰṮ', 'U': 'ÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴ', 'V': 'ṼṾ', 'W': 'ẀẂŴẆẄẈ', 'X': 'ẊẌ', 'Y': 'ỲÝŶỸȲẎŸỶỴƳ', 'Z': 'ŹẐŻŽẒẔ', 'a': 'ẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁ', 'b': 'ḃḅḇ', 'c': 'ćĉċčçḉƈ', 'd': 'ḋďḍḑḓḏ', 'e': 'èéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛ', 'f': '', 'g': 'ǵĝḡğġǧģǥ', 'h': 'ĥḣḧȟḥḩḫẖ', 'i': 'ìíîĩīĭïḯỉǐȉȋịįḭ', 'j': 'ĵǰ', 'k': 'ḱǩḳķḵ', 'l': 'ŀĺľḷḹļḽḻ', 'm': 'ḿṁṃ', 'n': 'ǹńñṅňṇņṋṉ', 'o': 'òóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộ', 'p': 'ṕṗ', 'q': '', 'r': 'ŕṙřȑȓṛṝŗṟ', 's': 'śṥŝṡšṧṣṩșşȿ', 't': 'ṫẗťṭțţṱṯ', 'u': 'ùúûũṹūṻŭüǜǘǖǚủůűǔȕȗụṳ', 'v': 'ṽṿ', 'w': 'ẁẃŵẇẅẘẉ', 'x': 'ẋẍ', 'y': 'ỳýŷỹȳẏÿỷẙỵƴ', 'z': 'źẑżžẓẕ' };
 			for (var i in replaceList) {
 				replaceList[i] = new RegExp('[' + replaceList[i] + ']', 'g');
 			}
@@ -193,17 +193,17 @@ function toId() {
 			var settings = _.clone(this.get('settings'));
 			if (settings[setting] !== value) {
 				switch (setting) {
-				case 'blockPMs':
-					app.send(value ? '/blockpms ' + value : '/unblockpms');
-					break;
-				case 'blockChallenges':
-					app.send(value ? '/blockchallenges' : '/unblockchallenges');
-					break;
-				case 'language':
-					app.send('/language ' + value);
-					break;
-				default:
-					throw new TypeError('Unknown setting:' + setting);
+					case 'blockPMs':
+						app.send(value ? '/blockpms ' + value : '/unblockpms');
+						break;
+					case 'blockChallenges':
+						app.send(value ? '/blockchallenges' : '/unblockchallenges');
+						break;
+					case 'language':
+						app.send('/language ' + value);
+						break;
+					default:
+						throw new TypeError('Unknown setting:' + setting);
 				}
 				// Optimistically update, might get corrected by the |updateuser| response
 				settings[setting] = value;
@@ -315,7 +315,7 @@ function toId() {
 					if (special === '@gmail') {
 						try {
 							gapi.auth2.getAuthInstance().signOut(); // eslint-disable-line no-undef
-						} catch (e) {}
+						} catch (e) { }
 					}
 					app.addPopup(LoginPasswordPopup, {
 						username: name,
@@ -409,15 +409,15 @@ function toId() {
 			// this.down = true;
 
 			this.addRoom('');
-			this.topbar = new Topbar({el: $('#header')});
+			this.topbar = new Topbar({ el: $('#header') });
 			if (this.down) {
 				this.isDisconnected = true;
-			// } else if (location.origin === 'http://smogtours.psim.us') {
-			// 	this.isDisconnected = true;
-			// 	this.addPopup(Popup, {
-			// 		message: "The Smogtours server no longer supports HTTP. Please use https://smogtours.psim.us",
-			// 		type: 'modal'
-			// 	});
+				// } else if (location.origin === 'http://smogtours.psim.us') {
+				// 	this.isDisconnected = true;
+				// 	this.addPopup(Popup, {
+				// 		message: "The Smogtours server no longer supports HTTP. Please use https://smogtours.psim.us",
+				// 		type: 'modal'
+				// 	});
 			} else {
 				if (document.location.hostname === Config.routes.client || Config.testclient) {
 					this.addRoom('rooms', null, true);
@@ -427,7 +427,7 @@ function toId() {
 				Storage.whenPrefsLoaded(function () {
 					if (!Config.server.registered) {
 						app.send('/autojoin');
-						Backbone.history.start({pushState: !Config.testclient});
+						Backbone.history.start({ pushState: !Config.testclient });
 						return;
 					}
 					// Support legacy tournament setting and migrate to new pref
@@ -458,7 +458,7 @@ function toId() {
 					var settings = Dex.prefs('serversettings') || {};
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
-					Backbone.history.start({pushState: !Config.testclient});
+					Backbone.history.start({ pushState: !Config.testclient });
 					app.ignore = app.loadIgnore();
 				});
 			}
@@ -538,21 +538,21 @@ function toId() {
 				$('.battle-log-add').html('<small>You are disconnected and cannot chat.</small>');
 
 				self.reconnectPending = (message || true);
-				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
+				if (!self.popups.length) self.addPopup(ReconnectPopup, { message: message });
 			});
 
 			this.on('init:connectionerror', function () {
 				self.isDisconnected = true;
 				self.rooms[''].updateFormats();
-				self.addPopup(ReconnectPopup, {cantconnect: true});
+				self.addPopup(ReconnectPopup, { cantconnect: true });
 			});
 
 			this.user.on('login:invalidname', function (name, reason) {
-				self.addPopup(LoginPopup, {name: name, reason: reason});
+				self.addPopup(LoginPopup, { name: name, reason: reason });
 			});
 
 			this.user.on('login:authrequired', function (name, special) {
-				self.addPopup(LoginPasswordPopup, {username: name, special: special});
+				self.addPopup(LoginPasswordPopup, { username: name, special: special });
 			});
 
 			this.on('loggedin', function () {
@@ -784,7 +784,7 @@ function toId() {
 					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
-						[], {timeout: 5 * 60 * 1000}
+						[], { timeout: 5 * 60 * 1000 }
 					);
 				} catch (err) {
 					// The most common case this happens is if an HTTPS connection fails,
@@ -1035,7 +1035,7 @@ function toId() {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
 					var replayLink = 'https://' + Config.routes.replays + '/' + replayid;
-					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
+					$.ajax(replayLink + '.json', { dataType: 'json' }).done(function (replay) {
 						if (replay) {
 							var title = replay.players[0] + ' vs. ' + replay.players[1];
 							app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
@@ -1093,170 +1093,170 @@ function toId() {
 			}
 
 			switch (parts[0]) {
-			case 'customgroups':
-				var nlIndex = data.indexOf('\n');
-				if (nlIndex > 0) {
-					this.receive(data.substr(nlIndex + 1));
-				}
-
-				var tarRow = data.slice(14, nlIndex);
-				this.parseGroups(tarRow);
-				break;
-
-			case 'challstr':
-				if (parts[2]) {
-					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
-				} else {
-					this.user.receiveChallstr(parts[1]);
-				}
-				break;
-
-			case 'formats':
-				this.parseFormats(parts);
-				break;
-
-			case 'updateuser':
-				var nlIndex = data.indexOf('\n');
-				if (nlIndex > 0) {
-					this.receive(data.substr(nlIndex + 1));
-					parts = data.slice(1, nlIndex).split('|');
-				}
-				var parsed = BattleTextParser.parseNameParts(parts[1]);
-				var named = !!+parts[2];
-
-				var userid = toUserid(parsed.name);
-				if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
-					$.post(app.user.getActionPHP(), {
-						act: 'changeusername',
-						username: parsed.name
-					}, function () {}, 'text');
-				}
-
-				var settings = _.clone(app.user.get('settings'));
-				if (parts.length > 4) {
-					// Update our existing settings based on what the server has sent us.
-					// This approach is more robust as it works regardless of whether the
-					// server sends us all the values or just the diffs.
-					var update = JSON.parse(parts[4]);
-					for (var key in update) {
-						settings[key] = update[key];
+				case 'customgroups':
+					var nlIndex = data.indexOf('\n');
+					if (nlIndex > 0) {
+						this.receive(data.substr(nlIndex + 1));
 					}
-				}
 
-				this.user.set({
-					name: parsed.name,
-					userid: userid,
-					named: named,
-					avatar: parts[3],
-					settings: settings,
-					status: parsed.status,
-					away: parsed.away
-				});
-				this.user.setPersistentName(named ? parsed.name : null);
-				if (named) {
-					this.trigger('init:choosename');
-				}
-				if (app.ignore[userid]) {
-					delete app.ignore[userid];
-					app.saveIgnore();
-				}
-				break;
+					var tarRow = data.slice(14, nlIndex);
+					this.parseGroups(tarRow);
+					break;
 
-			case 'nametaken':
-				app.addPopup(LoginPopup, {name: parts[1] || '', error: parts[2] || ''});
-				break;
+				case 'challstr':
+					if (parts[2]) {
+						this.user.receiveChallstr(parts[1] + '|' + parts[2]);
+					} else {
+						this.user.receiveChallstr(parts[1]);
+					}
+					break;
 
-			case 'queryresponse':
-				var responseData = JSON.parse(data.substr(16 + parts[1].length));
-				app.trigger('response:' + parts[1], responseData);
-				break;
+				case 'formats':
+					this.parseFormats(parts);
+					break;
 
-			case 'updatechallenges':
-				if (this.rooms['']) {
-					this.rooms[''].updateChallenges(JSON.parse(data.substr(18)));
-				}
-				break;
+				case 'updateuser':
+					var nlIndex = data.indexOf('\n');
+					if (nlIndex > 0) {
+						this.receive(data.substr(nlIndex + 1));
+						parts = data.slice(1, nlIndex).split('|');
+					}
+					var parsed = BattleTextParser.parseNameParts(parts[1]);
+					var named = !!+parts[2];
 
-			case 'updatesearch':
-				if (this.rooms['']) {
-					this.rooms[''].updateSearch(JSON.parse(data.substr(14)));
-				}
-				break;
+					var userid = toUserid(parsed.name);
+					if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
+						$.post(app.user.getActionPHP(), {
+							act: 'changeusername',
+							username: parsed.name
+						}, function () { }, 'text');
+					}
 
-			case 'popup':
-				var maxWidth;
-				var type = 'semimodal';
-				data = data.substr(7);
-				if (data.substr(0, 6) === '|wide|') {
-					data = data.substr(6);
-					maxWidth = 960;
-				}
-				if (data.substr(0, 7) === '|modal|') {
+					var settings = _.clone(app.user.get('settings'));
+					if (parts.length > 4) {
+						// Update our existing settings based on what the server has sent us.
+						// This approach is more robust as it works regardless of whether the
+						// server sends us all the values or just the diffs.
+						var update = JSON.parse(parts[4]);
+						for (var key in update) {
+							settings[key] = update[key];
+						}
+					}
+
+					this.user.set({
+						name: parsed.name,
+						userid: userid,
+						named: named,
+						avatar: parts[3],
+						settings: settings,
+						status: parsed.status,
+						away: parsed.away
+					});
+					this.user.setPersistentName(named ? parsed.name : null);
+					if (named) {
+						this.trigger('init:choosename');
+					}
+					if (app.ignore[userid]) {
+						delete app.ignore[userid];
+						app.saveIgnore();
+					}
+					break;
+
+				case 'nametaken':
+					app.addPopup(LoginPopup, { name: parts[1] || '', error: parts[2] || '' });
+					break;
+
+				case 'queryresponse':
+					var responseData = JSON.parse(data.substr(16 + parts[1].length));
+					app.trigger('response:' + parts[1], responseData);
+					break;
+
+				case 'updatechallenges':
+					if (this.rooms['']) {
+						this.rooms[''].updateChallenges(JSON.parse(data.substr(18)));
+					}
+					break;
+
+				case 'updatesearch':
+					if (this.rooms['']) {
+						this.rooms[''].updateSearch(JSON.parse(data.substr(14)));
+					}
+					break;
+
+				case 'popup':
+					var maxWidth;
+					var type = 'semimodal';
 					data = data.substr(7);
-					type = 'modal';
-				}
-				if (data.substr(0, 6) === '|html|') {
-					data = data.substr(6);
-					app.addPopup(Popup, {
-						type: type,
-						maxWidth: maxWidth,
-						htmlMessage: BattleLog.sanitizeHTML(data)
-					});
-				} else {
-					app.addPopup(Popup, {
-						type: type,
-						maxWidth: maxWidth,
-						message: data.replace(/\|\|/g, '\n')
-					});
-				}
-				if (this.rooms['']) this.rooms[''].resetPending();
-				break;
-
-			case 'disconnect':
-				app.trigger('init:socketclosed', BattleLog.sanitizeHTML(data.substr(12)));
-				break;
-
-			case 'pm':
-				var dataLines = data.split('\n');
-				for (var i = 0; i < dataLines.length; i++) {
-					parts = dataLines[i].slice(1).split('|');
-					var message = parts.slice(3).join('|');
-					this.rooms[''].addPM(parts[1], message, parts[2]);
-					if (toUserid(parts[1]) !== app.user.get('userid')) {
-						app.user.lastPM = toUserid(parts[1]);
+					if (data.substr(0, 6) === '|wide|') {
+						data = data.substr(6);
+						maxWidth = 960;
 					}
-				}
-				break;
-
-			case 'roomerror':
-				// deprecated; use |deinit| or |noinit|
-				this.unjoinRoom(parts[1]);
-				this.addPopupMessage(parts.slice(2).join('|'));
-				break;
-
-			case 'refresh':
-				// refresh the page
-				document.location.reload(true);
-				break;
-
-			case 'c':
-			case 'chat':
-				if (parts[1] === '~') {
-					if (parts[2].substr(0, 6) === '/warn ') {
-						app.addPopup(RulesPopup, {warning: parts[2].substr(6)});
-						break;
+					if (data.substr(0, 7) === '|modal|') {
+						data = data.substr(7);
+						type = 'modal';
 					}
-				}
+					if (data.substr(0, 6) === '|html|') {
+						data = data.substr(6);
+						app.addPopup(Popup, {
+							type: type,
+							maxWidth: maxWidth,
+							htmlMessage: BattleLog.sanitizeHTML(data)
+						});
+					} else {
+						app.addPopup(Popup, {
+							type: type,
+							maxWidth: maxWidth,
+							message: data.replace(/\|\|/g, '\n')
+						});
+					}
+					if (this.rooms['']) this.rooms[''].resetPending();
+					break;
 
-			/* fall through */
-			default:
-				// the messagetype wasn't in our list of recognized global
-				// messagetypes; so the message is presumed to be for the
-				// lobby.
-				if (this.rooms['lobby']) {
-					this.rooms['lobby'].receive(data);
-				}
-				break;
+				case 'disconnect':
+					app.trigger('init:socketclosed', BattleLog.sanitizeHTML(data.substr(12)));
+					break;
+
+				case 'pm':
+					var dataLines = data.split('\n');
+					for (var i = 0; i < dataLines.length; i++) {
+						parts = dataLines[i].slice(1).split('|');
+						var message = parts.slice(3).join('|');
+						this.rooms[''].addPM(parts[1], message, parts[2]);
+						if (toUserid(parts[1]) !== app.user.get('userid')) {
+							app.user.lastPM = toUserid(parts[1]);
+						}
+					}
+					break;
+
+				case 'roomerror':
+					// deprecated; use |deinit| or |noinit|
+					this.unjoinRoom(parts[1]);
+					this.addPopupMessage(parts.slice(2).join('|'));
+					break;
+
+				case 'refresh':
+					// refresh the page
+					document.location.reload(true);
+					break;
+
+				case 'c':
+				case 'chat':
+					if (parts[1] === '~') {
+						if (parts[2].substr(0, 6) === '/warn ') {
+							app.addPopup(RulesPopup, { warning: parts[2].substr(6) });
+							break;
+						}
+					}
+
+				/* fall through */
+				default:
+					// the messagetype wasn't in our list of recognized global
+					// messagetypes; so the message is presumed to be for the
+					// lobby.
+					if (this.rooms['lobby']) {
+						this.rooms['lobby'].receive(data);
+					}
+					break;
 			}
 		},
 		saveIgnore: function () {
@@ -1275,7 +1275,7 @@ function toId() {
 			var data = null;
 			try {
 				data = JSON.parse(groupsList);
-			} catch (e) {}
+			} catch (e) { }
 			if (!data) return; // broken JSON - keep default ranks
 
 			var groups = {};
@@ -1307,7 +1307,7 @@ function toId() {
 			var column = 0;
 			var columnChanged = false;
 
-			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
+			window.NonBattleGames = { rps: 'Rock Paper Scissors' };
 			for (var i = 3; i <= 9; i = i + 2) {
 				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
 			}
@@ -1455,7 +1455,7 @@ function toId() {
 				if (silent) return;
 				var sData = data.split(':');
 				if (sData[0] === 'success') {
-					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
+					app.addPopup(ReplayUploadedPopup, { id: sData[1] || id });
 				} else if (data === 'hash mismatch') {
 					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {
@@ -1585,7 +1585,7 @@ function toId() {
 		 */
 		unjoinRoom: function (id, reason) {
 			this.removeRoom(id, true);
-			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
+			if (this.curRoom) this.navigate(this.curRoom.id, { replace: true });
 			this.updateAutojoin();
 		},
 		tryJoinRoom: function (id) {
@@ -2050,7 +2050,7 @@ function toId() {
 			} else {
 				if (Config.server.id !== 'showdown') {
 					// Switch to the autojoin object to handle multiple servers
-					curAutojoin = {showdown: curAutojoin};
+					curAutojoin = { showdown: curAutojoin };
 					if (!autojoins.length) return;
 					curAutojoin[Config.server.id] = autojoins.join(',');
 				} else {
@@ -2124,19 +2124,19 @@ function toId() {
 		addPopupMessage: function (message) {
 			// shorthand for adding a popup message
 			// this is the equivalent of alert(message)
-			app.addPopup(Popup, {message: message});
+			app.addPopup(Popup, { message: message });
 		},
 		addPopupPrompt: function (message, buttonOrCallback, callback) {
 			var button = (callback ? buttonOrCallback : 'OK');
 			callback = (!callback ? buttonOrCallback : callback);
-			app.addPopup(PromptPopup, {message: message, button: button, callback: callback});
+			app.addPopup(PromptPopup, { message: message, button: button, callback: callback });
 		},
 		closePopup: function (id) {
 			if (this.popups.length) {
 				var popup = this.popups.pop();
 				if (popup.lastFocusedEl && popup.lastFocusedEl.focus) popup.lastFocusedEl.focus();
 				popup.remove();
-				if (this.reconnectPending) this.addPopup(ReconnectPopup, {message: this.reconnectPending});
+				if (this.reconnectPending) this.addPopup(ReconnectPopup, { message: this.reconnectPending });
 				return true;
 			}
 			return false;
@@ -2211,9 +2211,11 @@ function toId() {
 		 */
 		selectformat: function (value, target) {
 			var format = value || 'gen9randombattle';
-			app.addPopup(FormatPopup, {format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
-				target.value = newFormat;
-			}});
+			app.addPopup(FormatPopup, {
+				format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+					target.value = newFormat;
+				}
+			});
 		},
 
 		copyText: function (value, target) {
@@ -2237,16 +2239,16 @@ function toId() {
 		show: function (position, leftWidth) {
 			this.leftWidth = 0;
 			switch (position) {
-			case 'left':
-				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
-				break;
-			case 'right':
-				this.$el.css({left: leftWidth + 1, width: 'auto', right: 0});
-				this.leftWidth = leftWidth;
-				break;
-			case 'full':
-				this.$el.css({left: 0, width: 'auto', right: 0});
-				break;
+				case 'left':
+					this.$el.css({ left: 0, width: leftWidth, right: 'auto' });
+					break;
+				case 'right':
+					this.$el.css({ left: leftWidth + 1, width: 'auto', right: 0 });
+					this.leftWidth = leftWidth;
+					break;
+				case 'full':
+					this.$el.css({ left: 0, width: 'auto', right: 0 });
+					break;
 			}
 			this.$el.show();
 			this.dismissAllNotifications(true);
@@ -2255,10 +2257,10 @@ function toId() {
 			this.blur();
 			this.$el.hide();
 		},
-		focus: function () {},
-		blur: function () {},
-		join: function () {},
-		leave: function () {},
+		focus: function () { },
+		blur: function () { },
+		join: function () { },
+		leave: function () { },
 
 		// notifications
 
@@ -2272,9 +2274,9 @@ function toId() {
 					// the new Notification spec anyway.
 					webkitNotifications.requestPermission();
 				} else if (window.Notification && Notification.requestPermission) {
-					Notification.requestPermission(function (permission) {});
+					Notification.requestPermission(function (permission) { });
 				}
-			} catch (e) {}
+			} catch (e) { }
 		},
 		notificationClass: '',
 		notifications: null,
@@ -2312,9 +2314,9 @@ function toId() {
 					};
 					if (Dex.prefs('temporarynotifications')) {
 						if (notification.cancel) {
-							setTimeout(function () {notification.cancel();}, 5000);
+							setTimeout(function () { notification.cancel(); }, 5000);
 						} else if (notification.close) {
-							setTimeout(function () {notification.close();}, 5000);
+							setTimeout(function () { notification.close(); }, 5000);
 						}
 					}
 					if (once) notification.psAutoclose = true;
@@ -2361,7 +2363,7 @@ function toId() {
 					// it doesn't.
 					// "Unexpected call to method or property access"
 					this.notifications[tag].close();
-				} catch (err) {}
+				} catch (err) { }
 			}
 			delete this.notifications[tag];
 			if (_.isEmpty(this.notifications)) {
@@ -2381,7 +2383,7 @@ function toId() {
 					try {
 						// Edge bug? - see closeNotification
 						this.notifications[tag].close();
-					} catch (err) {}
+					} catch (err) { }
 				}
 				this.notifications = null;
 			}
@@ -2396,7 +2398,7 @@ function toId() {
 			try {
 				// Edge bug? - see closeNotification
 				this.notifications[tag].close();
-			} catch (err) {}
+			} catch (err) { }
 			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
 			if (this.notifications[tag].psAutoclose) {
 				delete this.notifications[tag];
@@ -2429,7 +2431,7 @@ function toId() {
 					try {
 						// Edge bug? - see closeNotification
 						this.notifications[tag].close();
-					} catch (err) {}
+					} catch (err) { }
 					delete this.notifications[tag];
 				}
 				if (!this.notifications || _.isEmpty(this.notifications)) {
@@ -2931,7 +2933,8 @@ function toId() {
 			var buf = '<form>';
 
 			if (data.cantconnect) {
-				buf += '<p class="error">Couldn\'t connect to server!</p>';
+				buf += '<p class="error">Server in Manutenzione!!!!!</p>';
+				buf += '<img src="https://budewinn.it/sprites/showdown.gif" style="width: 100%; height: auto;">';
 				if (window.wiiu && document.location.protocol === 'https:') {
 					buf += '<p class="error">The Wii U does not support secure connections.</p>';
 					buf += '<p class="buttonbar"><button name="tryhttp" class="button autofocus"><strong>Connect insecurely</button> <button name="close" class="button">Work offline</button></p>';

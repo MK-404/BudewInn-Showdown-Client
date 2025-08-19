@@ -11,11 +11,11 @@
  * @license MIT
  */
 
-import type {Battle, Pokemon, Side, WeatherState} from './battle';
-import type {BattleSceneStub} from './battle-scene-stub';
-import {BattleMoveAnims} from './battle-animations-moves';
-import {BattleLog} from './battle-log';
-import {BattleBGM, BattleSound} from './battle-sound';
+import type { Battle, Pokemon, Side, WeatherState } from './battle';
+import type { BattleSceneStub } from './battle-scene-stub';
+import { BattleMoveAnims } from './battle-animations-moves';
+import { BattleLog } from './battle-log';
+import { BattleBGM, BattleSound } from './battle-sound';
 
 /*
 
@@ -70,14 +70,14 @@ export class BattleScene implements BattleSceneStub {
 	$tooltips: JQuery = null!;
 	tooltips: BattleTooltips;
 
-	sideConditions: [{[id: string]: Sprite[]}, {[id: string]: Sprite[]}] = [{}, {}];
+	sideConditions: [{ [id: string]: Sprite[] }, { [id: string]: Sprite[] }] = [{}, {}];
 
 	preloadDone = 0;
 	preloadNeeded = 0;
 	bgm: BattleBGM | null = null;
 	backdropImage: string = '';
 	bgmNum = 0;
-	preloadCache: {[url: string]: HTMLImageElement} = {};
+	preloadCache: { [url: string]: HTMLImageElement } = {};
 
 	messagebarOpen = false;
 	customControls = false;
@@ -275,7 +275,7 @@ export class BattleScene implements BattleSceneStub {
 		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
 		if (!end.xscale && end.xscale !== 0 && start.xscale) end.xscale = start.xscale;
 		if (!end.yscale && end.yscale !== 0 && start.yscale) end.yscale = start.yscale;
-		end = {...start, ...end};
+		end = { ...start, ...end };
 
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
@@ -286,7 +286,7 @@ export class BattleScene implements BattleSceneStub {
 		$effect = this.$fx.children().last();
 
 		if (start.time) {
-			$effect.css({...startpos, opacity: 0});
+			$effect.css({ ...startpos, opacity: 0 });
 			$effect.delay(start.time).animate({
 				opacity: startpos.opacity,
 			}, 1);
@@ -592,7 +592,7 @@ export class BattleScene implements BattleSceneStub {
 		let name = pokemon.side?.isFar &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
 		if (name !== pokemon.speciesForme) {
-				name += ' (' + pokemon.speciesForme + ')';
+			name += ' (' + pokemon.speciesForme + ')';
 		}
 		if (pokemon === pokemon.side.active[0]) {
 			name += ' (active)';
@@ -613,7 +613,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 		return BattleLog.escapeHTML(name);
 	}
-	getSidebarHTML(side: Side, posStr: string): string {
+	async getSidebarHTML(side: Side, posStr: string): Promise<string> {
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
@@ -690,7 +690,43 @@ export class BattleScene implements BattleSceneStub {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
-		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+
+		if (side.name) {
+			try {
+				const response = await fetch(`https://api.budewinn.it/badges/` + toID(side.name));
+				const resJson = await response.json()
+				var badges = resJson.badges.split(",")
+			} catch (error) {
+
+			}
+		}
+
+		let badgeBuffer = '<span class="userbadges">';
+
+		if (badges) {
+
+			for (const badge of badges) {
+
+				const badgeSrc = "https://raw.githubusercontent.com/MK-404/SV-showdown-sprites/main/badges/" + badge + ".png";
+				badgeBuffer += '<img class="userbadge" alt="' + badge + '" title="' + badge + '" src="' + badgeSrc + '" />';
+
+			}
+
+			if (badges.length > 5) {
+
+				badgeBuffer += '</span>';
+				badgeBuffer += badgeBuffer
+				badgeBuffer = '<span class="badge-marquee-wrapper"><span class="badge-marquee">' + badgeBuffer + '</span>'
+
+			}
+
+		}
+
+		badgeBuffer += '</span>'
+
+
+
+		return `<div class="trainer trainer-${posStr}"${faded}>${badgeBuffer}<strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		if (this.battle.gameType === 'freeforall') {
@@ -702,30 +738,30 @@ export class BattleScene implements BattleSceneStub {
 			this.updateRightSidebar();
 		}
 	}
-	updateLeftSidebar() {
+	async updateLeftSidebar() {
 		const side = this.battle.nearSide;
 
 		if (side.ally) {
 			const side2 = side.ally!;
-			this.$leftbar.html(this.getSidebarHTML(side, 'near2') + this.getSidebarHTML(side2, 'near'));
+			this.$leftbar.html(await this.getSidebarHTML(side, 'near2') + await this.getSidebarHTML(side2, 'near'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
-			this.$leftbar.html(this.getSidebarHTML(side2, 'near2') + this.getSidebarHTML(side, 'near'));
+			this.$leftbar.html(await this.getSidebarHTML(side2, 'near2') + await this.getSidebarHTML(side, 'near'));
 		} else {
-			this.$leftbar.html(this.getSidebarHTML(side, 'near'));
+			this.$leftbar.html(await this.getSidebarHTML(side, 'near'));
 		}
 	}
-	updateRightSidebar() {
+	async updateRightSidebar() {
 		const side = this.battle.farSide;
 
 		if (side.ally) {
 			const side2 = side.ally!;
-			this.$rightbar.html(this.getSidebarHTML(side, 'far2') + this.getSidebarHTML(side2, 'far'));
+			this.$rightbar.html(await this.getSidebarHTML(side, 'far2') + await this.getSidebarHTML(side2, 'far'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
-			this.$rightbar.html(this.getSidebarHTML(side2, 'far2') + this.getSidebarHTML(side, 'far'));
+			this.$rightbar.html(await this.getSidebarHTML(side2, 'far2') + await this.getSidebarHTML(side, 'far'));
 		} else {
-			this.$rightbar.html(this.getSidebarHTML(side, 'far'));
+			this.$rightbar.html(await this.getSidebarHTML(side, 'far'));
 		}
 	}
 	updateSidebars() {
@@ -771,17 +807,17 @@ export class BattleScene implements BattleSceneStub {
 		const tooltips = this.battle.gameType === 'freeforall' ? {
 			// FFA battles are visually rendered as triple battle with the center slots empty
 			// so we swap the 2nd and 3rd tooltips on each side
-			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+			p2b: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
 		} : {
-			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
-			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
-			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
+			p2c: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2' },
+			p2b: { top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
+			p1c: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2' },
 		};
 		for (const id in tooltips) {
 			let layout = tooltips[id as 'p1a'];
@@ -920,7 +956,7 @@ export class BattleScene implements BattleSceneStub {
 		let weatherhtml = ``;
 
 		if (this.battle.weather) {
-			const weatherNameTable: {[id: string]: string} = {
+			const weatherNameTable: { [id: string]: string } = {
 				sunnyday: 'Sun',
 				desolateland: 'Intense Sun',
 				raindance: 'Rain',
@@ -999,7 +1035,7 @@ export class BattleScene implements BattleSceneStub {
 			}, this.curWeather ? 300 : 100, () => {
 				this.$weather.html('<em>' + weatherhtml + '</em>');
 				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
+				this.$weather.animate({ opacity: isIntense || !weather ? 0.9 : 0.5 }, 300);
 			});
 			this.curWeather = weather;
 		} else {
@@ -1012,7 +1048,7 @@ export class BattleScene implements BattleSceneStub {
 				opacity: 0,
 			}, this.curTerrain ? 400 : 1, () => {
 				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
-				this.$terrain.animate({top: 0, opacity: 1}, 400);
+				this.$terrain.animate({ top: 0, opacity: 1 }, 400);
 			});
 			this.curTerrain = terrain;
 		}
@@ -1089,263 +1125,263 @@ export class BattleScene implements BattleSceneStub {
 		}
 
 		switch (id) {
-		case 'auroraveil':
-			const auroraveil = new Sprite(BattleEffects.auroraveil, {
-				display: 'block',
-				x,
-				y,
-				z: side.behind(-14),
-				xscale: 1,
-				yscale: 0,
-				opacity: 0.1,
-			}, this);
-			this.$spritesFront[spriteIndex].append(auroraveil.$el!);
-			this.sideConditions[siden][id] = [auroraveil];
-			auroraveil.anim({
-				opacity: 0.7,
-				time: instant ? 0 : 400,
-			}).anim({
-				opacity: 0.3,
-				time: instant ? 0 : 300,
-			});
-			break;
-		case 'reflect':
-			const reflect = new Sprite(BattleEffects.reflect, {
-				display: 'block',
-				x,
-				y,
-				z: side.behind(-17),
-				xscale: 1,
-				yscale: 0,
-				opacity: 0.1,
-			}, this);
-			this.$spritesFront[spriteIndex].append(reflect.$el!);
-			this.sideConditions[siden][id] = [reflect];
-			reflect.anim({
-				opacity: 0.7,
-				time: instant ? 0 : 400,
-			}).anim({
-				opacity: 0.3,
-				time: instant ? 0 : 300,
-			});
-			break;
-		case 'safeguard':
-			const safeguard = new Sprite(BattleEffects.safeguard, {
-				display: 'block',
-				x,
-				y,
-				z: side.behind(-20),
-				xscale: 1,
-				yscale: 0,
-				opacity: 0.1,
-			}, this);
-			this.$spritesFront[spriteIndex].append(safeguard.$el!);
-			this.sideConditions[siden][id] = [safeguard];
-			safeguard.anim({
-				opacity: 0.7,
-				time: instant ? 0 : 400,
-			}).anim({
-				opacity: 0.3,
-				time: instant ? 0 : 300,
-			});
-			break;
-		case 'lightscreen':
-			const lightscreen = new Sprite(BattleEffects.lightscreen, {
-				display: 'block',
-				x,
-				y,
-				z: side.behind(-23),
-				xscale: 1,
-				yscale: 0,
-				opacity: 0.1,
-			}, this);
-			this.$spritesFront[spriteIndex].append(lightscreen.$el!);
-			this.sideConditions[siden][id] = [lightscreen];
-			lightscreen.anim({
-				opacity: 0.7,
-				time: instant ? 0 : 400,
-			}).anim({
-				opacity: 0.3,
-				time: instant ? 0 : 300,
-			});
-			break;
-		case 'mist':
-			const mist = new Sprite(BattleEffects.mist, {
-				display: 'block',
-				x,
-				y,
-				z: side.behind(-27),
-				xscale: 1,
-				yscale: 0,
-				opacity: 0.1,
-			}, this);
-			this.$spritesFront[spriteIndex].append(mist.$el!);
-			this.sideConditions[siden][id] = [mist];
-			mist.anim({
-				opacity: 0.7,
-				time: instant ? 0 : 400,
-			}).anim({
-				opacity: 0.3,
-				time: instant ? 0 : 300,
-			});
-			break;
-		case 'stealthrock':
-			const rock1 = new Sprite(BattleEffects.rock1, {
-				display: 'block',
-				x: x + side.leftof(-40),
-				y: y - 10,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.2,
-			}, this);
-
-			const rock2 = new Sprite(BattleEffects.rock2, {
-				display: 'block',
-				x: x + side.leftof(-20),
-				y: y - 40,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.2,
-			}, this);
-
-			const rock3 = new Sprite(BattleEffects.rock1, {
-				display: 'block',
-				x: x + side.leftof(30),
-				y: y - 20,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.2,
-			}, this);
-
-			const rock4 = new Sprite(BattleEffects.rock2, {
-				display: 'block',
-				x: x + side.leftof(10),
-				y: y - 30,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.2,
-			}, this);
-
-			this.$spritesFront[spriteIndex].append(rock1.$el!);
-			this.$spritesFront[spriteIndex].append(rock2.$el!);
-			this.$spritesFront[spriteIndex].append(rock3.$el!);
-			this.$spritesFront[spriteIndex].append(rock4.$el!);
-			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
-			break;
-		case 'gmaxsteelsurge':
-			const surge1 = new Sprite(BattleEffects.greenmetal1, {
-				display: 'block',
-				x: x + side.leftof(-30),
-				y: y - 20,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.8,
-			}, this);
-			const surge2 = new Sprite(BattleEffects.greenmetal2, {
-				display: 'block',
-				x: x + side.leftof(35),
-				y: y - 15,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.8,
-			}, this);
-			const surge3 = new Sprite(BattleEffects.greenmetal1, {
-				display: 'block',
-				x: x + side.leftof(50),
-				y: y - 10,
-				z: side.z,
-				opacity: 0.5,
-				scale: 0.8,
-			}, this);
-
-			this.$spritesFront[spriteIndex].append(surge1.$el!);
-			this.$spritesFront[spriteIndex].append(surge2.$el!);
-			this.$spritesFront[spriteIndex].append(surge3.$el!);
-			this.sideConditions[siden][id] = [surge1, surge2, surge3];
-			break;
-		case 'spikes':
-			let spikeArray = this.sideConditions[siden]['spikes'];
-			if (!spikeArray) {
-				spikeArray = [];
-				this.sideConditions[siden]['spikes'] = spikeArray;
-			}
-			let levels = this.battle.sides[siden].sideConditions['spikes'][1];
-			if (spikeArray.length < 1 && levels >= 1) {
-				const spike1 = new Sprite(BattleEffects.caltrop, {
+			case 'auroraveil':
+				const auroraveil = new Sprite(BattleEffects.auroraveil, {
 					display: 'block',
-					x: x - 25,
+					x,
+					y,
+					z: side.behind(-14),
+					xscale: 1,
+					yscale: 0,
+					opacity: 0.1,
+				}, this);
+				this.$spritesFront[spriteIndex].append(auroraveil.$el!);
+				this.sideConditions[siden][id] = [auroraveil];
+				auroraveil.anim({
+					opacity: 0.7,
+					time: instant ? 0 : 400,
+				}).anim({
+					opacity: 0.3,
+					time: instant ? 0 : 300,
+				});
+				break;
+			case 'reflect':
+				const reflect = new Sprite(BattleEffects.reflect, {
+					display: 'block',
+					x,
+					y,
+					z: side.behind(-17),
+					xscale: 1,
+					yscale: 0,
+					opacity: 0.1,
+				}, this);
+				this.$spritesFront[spriteIndex].append(reflect.$el!);
+				this.sideConditions[siden][id] = [reflect];
+				reflect.anim({
+					opacity: 0.7,
+					time: instant ? 0 : 400,
+				}).anim({
+					opacity: 0.3,
+					time: instant ? 0 : 300,
+				});
+				break;
+			case 'safeguard':
+				const safeguard = new Sprite(BattleEffects.safeguard, {
+					display: 'block',
+					x,
+					y,
+					z: side.behind(-20),
+					xscale: 1,
+					yscale: 0,
+					opacity: 0.1,
+				}, this);
+				this.$spritesFront[spriteIndex].append(safeguard.$el!);
+				this.sideConditions[siden][id] = [safeguard];
+				safeguard.anim({
+					opacity: 0.7,
+					time: instant ? 0 : 400,
+				}).anim({
+					opacity: 0.3,
+					time: instant ? 0 : 300,
+				});
+				break;
+			case 'lightscreen':
+				const lightscreen = new Sprite(BattleEffects.lightscreen, {
+					display: 'block',
+					x,
+					y,
+					z: side.behind(-23),
+					xscale: 1,
+					yscale: 0,
+					opacity: 0.1,
+				}, this);
+				this.$spritesFront[spriteIndex].append(lightscreen.$el!);
+				this.sideConditions[siden][id] = [lightscreen];
+				lightscreen.anim({
+					opacity: 0.7,
+					time: instant ? 0 : 400,
+				}).anim({
+					opacity: 0.3,
+					time: instant ? 0 : 300,
+				});
+				break;
+			case 'mist':
+				const mist = new Sprite(BattleEffects.mist, {
+					display: 'block',
+					x,
+					y,
+					z: side.behind(-27),
+					xscale: 1,
+					yscale: 0,
+					opacity: 0.1,
+				}, this);
+				this.$spritesFront[spriteIndex].append(mist.$el!);
+				this.sideConditions[siden][id] = [mist];
+				mist.anim({
+					opacity: 0.7,
+					time: instant ? 0 : 400,
+				}).anim({
+					opacity: 0.3,
+					time: instant ? 0 : 300,
+				});
+				break;
+			case 'stealthrock':
+				const rock1 = new Sprite(BattleEffects.rock1, {
+					display: 'block',
+					x: x + side.leftof(-40),
+					y: y - 10,
+					z: side.z,
+					opacity: 0.5,
+					scale: 0.2,
+				}, this);
+
+				const rock2 = new Sprite(BattleEffects.rock2, {
+					display: 'block',
+					x: x + side.leftof(-20),
 					y: y - 40,
 					z: side.z,
-					scale: 0.3,
+					opacity: 0.5,
+					scale: 0.2,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike1.$el!);
-				spikeArray.push(spike1);
-			}
-			if (spikeArray.length < 2 && levels >= 2) {
-				const spike2 = new Sprite(BattleEffects.caltrop, {
+
+				const rock3 = new Sprite(BattleEffects.rock1, {
 					display: 'block',
-					x: x + 30,
-					y: y - 45,
+					x: x + side.leftof(30),
+					y: y - 20,
 					z: side.z,
-					scale: .3,
+					opacity: 0.5,
+					scale: 0.2,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike2.$el!);
-				spikeArray.push(spike2);
-			}
-			if (spikeArray.length < 3 && levels >= 3) {
-				const spike3 = new Sprite(BattleEffects.caltrop, {
+
+				const rock4 = new Sprite(BattleEffects.rock2, {
 					display: 'block',
-					x: x + 50,
-					y: y - 40,
+					x: x + side.leftof(10),
+					y: y - 30,
 					z: side.z,
-					scale: .3,
+					opacity: 0.5,
+					scale: 0.2,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike3.$el!);
-				spikeArray.push(spike3);
-			}
-			break;
-		case 'toxicspikes':
-			let tspikeArray = this.sideConditions[siden]['toxicspikes'];
-			if (!tspikeArray) {
-				tspikeArray = [];
-				this.sideConditions[siden]['toxicspikes'] = tspikeArray;
-			}
-			let tspikeLevels = this.battle.sides[siden].sideConditions['toxicspikes'][1];
-			if (tspikeArray.length < 1 && tspikeLevels >= 1) {
-				const tspike1 = new Sprite(BattleEffects.poisoncaltrop, {
+
+				this.$spritesFront[spriteIndex].append(rock1.$el!);
+				this.$spritesFront[spriteIndex].append(rock2.$el!);
+				this.$spritesFront[spriteIndex].append(rock3.$el!);
+				this.$spritesFront[spriteIndex].append(rock4.$el!);
+				this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
+				break;
+			case 'gmaxsteelsurge':
+				const surge1 = new Sprite(BattleEffects.greenmetal1, {
 					display: 'block',
-					x: x + 5,
-					y: y - 40,
+					x: x + side.leftof(-30),
+					y: y - 20,
 					z: side.z,
-					scale: 0.3,
+					opacity: 0.5,
+					scale: 0.8,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike1.$el!);
-				tspikeArray.push(tspike1);
-			}
-			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
-				const tspike2 = new Sprite(BattleEffects.poisoncaltrop, {
+				const surge2 = new Sprite(BattleEffects.greenmetal2, {
 					display: 'block',
-					x: x - 15,
+					x: x + side.leftof(35),
+					y: y - 15,
+					z: side.z,
+					opacity: 0.5,
+					scale: 0.8,
+				}, this);
+				const surge3 = new Sprite(BattleEffects.greenmetal1, {
+					display: 'block',
+					x: x + side.leftof(50),
+					y: y - 10,
+					z: side.z,
+					opacity: 0.5,
+					scale: 0.8,
+				}, this);
+
+				this.$spritesFront[spriteIndex].append(surge1.$el!);
+				this.$spritesFront[spriteIndex].append(surge2.$el!);
+				this.$spritesFront[spriteIndex].append(surge3.$el!);
+				this.sideConditions[siden][id] = [surge1, surge2, surge3];
+				break;
+			case 'spikes':
+				let spikeArray = this.sideConditions[siden]['spikes'];
+				if (!spikeArray) {
+					spikeArray = [];
+					this.sideConditions[siden]['spikes'] = spikeArray;
+				}
+				let levels = this.battle.sides[siden].sideConditions['spikes'][1];
+				if (spikeArray.length < 1 && levels >= 1) {
+					const spike1 = new Sprite(BattleEffects.caltrop, {
+						display: 'block',
+						x: x - 25,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(spike1.$el!);
+					spikeArray.push(spike1);
+				}
+				if (spikeArray.length < 2 && levels >= 2) {
+					const spike2 = new Sprite(BattleEffects.caltrop, {
+						display: 'block',
+						x: x + 30,
+						y: y - 45,
+						z: side.z,
+						scale: .3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(spike2.$el!);
+					spikeArray.push(spike2);
+				}
+				if (spikeArray.length < 3 && levels >= 3) {
+					const spike3 = new Sprite(BattleEffects.caltrop, {
+						display: 'block',
+						x: x + 50,
+						y: y - 40,
+						z: side.z,
+						scale: .3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(spike3.$el!);
+					spikeArray.push(spike3);
+				}
+				break;
+			case 'toxicspikes':
+				let tspikeArray = this.sideConditions[siden]['toxicspikes'];
+				if (!tspikeArray) {
+					tspikeArray = [];
+					this.sideConditions[siden]['toxicspikes'] = tspikeArray;
+				}
+				let tspikeLevels = this.battle.sides[siden].sideConditions['toxicspikes'][1];
+				if (tspikeArray.length < 1 && tspikeLevels >= 1) {
+					const tspike1 = new Sprite(BattleEffects.poisoncaltrop, {
+						display: 'block',
+						x: x + 5,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(tspike1.$el!);
+					tspikeArray.push(tspike1);
+				}
+				if (tspikeArray.length < 2 && tspikeLevels >= 2) {
+					const tspike2 = new Sprite(BattleEffects.poisoncaltrop, {
+						display: 'block',
+						x: x - 15,
+						y: y - 35,
+						z: side.z,
+						scale: .3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(tspike2.$el!);
+					tspikeArray.push(tspike2);
+				}
+				break;
+			case 'stickyweb':
+				const web = new Sprite(BattleEffects.web, {
+					display: 'block',
+					x: x + 15,
 					y: y - 35,
 					z: side.z,
-					scale: .3,
+					opacity: 0.4,
+					scale: 0.7,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike2.$el!);
-				tspikeArray.push(tspike2);
-			}
-			break;
-		case 'stickyweb':
-			const web = new Sprite(BattleEffects.web, {
-				display: 'block',
-				x: x + 15,
-				y: y - 35,
-				z: side.z,
-				opacity: 0.4,
-				scale: 0.7,
-			}, this);
-			this.$spritesFront[spriteIndex].append(web.$el!);
-			this.sideConditions[siden][id] = [web];
-			break;
+				this.$spritesFront[spriteIndex].append(web.$el!);
+				this.sideConditions[siden][id] = [web];
+				break;
 		}
 	}
 	removeSideCondition(siden: number, id: ID) {
@@ -1556,64 +1592,64 @@ export class BattleScene implements BattleSceneStub {
 		this.bgmNum = bgmNum;
 
 		switch (bgmNum) {
-		case -1:
-			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131, this.bgm);
-			break;
-		case -2:
-			this.bgm = BattleSound.loadBgm('audio/xd-miror-b.mp3', 9000, 57815, this.bgm);
-			break;
-		case -3:
-			this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b.mp3', 896, 47462, this.bgm);
-			break;
-		case 1:
-			this.bgm = BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959, this.bgm);
-			break;
-		case 2:
-			this.bgm = BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352, this.bgm);
-			break;
-		case 3:
-			this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086, this.bgm);
-			break;
-		case 4:
-			this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656, this.bgm);
-			break;
-		case 5:
-			this.bgm = BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109, this.bgm);
-			break;
-		case 6:
-			this.bgm = BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373, this.bgm);
-			break;
-		case 7:
-			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984, this.bgm);
-			break;
-		case 8:
-			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986, this.bgm);
-			break;
-		case 9:
-			this.bgm = BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708, this.bgm);
-			break;
-		case 10:
-			this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469, this.bgm);
-			break;
-		case 11:
-			this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634, this.bgm);
-			break;
-		case 12:
-			this.bgm = BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548, this.bgm);
-			break;
-		case 13:
-			this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149, this.bgm);
-			break;
-		case 14:
-			this.bgm = BattleSound.loadBgm('audio/sm-trainer.mp3', 8323, 89230, this.bgm);
-			break;
-		case -101:
-			this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
-			break;
-		case 15:
-		default:
-			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
-			break;
+			case -1:
+				this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131, this.bgm);
+				break;
+			case -2:
+				this.bgm = BattleSound.loadBgm('audio/xd-miror-b.mp3', 9000, 57815, this.bgm);
+				break;
+			case -3:
+				this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b.mp3', 896, 47462, this.bgm);
+				break;
+			case 1:
+				this.bgm = BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959, this.bgm);
+				break;
+			case 2:
+				this.bgm = BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352, this.bgm);
+				break;
+			case 3:
+				this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086, this.bgm);
+				break;
+			case 4:
+				this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656, this.bgm);
+				break;
+			case 5:
+				this.bgm = BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109, this.bgm);
+				break;
+			case 6:
+				this.bgm = BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373, this.bgm);
+				break;
+			case 7:
+				this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984, this.bgm);
+				break;
+			case 8:
+				this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986, this.bgm);
+				break;
+			case 9:
+				this.bgm = BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708, this.bgm);
+				break;
+			case 10:
+				this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469, this.bgm);
+				break;
+			case 11:
+				this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634, this.bgm);
+				break;
+			case 12:
+				this.bgm = BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548, this.bgm);
+				break;
+			case 13:
+				this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149, this.bgm);
+				break;
+			case 14:
+				this.bgm = BattleSound.loadBgm('audio/sm-trainer.mp3', 8323, 89230, this.bgm);
+				break;
+			case -101:
+				this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
+				break;
+			case 15:
+			default:
+				this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
+				break;
 		}
 
 		this.updateBgm();
@@ -1654,7 +1690,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.battle = null!;
 	}
-	static getHPColor(pokemon: {hp: number, maxhp: number}) {
+	static getHPColor(pokemon: { hp: number, maxhp: number }) {
 		let ratio = pokemon.hp / pokemon.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
@@ -1753,7 +1789,7 @@ export class Sprite {
 
 export class PokemonSprite extends Sprite {
 	// HTML strings are constructed from this table and stored back in it to cache them
-	protected static statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string} = {
+	protected static statusTable: { [id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string } = {
 		formechange: null,
 		typechange: null,
 		typeadd: null,
@@ -1890,7 +1926,7 @@ export class PokemonSprite extends Sprite {
 	left = 0;
 	top = 0;
 
-	effects: {[id: string]: Sprite[]} = {};
+	effects: { [id: string]: Sprite[] } = {};
 
 	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, isFrontSprite: boolean) {
 		super(spriteData, pos, scene);
@@ -2012,14 +2048,14 @@ export class PokemonSprite extends Sprite {
 		}, this.subsp!), 500);
 
 		this.$sub = null;
-		this.anim({time: 500});
+		this.anim({ time: 500 });
 		if (this.scene.animating) this.scene.waitFor(this.$el);
 	}
 	beforeMove() {
 		if (!this.scene.animating) return false;
 		if (!this.isSubActive) return false;
 		this.isSubActive = false;
-		this.anim({time: 300});
+		this.anim({ time: 300 });
 		this.$sub!.animate(this.scene.pos({
 			x: this.leftof(-50),
 			y: this.y,
@@ -2051,7 +2087,7 @@ export class PokemonSprite extends Sprite {
 				z: this.behind(30),
 				opacity: 0.3,
 			}, this.sp), 300);
-			this.anim({time: 300});
+			this.anim({ time: 300 });
 		});
 		return false;
 	}
@@ -2165,19 +2201,19 @@ export class PokemonSprite extends Sprite {
 			if (!this.isFrontSprite) statbarOffset = -28 * slot;
 		} else {
 			switch (moreActive) {
-			case 0:
-				this.x = 0;
-				break;
-			case 1:
-				if (this.sp.pixelated) {
-					this.x = (slot * -100 + 18) * (this.isFrontSprite ? 1 : -1);
-				} else {
-					this.x = (slot * -75 + 18) * (this.isFrontSprite ? 1 : -1);
-				}
-				break;
-			case 2:
-				this.x = (slot * -70 + 20) * (this.isFrontSprite ? 1 : -1);
-				break;
+				case 0:
+					this.x = 0;
+					break;
+				case 1:
+					if (this.sp.pixelated) {
+						this.x = (slot * -100 + 18) * (this.isFrontSprite ? 1 : -1);
+					} else {
+						this.x = (slot * -75 + 18) * (this.isFrontSprite ? 1 : -1);
+					}
+					break;
+				case 2:
+					this.x = (slot * -70 + 20) * (this.isFrontSprite ? 1 : -1);
+					break;
 			}
 			this.y = this.isFrontSprite ? slot * 7 : slot * -10;
 			if (this.isFrontSprite) statbarOffset = 17 * slot;
@@ -2877,9 +2913,9 @@ interface AnimData {
 	prepareAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 	residualAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 }
-export type AnimTable = {[k: string]: AnimData};
+export type AnimTable = { [k: string]: AnimData };
 
-const BattleEffects: {[k: string]: SpriteData} = {
+const BattleEffects: { [k: string]: SpriteData } = {
 	wisp: {
 		url: 'wisp.png',
 		w: 100, h: 100,
@@ -4223,16 +4259,16 @@ export const BattleOtherAnims: AnimTable = {
 	},
 	shake: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10, time: 200});
-			attacker.anim({x: attacker.x + 10, time: 300});
-			attacker.anim({x: attacker.x, time: 200});
+			attacker.anim({ x: attacker.x - 10, time: 200 });
+			attacker.anim({ x: attacker.x + 10, time: 300 });
+			attacker.anim({ x: attacker.x, time: 200 });
 		},
 	},
 	dance: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10});
-			attacker.anim({x: attacker.x + 10});
-			attacker.anim({x: attacker.x});
+			attacker.anim({ x: attacker.x - 10 });
+			attacker.anim({ x: attacker.x + 10 });
+			attacker.anim({ x: attacker.x });
 		},
 	},
 	consume: {
@@ -6029,11 +6065,11 @@ export const BattleStatusAnims: AnimTable = {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect('#000000', 700, 0.2);
 			attacker.delay(300);
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x, time: 50});
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x, time: 50 });
 
 			scene.showEffect(attacker.sp, {
 				x: attacker.x,
@@ -6129,4 +6165,4 @@ export const BattleStatusAnims: AnimTable = {
 		},
 	},
 };
-BattleStatusAnims['focuspunch'] = {anim: BattleStatusAnims['flinch'].anim};
+BattleStatusAnims['focuspunch'] = { anim: BattleStatusAnims['flinch'].anim };

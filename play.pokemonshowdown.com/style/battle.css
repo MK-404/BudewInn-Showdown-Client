@@ -7,6 +7,45 @@ License: GPLv2
 
 @import url(./battle-log.css?v6.5);
 
+
+.badge-marquee{
+	white-space: nowrap;
+	animation: marquee 10s linear infinite;
+	display: flex;
+	position: absolute;
+	height: 20px;
+}
+
+.badge-marquee-wrapper {
+	overflow: hidden;
+	display: inline-block;
+	position: relative;
+	top: 5px;
+	width: 100%;
+	height: 20px;
+}
+.badge-marquee-wrapper:hover .badge-marquee {
+	animation-play-state: paused;
+}
+.userbadges {
+	height: auto;
+	display: flex;
+}
+
+@keyframes marquee {
+	0% {
+		transform: translate3d(0, 0, 0);
+   }
+	100% {
+		transform: translate3d(-50%, 0, 0);
+   }
+}
+
+.userbadge {
+	height: 20px;
+	width: 20px;
+	pointer-events:visible;
+}
 .battle {
 	position: absolute;
 	text-align: left;
@@ -293,26 +332,26 @@ License: GPLv2
 	border-color: #555555;
 }
 .leftbar {
+	font-family: 'Ubuntu', Trebuchet MS, Verdana;
 	position: absolute;
 	top: 0;
 	left: 0;
 	height: 450px;
 	width: 100px;
-	background-color: #CCCCCC;
+	/*background-color: #CCCCCC;
 	background-color: rgba(255,255,255,0.5);
-	border-right: 1px solid rgba(215,215,215,0.5);
-	color: #777777;
+	border-right: 1px solid rgba(215,215,215,0.5);*/
 }
 .rightbar {
+	font-family: 'Ubuntu', Trebuchet MS, Verdana;
 	position: absolute;
 	top: 0;
 	right: 0;
 	height: 450px;
 	width: 100px;
-	background-color: #CCCCCC;
+	/*background-color: #CCCCCC;
 	background-color: rgba(255,255,255,0.5);
-	border-left: 1px solid rgba(215,215,215,0.5);
-	color: #777777;
+	border-left: 1px solid rgba(215,215,215,0.5);*/
 }
 .trainer {
 	text-align: center;
@@ -323,21 +362,24 @@ License: GPLv2
 }
 
 .trainer-near {
-	bottom: 75px;
+	bottom: 65px;
 }
 .trainer-far {
-	bottom: 232px;
+	top: 0;
 }
 .trainer-near2 {
-	bottom: 232px;
+	top: 0;
 }
 .trainer-far2 {
-	bottom: 75px;
+	bottom: 65px;
 }
 
 .trainer strong {
+	font-weight: 500;
+	letter-spacing: 0.3px;
+	color: #ffffff;
+	text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
 	display: block;
-	font-size: 8pt;
 	margin-bottom: 2px;
 	word-wrap: break-word;
 }

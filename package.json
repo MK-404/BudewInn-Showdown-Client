@@ -21,6 +21,7 @@
     "@babel/plugin-transform-react-jsx": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
+    "@esbuild/linux-x64": "^0.25.1",
     "axios": "^1.6.7",
     "babel-plugin-remove-import-export": "^1.1.1",
     "cors": "^2.8.5",
