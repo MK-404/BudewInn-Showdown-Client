@@ -109,7 +109,7 @@ function noRebuildNeeded(src, dest) {
 		if (!srcStat) return true;
 		const destStat = fs.statSync(dest);
 		if (srcStat.ctimeMs < destStat.ctimeMs) return true;
-	} catch { }
+	} catch {}
 
 	return false;
 }

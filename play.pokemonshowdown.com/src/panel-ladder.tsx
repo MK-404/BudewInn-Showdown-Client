@@ -148,7 +148,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				value={BattleLog.escapeHTML(room.searchValue)}
 				placeholder="username prefix"
 				onChange={this.changeSearch}
-			/> { }
+			/> {}
 			<button type="submit" class="button">Search</button>
 		</p></form>;
 	}

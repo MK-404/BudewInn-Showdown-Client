@@ -96,7 +96,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				<p>
 					<button class="button" name="refresh" onClick={this.refresh}>
 						<i class="fa fa-refresh" aria-hidden></i> Refresh
-					</button> { }
+					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
@@ -242,7 +242,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
-	static readonly routes = ['battle-*'];
+	static readonly routes = ['battle-*', 'game-*'];
 	static readonly Model = BattleRoom;
 	static handleDrop(ev: DragEvent) {
 		const file = ev.dataTransfer?.files?.[0];
@@ -317,29 +317,29 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const choices = this.props.room.choices;
 		if (!choices) return; // shouldn't happen
 		switch (checkbox.name) {
-			case 'mega':
-				choices.current.mega = checkbox.checked;
-				break;
-			case 'megax':
-				choices.current.megax = checkbox.checked;
-				choices.current.megay = false;
-				break;
-			case 'megay':
-				choices.current.megay = checkbox.checked;
-				choices.current.megax = false;
-				break;
-			case 'ultra':
-				choices.current.ultra = checkbox.checked;
-				break;
-			case 'z':
-				choices.current.z = checkbox.checked;
-				break;
-			case 'max':
-				choices.current.max = checkbox.checked;
-				break;
-			case 'tera':
-				choices.current.tera = checkbox.checked;
-				break;
+		case 'mega':
+			choices.current.mega = checkbox.checked;
+			break;
+		case 'megax':
+			choices.current.megax = checkbox.checked;
+			choices.current.megay = false;
+			break;
+		case 'megay':
+			choices.current.megay = checkbox.checked;
+			choices.current.megax = false;
+			break;
+		case 'ultra':
+			choices.current.ultra = checkbox.checked;
+			break;
+		case 'z':
+			choices.current.z = checkbox.checked;
+			break;
+		case 'max':
+			choices.current.max = checkbox.checked;
+			break;
+		case 'tera':
+			choices.current.tera = checkbox.checked;
+			break;
 		}
 		this.props.room.update(null);
 	};
@@ -379,24 +379,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
-			case 'initdone':
-				room.battle.seekTurn(Infinity);
-				return;
-			case 'request':
-				this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
-				return;
-			case 'win': case 'tie':
-				this.receiveRequest(null);
-				break;
-			case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
-				room.battle.instantAdd('|' + args.join('|'));
-				return;
-			case 'error':
-				if (args[1].startsWith('[Invalid choice]') && room.request) {
-					room.choices = new BattleChoiceBuilder(room.request);
-					room.update(null);
-				}
-				break;
+		case 'initdone':
+			room.battle.seekTurn(Infinity);
+			return;
+		case 'request':
+			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
+			return;
+		case 'win': case 'tie':
+			this.receiveRequest(null);
+			break;
+		case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
+			room.battle.instantAdd('|' + args.join('|'));
+			return;
+		case 'error':
+			if (args[1].startsWith('[Invalid choice]') && room.request) {
+				room.choices = new BattleChoiceBuilder(room.request);
+				room.update(null);
+			}
+			break;
 		}
 		room.battle.add('|' + args.join('|'));
 		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
@@ -432,15 +432,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		let oName = room.battle.farSide.name;
 		if (oName) oName = " against " + oName;
 		switch (room.request?.requestType) {
-			case 'move':
-				room.notify({ title: "Your move!", body: "Move in your battle" + oName });
-				break;
-			case 'switch':
-				room.notify({ title: "Your switch!", body: "Switch in your battle" + oName });
-				break;
-			case 'team':
-				room.notify({ title: "Team preview!", body: "Choose your team order in your battle" + oName });
-				break;
+		case 'move':
+			room.notify({ title: "Your move!", body: "Move in your battle" + oName });
+			break;
+		case 'switch':
+			room.notify({ title: "Your switch!", body: "Switch in your battle" + oName });
+			break;
+		case 'team':
+			room.notify({ title: "Team preview!", body: "Choose your team order in your battle" + oName });
+			break;
 		}
 	}
 	renderControls() {
@@ -466,7 +466,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
 						<i class="fa fa-pause" aria-hidden></i><br />Pause
 					</button>
-				)} { }
+				)} {}
 				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
 					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>
@@ -483,6 +483,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				<button class="button" data-cmd="/switchsides">
 					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
+				</button> {}
+				<button class="button" data-cmd="/ffto">
+					<i class="fa fa-random" aria-hidden></i> Go to turn
 				</button>
 			</p>
 		</div>;
@@ -520,9 +523,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		let hpColorClass;
 		switch (BattleScene.getHPColor(pokemon)) {
-			case 'y': hpColorClass = 'hpbar hpbar-yellow'; break;
-			case 'r': hpColorClass = 'hpbar hpbar-red'; break;
-			default: hpColorClass = 'hpbar'; break;
+		case 'y': hpColorClass = 'hpbar hpbar-yellow'; break;
+		case 'r': hpColorClass = 'hpbar hpbar-red'; break;
+		default: hpColorClass = 'hpbar'; break;
 		}
 
 		return <button
@@ -560,38 +563,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
-				You <strong>might</strong> be locked into a move. { }
-				<button class="button" data-cmd="/choose testfight">Try Fight button</button> { }
+				You <strong>might</strong> be locked into a move. {}
+				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
 				(prevents switching if you're locked)
 			</em></p>}
 			{this.renderMoveControls(moveRequest, choices)}
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
-					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
 					{moveRequest.gigantamax ? 'Gigantamax' : 'Dynamax'}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
 					Mega Evolution
 				</label>}
 				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
 					Mega Evolution X
 				</label>}
 				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
 					Mega Evolution Y
 				</label>}
 				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
-					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
 					Ultra Burst
 				</label>}
 				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
-					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
 					Z-Power
 				</label>}
 				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
-					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> { }
+					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
 					Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
 				</label>}
 			</div>
@@ -824,7 +827,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
-				if (choice.targetLoc > 0) {
+				if (choice.targetLoc > 0 || battle.gameType === 'freeforall') {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
 						buf.push(` at slot ${choice.targetLoc}`);
@@ -888,84 +891,84 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			this.team = request.side.pokemon;
 		}
 		switch (request.requestType) {
-			case 'move': {
-				const index = choices.index();
-				const pokemon = request.side.pokemon[index];
+		case 'move': {
+			const index = choices.index();
+			const pokemon = request.side.pokemon[index];
 
-				if (choices.current.move) {
-					const moveName = choices.currentMove()?.name;
-					return <div class="controls">
-						<div class="whatdo">
-							{this.renderOldChoices(request, choices)}
-							{pokemon.name} should use <strong>{moveName}</strong> at where? { }
-						</div>
-						<div class="switchcontrols">
-							<div class="switchmenu">
-								{this.renderMoveTargetControls(request, choices)}
-							</div>
-						</div>
-					</div>;
-				}
-
-				const canShift = room.battle.gameType === 'triples' && index !== 1;
-
+			if (choices.current.move) {
+				const moveName = choices.currentMove()?.name;
 				return <div class="controls">
 					<div class="whatdo">
 						{this.renderOldChoices(request, choices)}
-						What will <strong>{pokemon.name}</strong> do?
-					</div>
-					<div class="movecontrols">
-						<h3 class="moveselect">Attack</h3>
-						{this.renderMoveMenu(choices)}
+						{pokemon.name} should use <strong>{moveName}</strong> at where? {}
 					</div>
 					<div class="switchcontrols">
-						{canShift && [
-							<h3 class="shiftselect">Shift</h3>,
-							<button data-cmd="/shift">Move to center</button>,
-						]}
-						<h3 class="switchselect">Switch</h3>
-						{this.renderSwitchMenu(request, choices)}
-					</div>
-				</div>;
-			} case 'switch': {
-				const pokemon = request.side.pokemon[choices.index()];
-				return <div class="controls">
-					<div class="whatdo">
-						{this.renderOldChoices(request, choices)}
-						What will <strong>{pokemon.name}</strong> do?
-					</div>
-					<div class="switchcontrols">
-						<h3 class="switchselect">Switch</h3>
-						{this.renderSwitchMenu(request, choices, true)}
-					</div>
-				</div>;
-			} case 'team': {
-				return <div class="controls">
-					<div class="whatdo">
-						{choices.alreadySwitchingIn.length > 0 ? (
-							[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
-								" What about the rest of your team? "]
-						) : (
-							"How will you start the battle? "
-						)}
-					</div>
-					<div class="switchcontrols">
-						<h3 class="switchselect">
-							Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}
-						</h3>
 						<div class="switchmenu">
-							{this.renderTeamPreviewChooser(request, choices)}
-							<div style="clear:left"></div>
-						</div>
-					</div>
-					<div class="switchcontrols">
-						{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
-						<div class="switchmenu">
-							{this.renderChosenTeam(request, choices)}
+							{this.renderMoveTargetControls(request, choices)}
 						</div>
 					</div>
 				</div>;
 			}
+
+			const canShift = room.battle.gameType === 'triples' && index !== 1;
+
+			return <div class="controls">
+				<div class="whatdo">
+					{this.renderOldChoices(request, choices)}
+					What will <strong>{pokemon.name}</strong> do?
+				</div>
+				<div class="movecontrols">
+					<h3 class="moveselect">Attack</h3>
+					{this.renderMoveMenu(choices)}
+				</div>
+				<div class="switchcontrols">
+					{canShift && [
+						<h3 class="shiftselect">Shift</h3>,
+						<button data-cmd="/shift">Move to center</button>,
+					]}
+					<h3 class="switchselect">Switch</h3>
+					{this.renderSwitchMenu(request, choices)}
+				</div>
+			</div>;
+		} case 'switch': {
+			const pokemon = request.side.pokemon[choices.index()];
+			return <div class="controls">
+				<div class="whatdo">
+					{this.renderOldChoices(request, choices)}
+					What will <strong>{pokemon.name}</strong> do?
+				</div>
+				<div class="switchcontrols">
+					<h3 class="switchselect">Switch</h3>
+					{this.renderSwitchMenu(request, choices, true)}
+				</div>
+			</div>;
+		} case 'team': {
+			return <div class="controls">
+				<div class="whatdo">
+					{choices.alreadySwitchingIn.length > 0 ? (
+						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
+							" What about the rest of your team? "]
+					) : (
+						"How will you start the battle? "
+					)}
+				</div>
+				<div class="switchcontrols">
+					<h3 class="switchselect">
+						Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}
+					</h3>
+					<div class="switchmenu">
+						{this.renderTeamPreviewChooser(request, choices)}
+						<div style="clear:left"></div>
+					</div>
+				</div>
+				<div class="switchcontrols">
+					{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
+					<div class="switchmenu">
+						{this.renderChosenTeam(request, choices)}
+					</div>
+				</div>
+			</div>;
+		}
 		}
 		return null;
 	}
@@ -991,7 +994,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
 					<i class="fa fa-undo" aria-hidden></i><br />Replay
-				</button> { }
+				</button> {}
 				{isNotTiny && <button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
 					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>}
@@ -1003,14 +1006,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<p>
 					<button class="button" data-cmd="/close">
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
-					</button> { }
+					</button> {}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button>
+					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button> {}
+					<button class="button" data-cmd="/ffto">
+						<i class="fa fa-random" aria-hidden></i> Go to turn
+					</button>
 				</p>
 			)}
 		</div>;
@@ -1071,7 +1077,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<ChatLog
 				class="battle-log hasuserlist" room={room} left={640} noSubscription
 			>
-				{ }
+				{}
 			</ChatLog>
 			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
 			<ChatUserList room={room} left={640} minimized />

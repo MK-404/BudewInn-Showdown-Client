@@ -177,14 +177,14 @@ export class BattleChoiceBuilder {
 	requestLength() {
 		const request = this.request;
 		switch (request.requestType) {
-			case 'move':
-				return request.active.length;
-			case 'switch':
-				return request.forceSwitch.length;
-			case 'team':
-				return request.chosenTeamSize || 1;
-			case 'wait':
-				return 0;
+		case 'move':
+			return request.active.length;
+		case 'switch':
+			return request.forceSwitch.length;
+		case 'team':
+			return request.chosenTeamSize || 1;
+		case 'wait':
+			return 0;
 		}
 	}
 	currentMoveRequest(index = this.index()) {
@@ -285,20 +285,20 @@ export class BattleChoiceBuilder {
 	fillPasses() {
 		const request = this.request;
 		switch (request.requestType) {
-			case 'move':
-				while (this.choices.length < request.active.length && !request.active[this.choices.length]) {
+		case 'move':
+			while (this.choices.length < request.active.length && !request.active[this.choices.length]) {
+				this.choices.push('pass');
+			}
+			break;
+		case 'switch':
+			const noMoreSwitchChoices = this.noMoreSwitchChoices();
+			while (this.choices.length < request.forceSwitch.length) {
+				if (!request.forceSwitch[this.choices.length] || noMoreSwitchChoices) {
 					this.choices.push('pass');
+				} else {
+					break;
 				}
-				break;
-			case 'switch':
-				const noMoreSwitchChoices = this.noMoreSwitchChoices();
-				while (this.choices.length < request.forceSwitch.length) {
-					if (!request.forceSwitch[this.choices.length] || noMoreSwitchChoices) {
-						this.choices.push('pass');
-					} else {
-						break;
-					}
-				}
+			}
 		}
 	}
 
@@ -511,15 +511,15 @@ export class BattleChoiceBuilder {
 	stringChoice(choice: BattleChoice | null) {
 		if (!choice) return `pass`;
 		switch (choice.choiceType) {
-			case 'move':
-				const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
-				return `move ${choice.move}${this.moveSpecial(choice)}${target}`;
-			case 'switch':
-			case 'team':
-				return `${choice.choiceType} ${choice.targetPokemon}`;
-			case 'shift':
-			case 'testfight':
-				return choice.choiceType;
+		case 'move':
+			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
+			return `move ${choice.move}${this.moveSpecial(choice)}${target}`;
+		case 'switch':
+		case 'team':
+			return `${choice.choiceType} ${choice.targetPokemon}`;
+		case 'shift':
+		case 'testfight':
+			return choice.choiceType;
 		}
 	}
 	moveSpecial(choice: BattleMoveChoice) {
@@ -527,6 +527,7 @@ export class BattleChoiceBuilder {
 			(choice.mega ? ' mega' : '') +
 			(choice.megax ? ' megax' : '') +
 			(choice.megay ? ' megay' : '') +
+			(choice.ultra ? ' ultra' : '') +
 			(choice.z ? ' zmove' : '') +
 			(choice.tera ? ' terastallize' : '');
 	}

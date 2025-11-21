@@ -184,10 +184,10 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
 					))}
 				</ul>
-					<p>
-						Find {info.resources.length ? 'more ' : ''}
-						helpful resources for {formatName} on <a href={info.url} target="_blank">the Smogon Dex</a>.
-					</p></div>
+				<p>
+					Find {info.resources.length ? 'more ' : ''}
+					helpful resources for {formatName} on <a href={info.url} target="_blank">the Smogon Dex</a>.
+				</p></div>
 			</details>
 		) : null;
 	}
@@ -217,7 +217,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
 				<i class="fa fa-chevron-left" aria-hidden></i> Teams
-			</a> { }
+			</a> {}
 			{team.uploaded ? (
 				<>
 					<button class={`button${unsaved ? ' button-first' : ''}`} data-href={`teamstorage-${team.key}`}>
@@ -240,11 +240,11 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				name="format" value={team.format} data-selecttype="teambuilder"
 				class="button" data-href="/formatdropdown" onChange={this.handleChangeFormat}
 			>
-				<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} { }
+				<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
 				{team.format.length <= 4 && <em>(uncategorized)</em>} <i class="fa fa-caret-down"></i>
 			</button></div>
 			<label class="label teamname">
-				Team name:{ }
+				Team name:{}
 				<input
 					class="textbox" type="text" value={team.name}
 					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
@@ -260,17 +260,17 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					{team.uploadedPackedTeam && !team.uploaded ? <>
 						Uploading...
 					</> : team.uploaded ? <>
-						<small>Share URL:</small> { }
+						<small>Share URL:</small> {}
 						<CopyableURLBox
 							url={`https://psim.us/t/${team.uploaded.teamid}${team.uploaded.private ? '-' + team.uploaded.private : ''}`}
-						/> { }
+						/> {}
 						{unsaved && <div style="padding-top:5px">
 							<button class="button" onClick={this.uploadTeam}>
 								<i class="fa fa-upload"></i> <strong>Upload changes</strong>
-							</button> { }
+							</button> {}
 							<button class="button" onClick={this.restore}>
 								Revert to uploaded version
-							</button> { }
+							</button> {}
 							<button class="button" onClick={this.compare}>
 								Compare
 							</button>
@@ -361,7 +361,7 @@ class ViewTeamPanel extends PSRoomPanel {
 			<h1>{team.name || "Untitled team"}</h1>
 			<CopyableURLBox
 				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
-			/> { }
+			/> {}
 			<p>Uploaded by: <strong>{teamData.ownerid}</strong></p>
 			<p>Format: <strong>{teamData.format}</strong></p>
 			<p>Views: <strong>{teamData.views}</strong></p>

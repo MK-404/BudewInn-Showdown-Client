@@ -248,7 +248,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		this.props.room.caughtError = err.stack || err.message;
 		this.setState({});
 	}
-	receiveLine(args: Args) { }
+	receiveLine(args: Args) {}
 	/**
 	 * PS has "fake select menus", buttons that act like <select> dropdowns.
 	 * This function is used by the popups they open to change the button
@@ -687,60 +687,60 @@ export class PSView extends preact.Component {
 	};
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
-			case 'closeRoom': {
-				const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-				PS.rooms[roomid]?.send('/close', elem);
-				return true;
-			}
-			case 'joinRoom':
-				PS.join(elem.value as RoomID, {
-					parentElem: elem,
-				});
-				return true;
-			case 'register':
-				PS.join('register' as RoomID, {
-					parentElem: elem,
-				});
-				return true;
-			case 'showOtherFormats': {
-				// TODO: refactor to a command after we drop support for the old client
-				const table = elem.closest('table');
-				const room = PS.getRoom(elem);
-				if (table) {
-					for (const row of table.querySelectorAll<HTMLElement>('tr.hidden')) {
-						row.style.display = 'table-row';
-					}
-					for (const row of table.querySelectorAll<HTMLElement>('tr.no-matches')) {
-						row.style.display = 'none';
-					}
-					elem.closest('tr')!.style.display = 'none';
-					(room as ChatRoom).log?.updateScroll();
+		case 'closeRoom': {
+			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+			PS.rooms[roomid]?.send('/close', elem);
+			return true;
+		}
+		case 'joinRoom':
+			PS.join(elem.value as RoomID, {
+				parentElem: elem,
+			});
+			return true;
+		case 'register':
+			PS.join('register' as RoomID, {
+				parentElem: elem,
+			});
+			return true;
+		case 'showOtherFormats': {
+			// TODO: refactor to a command after we drop support for the old client
+			const table = elem.closest('table');
+			const room = PS.getRoom(elem);
+			if (table) {
+				for (const row of table.querySelectorAll<HTMLElement>('tr.hidden')) {
+					row.style.display = 'table-row';
 				}
-				return true;
-			}
-			case 'copyText':
-				const dummyInput = document.createElement("input");
-				// This is a hack. You can only "select" an input field.
-				//  The trick is to create a short lived input element and destroy it after a copy.
-				// (stolen from the replay code, obviously --mia)
-				dummyInput.id = "dummyInput";
-				dummyInput.value = elem.value || (elem as any).href || "";
-				dummyInput.style.position = 'absolute';
-				elem.appendChild(dummyInput);
-				dummyInput.select();
-				document.execCommand("copy");
-				elem.removeChild(dummyInput);
-				elem.innerText = 'Copied!';
-				return true;
-			case 'send':
-			case 'cmd':
-				const room = PS.getRoom(elem) || PS.mainmenu;
-				if (elem.name === 'send') {
-					room.sendDirect(elem.value);
-				} else {
-					room.send(elem.value);
+				for (const row of table.querySelectorAll<HTMLElement>('tr.no-matches')) {
+					row.style.display = 'none';
 				}
-				return true;
+				elem.closest('tr')!.style.display = 'none';
+				(room as ChatRoom).log?.updateScroll();
+			}
+			return true;
+		}
+		case 'copyText':
+			const dummyInput = document.createElement("input");
+			// This is a hack. You can only "select" an input field.
+			//  The trick is to create a short lived input element and destroy it after a copy.
+			// (stolen from the replay code, obviously --mia)
+			dummyInput.id = "dummyInput";
+			dummyInput.value = elem.value || (elem as any).href || "";
+			dummyInput.style.position = 'absolute';
+			elem.appendChild(dummyInput);
+			dummyInput.select();
+			document.execCommand("copy");
+			elem.removeChild(dummyInput);
+			elem.innerText = 'Copied!';
+			return true;
+		case 'send':
+		case 'cmd':
+			const room = PS.getRoom(elem) || PS.mainmenu;
+			if (elem.name === 'send') {
+				room.sendDirect(elem.value);
+			} else {
+				room.send(elem.value);
+			}
+			return true;
 		}
 		return false;
 	}
@@ -762,7 +762,7 @@ export class PSView extends preact.Component {
 		try {
 			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
-		} catch { }
+		} catch {}
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
@@ -916,7 +916,7 @@ export class PSView extends preact.Component {
 
 export function PSIcon(
 	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
-	{ item: string } | { type: string, b?: boolean } | { category: string }
+		{ item: string | null } | { type: string, b?: boolean } | { category: string }
 ) {
 	if ('pokemon' in props) {
 		return <span class="picon" style={Dex.getPokemonIcon(props.pokemon)} />;
@@ -930,25 +930,25 @@ export function PSIcon(
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return <img
 			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
-			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`}
+			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`} style="vertical-align:middle"
 		/>;
 	}
 	if ('category' in props) {
 		const categoryID = toID(props.category);
 		let sanitizedCategory = '';
 		switch (categoryID) {
-			case 'physical':
-			case 'special':
-			case 'status':
-				sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
-				break;
-			default:
-				sanitizedCategory = 'undefined';
-				break;
+		case 'physical':
+		case 'special':
+		case 'status':
+			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
+			break;
+		default:
+			sanitizedCategory = 'undefined';
+			break;
 		}
 		return <img
 			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`} alt={sanitizedCategory}
-			height="14" width="32" class="pixelated"
+			height="14" width="32" class="pixelated" style="vertical-align:middle"
 		/>;
 	}
 	return null!;

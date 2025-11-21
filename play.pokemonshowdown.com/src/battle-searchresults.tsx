@@ -128,8 +128,8 @@ export class PSSearchResults extends preact.Component<{
 				<span class="col statcol"><em>HP</em><br />{stats.hp}</span>
 				<span class="col statcol"><em>Atk</em><br />{stats.atk}</span>
 				<span class="col statcol"><em>Def</em><br />{stats.def}</span>
-				{search.dex.gen > 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
-				{search.dex.gen > 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
+				{search.dex.gen >= 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
+				{search.dex.gen >= 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
 				{search.dex.gen < 2 && <span class="col statcol"><em>Spc</em><br />{stats.spa}</span>}
 				<span class="col statcol"><em>Spe</em><br />{stats.spe}</span>
 				<span class="col bstcol"><em>BST<br />{bst}</em></span>
@@ -381,37 +381,37 @@ export class PSSearchResults extends preact.Component<{
 		}
 
 		switch (type) {
-			case 'html':
-				const sanitizedHTML = id.replace(/</g, '&lt;')
-					.replace(/&lt;em>/g, '<em>').replace(/&lt;\/em>/g, '</em>')
-					.replace(/&lt;strong>/g, '<strong>').replace(/&lt;\/strong>/g, '</strong>');
-				return <li class="result">
-					<p dangerouslySetInnerHTML={{ __html: sanitizedHTML }}></p>
-				</li>;
-			case 'header':
-				return <li class="result"><h3>{id}</h3></li>;
-			case 'sortpokemon':
-				return this.renderPokemonSortRow();
-			case 'sortmove':
-				return this.renderMoveSortRow();
-			case 'pokemon':
-				return this.renderPokemonRow(id, matchStart, matchEnd, errorMessage);
-			case 'move':
-				return this.renderMoveRow(id, matchStart, matchEnd, errorMessage);
-			case 'item':
-				return this.renderItemRow(id, matchStart, matchEnd, errorMessage);
-			case 'ability':
-				return this.renderAbilityRow(id, matchStart, matchEnd, errorMessage);
-			case 'type':
-				return this.renderTypeRow(id, matchStart, matchEnd, errorMessage);
-			case 'egggroup':
-				return this.renderEggGroupRow(id, matchStart, matchEnd, errorMessage);
-			case 'tier':
-				return this.renderTierRow(id, matchStart, matchEnd, errorMessage);
-			case 'category':
-				return this.renderCategoryRow(id, matchStart, matchEnd, errorMessage);
-			case 'article':
-				return this.renderArticleRow(id, matchStart, matchEnd, errorMessage);
+		case 'html':
+			const sanitizedHTML = id.replace(/</g, '&lt;')
+				.replace(/&lt;em>/g, '<em>').replace(/&lt;\/em>/g, '</em>')
+				.replace(/&lt;strong>/g, '<strong>').replace(/&lt;\/strong>/g, '</strong>');
+			return <li class="result">
+				<p dangerouslySetInnerHTML={{ __html: sanitizedHTML }}></p>
+			</li>;
+		case 'header':
+			return <li class="result"><h3>{id}</h3></li>;
+		case 'sortpokemon':
+			return this.renderPokemonSortRow();
+		case 'sortmove':
+			return this.renderMoveSortRow();
+		case 'pokemon':
+			return this.renderPokemonRow(id, matchStart, matchEnd, errorMessage);
+		case 'move':
+			return this.renderMoveRow(id, matchStart, matchEnd, errorMessage);
+		case 'item':
+			return this.renderItemRow(id, matchStart, matchEnd, errorMessage);
+		case 'ability':
+			return this.renderAbilityRow(id, matchStart, matchEnd, errorMessage);
+		case 'type':
+			return this.renderTypeRow(id, matchStart, matchEnd, errorMessage);
+		case 'egggroup':
+			return this.renderEggGroupRow(id, matchStart, matchEnd, errorMessage);
+		case 'tier':
+			return this.renderTierRow(id, matchStart, matchEnd, errorMessage);
+		case 'category':
+			return this.renderCategoryRow(id, matchStart, matchEnd, errorMessage);
+		case 'article':
+			return this.renderArticleRow(id, matchStart, matchEnd, errorMessage);
 		}
 		return <li>Error: not found</li>;
 	}

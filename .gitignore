@@ -10,7 +10,6 @@ npm-debug.log
 /play.pokemonshowdown.com/dirindex/fontawesome5*
 
 /play.pokemonshowdown.com/sprites/
-/budewinn.it/
 /play.pokemonshowdown.com/audio/
 
 # built from other sources
@@ -50,5 +49,3 @@ npm-debug.log
 /teams.pokemonshowdown.com/caches/
 /teams.pokemonshowdown.com/index.html
 /teams.pokemonshowdown.com/ads.txt
-\!\! build full.bat
-\!\! build index.bat

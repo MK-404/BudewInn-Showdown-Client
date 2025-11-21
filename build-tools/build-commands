@@ -16,9 +16,9 @@ Object.assign(globalThis, {
 		rooms: new Map(),
 		search: noop,
 		get: noop,
-		RoomGame: class { },
-		RoomGamePlayer: class { },
-		SimpleRoomGame: class { },
+		RoomGame: class {},
+		RoomGamePlayer: class {},
+		SimpleRoomGame: class {},
 	},
 	toID: str => ("" + str).toLowerCase().replace(/[^a-z0-9]/ig, ''),
 });

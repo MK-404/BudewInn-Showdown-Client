@@ -65,7 +65,7 @@ function PageLadderHelp() {
 			your win chance against an average ladder player.
 		</p>
 		<p>
-			<strong>Glicko-1</strong> is { }
+			<strong>Glicko-1</strong> is {}
 			<a href="https://en.wikipedia.org/wiki/Glicko_rating_system">another rating system</a>.
 			It has rating and deviation values.
 		</p>
@@ -73,8 +73,8 @@ function PageLadderHelp() {
 			<strong>COIL</strong> (Converging Order Invariant Ladder) is
 			used for suspect tests. The more games you play, the closer
 			it will get to your GXE &times; 4000. How fast it reaches
-			GXE &times; 4000 depends on { }
-			<a href="https://www.smogon.com/forums/threads/reintroducing-coil.3747719/" target="_blank">a custom B value</a> { }
+			GXE &times; 4000 depends on {}
+			<a href="https://www.smogon.com/forums/threads/reintroducing-coil.3747719/" target="_blank">a custom B value</a> {}
 			which is different for each suspect test.
 		</p>
 		<p>
@@ -98,36 +98,36 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	override receiveLine(args: Args) {
 		const { room } = this.props;
 		switch (args[0]) {
-			case 'title':
-				room.title = args[1];
-				PS.update();
-				return true;
-			case 'tempnotify': {
-				const [, id, title, body] = args;
-				room.notify({ title, body, id });
-				return true;
+		case 'title':
+			room.title = args[1];
+			PS.update();
+			return true;
+		case 'tempnotify': {
+			const [, id, title, body] = args;
+			room.notify({ title, body, id });
+			return true;
+		}
+		case 'tempnotifyoff': {
+			const [, id] = args;
+			room.dismissNotification(id);
+			return true;
+		}
+		case 'selectorhtml':
+			const pageHTMLContainer = this.base!.querySelector('.page-html-container');
+			const selectedElement = pageHTMLContainer?.querySelector(args[1]);
+			if (!selectedElement) return;
+			selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
+			room.subtleNotify();
+			return true;
+		case 'noinit':
+			if (args[1] === 'namerequired') {
+				room.setHTMLData(args[2]);
 			}
-			case 'tempnotifyoff': {
-				const [, id] = args;
-				room.dismissNotification(id);
-				return true;
-			}
-			case 'selectorhtml':
-				const pageHTMLContainer = this.base!.querySelector('.page-html-container');
-				const selectedElement = pageHTMLContainer?.querySelector(args[1]);
-				if (!selectedElement) return;
-				selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
-				room.subtleNotify();
-				return true;
-			case 'noinit':
-				if (args[1] === 'namerequired') {
-					room.setHTMLData(args[2]);
-				}
-				return true;
-			case 'pagehtml':
-				room.setHTMLData(args[1]);
-				room.subtleNotify();
-				return true;
+			return true;
+		case 'pagehtml':
+			room.setHTMLData(args[1]);
+			room.subtleNotify();
+			return true;
 		}
 	}
 	override render() {

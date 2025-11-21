@@ -504,772 +504,772 @@
 			}
 
 			switch (toID(cmd)) {
+			case 'chal':
+			case 'chall':
+			case 'challenge':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var targets = target.split(',');
+				for (var i = 0; i < targets.length; i++) {
+					targets[i] = $.trim(targets[i]);
+				}
+
+				var self = this;
+				var challenge = function (targets) {
+					target = toID(targets[0]);
+					self.challengeData = { userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: '' };
+					app.on('response:userdetails', self.challengeUserdetails, self);
+					app.send('/cmd userdetails ' + target);
+				};
+
+				if (!targets[0]) {
+					app.addPopupPrompt("Who would you like to challenge?", "Challenge user", function (target) {
+						if (!target) return;
+						challenge([target]);
+					});
+					return false;
+				}
+				challenge(targets);
+				return false;
+
+			case 'accept':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var userid = toID(target);
+				if (userid) {
+					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
+					if (!$challenge.length) {
+						this.add("You do not have any pending challenge from '" + toName(target) + "' to accept.");
+						return false;
+					}
+					$challenge[0].click();
+					return false;
+				}
+
+				var $challenges = $('.challenge').find('button[name=acceptChallenge]');
+				if (!$challenges.length) {
+					this.add('You do not have any pending challenges to accept.');
+					return false;
+				}
+				if ($challenges.length > 1) {
+					this.add('You need to specify a user if you have more than one pending challenge to accept.');
+					this.parseCommand('/help accept');
+					return false;
+				}
+
+				$challenges[0].click();
+				return false;
+			case 'reject':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var userid = toID(target);
+				if (userid) {
+					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
+					if (!$challenge.length) {
+						this.add("You do not have any pending challenge from '" + toName(target) + "' to reject.");
+						return false;
+					}
+					$challenge[0].click();
+					return false;
+				}
+
+				var $challenges = $('.challenge').find('button[name="rejectChallenge"]');
+				if (!$challenges.length) {
+					this.add('You do not have any pending challenges to reject.');
+					this.parseCommand('/help reject');
+					return false;
+				}
+				if ($challenges.length > 1) {
+					this.add('You need to specify a user if you have more than one pending challenge to reject.');
+					this.parseCommand('/help reject');
+					return false;
+				}
+
+				$challenges[0].click();
+				return false;
+
+			case 'user':
+			case 'open':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var openUser = function (target) {
+					app.addPopup(UserPopup, { name: target });
+				};
+				target = toName(target);
+				if (!target) {
+					app.addPopupPrompt("Username", "Open", function (target) {
+						if (!target) return;
+						openUser(target);
+					});
+					return false;
+				}
+				openUser(target);
+				return false;
+
+			case 'pm':
+			case 'whisper':
+			case 'w':
+			case 'msg':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var commaIndex = target.indexOf(',');
+				if (commaIndex < 0) break;
+				if (!$.trim(target.slice(commaIndex + 1))) {
+					app.rooms[''].focusPM(target.slice(0, commaIndex));
+					return false;
+				}
+				break;
+
+			case 'debug':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (target === 'extractteams') {
+					app.addPopup(Popup, {
+						type: 'modal',
+						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
+					});
+				} else if (target === 'nw') {
+					try {
+						nw.Window.get().showDevTools();
+					} catch (e) {
+						this.add('|error|' + e.message);
+					}
+				} else {
+					this.add('|error|Unknown debug command.');
+					this.add('|error|Are you looking for /showdebug and /hidedebug?');
+				}
+				return false;
+
+			case 'news':
+				if (this.checkBroadcast(cmd, text)) return false;
+				app.rooms[''].addNews();
+				return false;
+			case 'autojoin':
+			case 'cmd':
+			case 'crq':
+			case 'query':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('This is a PS system command; do not use it.');
+				return false;
+
+			case 'ignore':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (!target) {
+					this.parseCommand('/help ignore');
+					return false;
+				}
+				if (toUserid(target) === app.user.get('userid')) {
+					this.add("You are not able to ignore yourself.");
+				} else if (app.ignore[toUserid(target)]) {
+					this.add("User '" + toName(target) + "' is already on your ignore list. (Moderator messages will not be ignored.)");
+				} else {
+					app.ignore[toUserid(target)] = 1;
+					this.add("User '" + toName(target) + "' ignored. (Moderator messages will not be ignored.)");
+					app.saveIgnore();
+				}
+				return false;
+
+			case 'clearignore':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (toID(target) !== 'confirm') {
+					this.add("Are you sure you want to clear your ignore list?");
+					this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');
+					return false;
+				}
+				if (!Object.keys(app.ignore).length) {
+					this.add("You have no ignored users.");
+					return false;
+				}
+				app.ignore = {};
+				app.saveIgnore();
+				this.add("Your ignore list was cleared.");
+				return false;
+			case 'unignore':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (!target) {
+					this.parseCommand('/help unignore');
+					return false;
+				}
+				if (!app.ignore[toUserid(target)]) {
+					this.add("User '" + toName(target) + "' isn't on your ignore list.");
+				} else {
+					delete app.ignore[toUserid(target)];
+					this.add("User '" + toName(target) + "' no longer ignored.");
+					app.saveIgnore();
+				}
+				return false;
+
+			case 'ignorelist':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var ignoreList = Object.keys(app.ignore);
+				if (ignoreList.length === 0) {
+					this.add('You are currently not ignoring anyone.');
+				} else {
+					this.add("You are currently ignoring: " + ignoreList.join(', '));
+				}
+				return false;
+
+			case 'clear':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (this.clear) {
+					this.clear();
+				} else {
+					this.add('||This room can\'t be cleared');
+				}
+				return false;
+
+			case 'clearpms':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var $pms = $('.pm-window');
+				if (!$pms.length) {
+					this.add('You do not have any PM windows open.');
+					return false;
+				}
+				$pms.each(function () {
+					var userid = $(this).data('userid');
+					if (!userid) {
+						var newsId = $(this).data('newsid');
+						if (newsId) {
+							$.cookie('showdown_readnews', '' + newsId, { expires: 365 });
+						}
+						$(this).remove();
+						return;
+					}
+					app.rooms[''].closePM(userid);
+					$(this).find('.inner').empty();
+				});
+				this.add("All PM windows cleared and closed.");
+				return false;
+
+			case 'nick':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if ($.trim(target)) {
+					app.user.rename(target);
+				} else {
+					app.addPopup(LoginPopup);
+				}
+				return false;
+
+			case 'logout':
+				if (this.checkBroadcast(cmd, text)) return false;
+				app.user.logout();
+				return false;
+			case 'showdebug':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Debug battle messages: ON');
+				Storage.prefs('showdebug', true);
+				var debugStyle = $('#debugstyle').get(0);
+				var onCSS = '.debug {display: block;}';
+				if (!debugStyle) {
+					$('head').append('<style id="debugstyle">' + onCSS + '</style>');
+				} else {
+					debugStyle.innerHTML = onCSS;
+				}
+				return false;
+			case 'hidedebug':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Debug battle messages: HIDDEN');
+				Storage.prefs('showdebug', false);
+				var debugStyle = $('#debugstyle').get(0);
+				var offCSS = '.debug {display: none;}';
+				if (!debugStyle) {
+					$('head').append('<style id="debugstyle">' + offCSS + '</style>');
+				} else {
+					debugStyle.innerHTML = offCSS;
+				}
+				return false;
+
+			case 'showjoins':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var showjoins = Dex.prefs('showjoins') || {};
+				var serverShowjoins = showjoins[Config.server.id] || {};
+				if (target) {
+					var room = toID(target);
+					if (serverShowjoins['global']) {
+						delete serverShowjoins[room];
+					} else {
+						serverShowjoins[room] = 1;
+					}
+					this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
+				} else {
+					serverShowjoins = { global: 1 };
+					this.add('Join/leave messages: ALWAYS ON');
+				}
+				showjoins[Config.server.id] = serverShowjoins;
+				Storage.prefs('showjoins', showjoins);
+				return false;
+			case 'hidejoins':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var showjoins = Dex.prefs('showjoins') || {};
+				var serverShowjoins = showjoins[Config.server.id] || {};
+				if (target) {
+					var room = toID(target);
+					if (!serverShowjoins['global']) {
+						delete serverShowjoins[room];
+					} else {
+						serverShowjoins[room] = 0;
+					}
+					this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
+				} else {
+					serverShowjoins = { global: 0 };
+					this.add('Join/leave messages: AUTOMATIC');
+				}
+				showjoins[Config.server.id] = serverShowjoins;
+				Storage.prefs('showjoins', showjoins);
+				return false;
+
+			case 'showbattles':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Battle messages: ON');
+				Storage.prefs('showbattles', true);
+				return false;
+			case 'hidebattles':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Battle messages: HIDDEN');
+				Storage.prefs('showbattles', false);
+				return false;
+
+			case 'unpackhidden':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Locked/banned users\' chat messages: ON');
+				Storage.prefs('nounlink', true);
+				return false;
+			case 'packhidden':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.add('Locked/banned users\' chat messages: HIDDEN');
+				Storage.prefs('nounlink', false);
+				return false;
+
+			case 'timestamps':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var targets = target.split(',');
+				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
+					(['off', 'minutes', 'seconds'].indexOf(targets[1] = targets[1].trim()) === -1)) {
+					this.add('Error: Invalid /timestamps command');
+					this.parseCommand('/help timestamps'); // show help
+					return false;
+				}
+				var timestamps = Dex.prefs('timestamps') || {};
+				if (typeof timestamps === 'string') {
+					// The previous has a timestamps preference from the previous
+					// regime. We can't set properties of a string, so set it to
+					// an empty object.
+					timestamps = {};
+				}
+				switch (targets[0]) {
+				case 'all':
+					timestamps.lobby = targets[1];
+					timestamps.pms = targets[1];
+					break;
+				case 'lobby':
+					timestamps.lobby = targets[1];
+					break;
+				case 'pms':
+					timestamps.pms = targets[1];
+					break;
+				}
+				this.add("Timestamps preference set to: '" + targets[1] + "' for '" + targets[0] + "'.");
+				Storage.prefs('timestamps', timestamps);
+				return false;
+
+			case 'hl':
+			case 'highlight':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var highlights = Dex.prefs('highlights') || {};
+				if (target.includes(' ')) {
+					var targets = target.split(' ');
+					var subCmd = targets[0];
+					targets = targets.slice(1).join(' ').match(/([^,]+?({\d*,\d*})?)+/g);
+					// trim the targets to be safe
+					for (var i = 0, len = targets.length; i < len; i++) {
+						targets[i] = targets[i].replace(/\n/g, '').trim();
+					}
+					switch (subCmd) {
+					case 'add': case 'roomadd':
+						var key = subCmd === 'roomadd' ? (Config.server.id + '#' + this.id) : 'global';
+						var highlightList = highlights[key] || [];
+						for (var i = 0, len = targets.length; i < len; i++) {
+							if (!targets[i]) continue;
+							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
+								// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
+								try {
+									new RegExp(targets[i]);
+								} catch (e) {
+									return this.add('|error|' + (e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message));
+								}
+							}
+							if (highlightList.includes(targets[i])) {
+								return this.add('|error|' + targets[i] + ' is already on your highlights list.');
+							}
+						}
+						highlights[key] = highlightList.concat(targets);
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
+						// We update the regex
+						this.updateHighlightRegExp(highlights);
+						break;
+					case 'delete': case 'roomdelete':
+						var key = subCmd === 'roomdelete' ? (Config.server.id + '#' + this.id) : 'global';
+						var highlightList = highlights[key] || [];
+						var newHls = [];
+						for (var i = 0, len = highlightList.length; i < len; i++) {
+							if (targets.indexOf(highlightList[i]) === -1) {
+								newHls.push(highlightList[i]);
+							}
+						}
+						highlights[key] = newHls;
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
+						// We update the regex
+						this.updateHighlightRegExp(highlights);
+						break;
+					default:
+						if (this.checkBroadcast(cmd, text)) return false;
+						// Wrong command
+						this.add('|error|Invalid /highlight command.');
+						this.parseCommand('/help highlight'); // show help
+						return false;
+					}
+					Storage.prefs('highlights', highlights);
+				} else {
+					if (this.checkBroadcast(cmd, text)) return false;
+					if (['clear', 'roomclear', 'clearall'].includes(target)) {
+						var key = (target === 'roomclear' ? (Config.server.id + '#' + this.id) : (target === 'clearall' ? '' : 'global'));
+						if (key) {
+							highlights[key] = [];
+							this.add("All highlights (" + (key === 'global' ? "everywhere" : "in " + key) + ") cleared.");
+							this.updateHighlightRegExp(highlightList);
+						} else {
+							Storage.prefs('highlights', false);
+							this.add("All highlights (in all rooms and globally) cleared.");
+							this.updateHighlightRegExp({});
+						}
+					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
+						// Shows a list of the current highlighting words
+						var key = target.startsWith('room') ? (Config.server.id + '#' + this.id) : 'global';
+						if (highlights[key] && highlights[key].length > 0) {
+							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
+						} else {
+							this.add('Your highlight list' + (key === 'global' ? '' : ' in ' + key) + ' is empty.');
+						}
+					} else {
+						// Wrong command
+						this.add('|error|Invalid /highlight command.');
+						this.parseCommand('/help highlight'); // show help
+						return false;
+					}
+				}
+				return false;
+
+			case 'rank':
+			case 'ranking':
+			case 'rating':
+			case 'ladder':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (app.localLadder) return text;
+				if (!target) {
+					target = app.user.get('userid');
+				}
+				if (this.battle && !target.includes(',')) {
+					target += ", " + this.id.split('-')[1];
+				}
+
+				var targets = target.split(',');
+				var formatTargeting = false;
+				var formats = {};
+				var gens = {};
+				for (var i = 1, len = targets.length; i < len; i++) {
+					targets[i] = $.trim(targets[i]);
+					if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
+						gens[targets[i]] = 1;
+					} else {
+						formats[toID(targets[i])] = 1;
+					}
+					formatTargeting = true;
+				}
+
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'ladderget',
+					user: targets[0]
+				}, Storage.safeJSON(function (data) {
+					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
+					var buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
+					if (!data.length) {
+						buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
+						buffer += '</table></div>';
+						return self.add('|raw|' + buffer);
+					}
+					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+					var suspect = false;
+					for (var i = 0; i < data.length; i++) {
+						if ('suspect' in data[i]) suspect = true;
+					}
+					if (suspect) buffer += '<th>Suspect reqs possible?</th>';
+					buffer += '</tr>';
+					var hiddenFormats = [];
+					for (var i = 0; i < data.length; i++) {
+						var row = data[i];
+						if (!row) return self.add('|raw|Error: corrupted ranking data');
+						var formatId = toID(row.formatid);
+						if (!formatTargeting || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+							buffer += '<tr>';
+						} else {
+							buffer += '<tr class="hidden">';
+							hiddenFormats.push(BattleLog.escapeFormat(formatId));
+						}
+
+						// Validate all the numerical data
+						var values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
+						for (var j = 0; j < values.length; j++) {
+							if (typeof values[j] !== 'number' && typeof values[j] !== 'string' || isNaN(values[j])) return self.add('|raw|Error: corrupted ranking data');
+						}
+
+						buffer += '<td>' + BattleLog.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
+						if (row.rprd > 100) {
+							// High rating deviation. Provisional rating.
+							buffer += '<td>&ndash;</td>';
+							buffer += '<td><span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span></td>';
+						} else {
+							var gxe = Math.round(row.gxe * 10);
+							buffer += '<td>' + Math.floor(gxe / 10) + '<small>.' + (gxe % 10) + '%</small></td>';
+							buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
+						}
+						var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+						var COIL_B = LadderRoom.COIL_B[formatId];
+						if (COIL_B) {
+							buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N), 0) + '</td>';
+						} else {
+							buffer += '<td>--</td>';
+						}
+						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td>';
+						if (suspect) {
+							if (typeof row.suspect === 'undefined') {
+								buffer += '<td>--</td>';
+							} else {
+								buffer += '<td>';
+								buffer += (row.suspect ? "Yes" : "No");
+								buffer += '</td>';
+							}
+						}
+						buffer += '</tr>';
+					}
+					if (hiddenFormats.length) {
+						if (hiddenFormats.length === data.length) {
+							buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+						}
+						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+					}
+					var userid = toID(targets[0]);
+					var registered = app.user.get('registered');
+					if (registered && registered.userid === userid) {
+						buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + Config.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
+					}
+					buffer += '</table></div>';
+					self.add('|raw|' + buffer);
+				}), 'text');
+				return false;
+
+			case 'buttonban':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var self = this;
+				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function (reason) {
+					self.send('/ban ' + toName(target) + ', ' + (reason || ''));
+				});
+				return false;
+
+			case 'resources':
+				app.joinRoom('resources');
+				return false;
+
+			case 'buttonmute':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var self = this;
+				app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function (reason) {
+					self.send('/mute ' + toName(target) + ', ' + (reason || ''));
+				});
+				return false;
+
+			case 'buttonunmute':
+				if (this.checkBroadcast(cmd, text)) return false;
+				this.send('/unmute ' + target);
+				return false;
+
+			case 'buttonkick':
+			case 'buttonwarn':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var self = this;
+				app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function (reason) {
+					self.send('/warn ' + toName(target) + ', ' + (reason || ''));
+				});
+				return false;
+
+			case 'joim':
+			case 'join':
+			case 'j':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (noSpace) return text;
+				if (app.rooms[target]) {
+					app.focusRoom(target);
+					return false;
+				}
+				var roomid = toID(target);
+				if (app.rooms[roomid]) {
+					app.focusRoom(roomid);
+					return false;
+				}
+				return text; // Send the /join command through to the server.
+
+			case 'part':
+			case 'leave':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (this.requestLeave && !this.requestLeave()) return false;
+				return text;
+
+			case 'avatar':
+				var parts = target.split(',');
+				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
+				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+					avatar = window.BattleAvatarNumbers[avatar];
+				}
+				if (text.startsWith('/')) Storage.prefs('avatar', avatar);
+				return text.charAt(0) + 'avatar ' + avatar; // Send the command through to the server.
+
+			case 'afd':
+				if (this.checkBroadcast(cmd, text)) return false;
+				target = toID(target);
+				if (target === 'sprites') {
+					Storage.prefs('afd', 'sprites');
+					app.setAFD('sprites');
+					this.add('April Fools\' Day mode set to SPRITES.');
+				} else if (target === 'full') {
+					Storage.prefs('afd', true);
+					app.setAFD(true);
+					this.add('April Fools\' Day mode set to FULL.');
+				} else if (target === 'default') {
+					Storage.prefs('afd', null);
+					app.setAFD();
+					this.add('April Fools\' Day mode set to DEFAULT (Currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ').');
+				} else if (target === 'off' || target === 'false' || target === '0') {
+					Storage.prefs('afd', null);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to OFF temporarily.');
+					this.add('Trying to turn it off permanently? Use /afd never');
+				} else if (target === 'never') {
+					Storage.prefs('afd', false);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to NEVER.');
+					if (Config.server.afd) {
+						this.add('You\'re using the AFD URL, which will still override this setting and enable AFD mode on refresh.');
+					}
+				} else {
+					if (target) this.add('AFD option "' + target + '" not recognized');
+					var mode = Storage.prefs('afd');
+					if (mode === true) mode = 'FULL';
+					if (mode === false) mode = 'NEVER';
+					if (mode) mode = mode.toUpperCase();
+					if (!mode) mode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
+					this.add('AFD is currently set to ' + mode);
+					this.parseCommand('/help afd');
+				}
+				for (var roomid in app.rooms) {
+					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
+					if (!battle) continue;
+					battle.resetToCurrentTurn();
+				}
+				return false;
+
+			// documentation of client commands
+			case 'help':
+			case 'h':
+				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
 				case 'challenge':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var targets = target.split(',');
-					for (var i = 0; i < targets.length; i++) {
-						targets[i] = $.trim(targets[i]);
-					}
-
-					var self = this;
-					var challenge = function (targets) {
-						target = toID(targets[0]);
-						self.challengeData = { userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: '' };
-						app.on('response:userdetails', self.challengeUserdetails, self);
-						app.send('/cmd userdetails ' + target);
-					};
-
-					if (!targets[0]) {
-						app.addPopupPrompt("Who would you like to challenge?", "Challenge user", function (target) {
-							if (!target) return;
-							challenge([target]);
-						});
-						return false;
-					}
-					challenge(targets);
+					this.add('/challenge - Open a prompt to challenge a user to a battle.');
+					this.add('/challenge [user] - Challenge the user [user] to a battle.');
+					this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
+					this.add('/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
+					this.add('[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
+					this.add('/battlerules - Detailed information on what can go in [rules].');
 					return false;
-
 				case 'accept':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var userid = toID(target);
-					if (userid) {
-						var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
-						if (!$challenge.length) {
-							this.add("You do not have any pending challenge from '" + toName(target) + "' to accept.");
-							return false;
-						}
-						$challenge[0].click();
-						return false;
-					}
-
-					var $challenges = $('.challenge').find('button[name=acceptChallenge]');
-					if (!$challenges.length) {
-						this.add('You do not have any pending challenges to accept.');
-						return false;
-					}
-					if ($challenges.length > 1) {
-						this.add('You need to specify a user if you have more than one pending challenge to accept.');
-						this.parseCommand('/help accept');
-						return false;
-					}
-
-					$challenges[0].click();
+					this.add('/accept - Accept a challenge if only one is pending.');
+					this.add('/accept [user] - Accept a challenge from the specified user.');
 					return false;
 				case 'reject':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var userid = toID(target);
-					if (userid) {
-						var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
-						if (!$challenge.length) {
-							this.add("You do not have any pending challenge from '" + toName(target) + "' to reject.");
-							return false;
-						}
-						$challenge[0].click();
-						return false;
-					}
-
-					var $challenges = $('.challenge').find('button[name="rejectChallenge"]');
-					if (!$challenges.length) {
-						this.add('You do not have any pending challenges to reject.');
-						this.parseCommand('/help reject');
-						return false;
-					}
-					if ($challenges.length > 1) {
-						this.add('You need to specify a user if you have more than one pending challenge to reject.');
-						this.parseCommand('/help reject');
-						return false;
-					}
-
-					$challenges[0].click();
+					this.add('/reject - Reject a challenge if only one is pending.');
+					this.add('/reject [user] - Reject a challenge from the specified user.');
 					return false;
-
 				case 'user':
 				case 'open':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var openUser = function (target) {
-						app.addPopup(UserPopup, { name: target });
-					};
-					target = toName(target);
-					if (!target) {
-						app.addPopupPrompt("Username", "Open", function (target) {
-							if (!target) return;
-							openUser(target);
-						});
-						return false;
-					}
-					openUser(target);
+					this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
 					return false;
-
-				case 'pm':
-				case 'whisper':
-				case 'w':
-				case 'msg':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var commaIndex = target.indexOf(',');
-					if (commaIndex < 0) break;
-					if (!$.trim(target.slice(commaIndex + 1))) {
-						app.rooms[''].focusPM(target.slice(0, commaIndex));
-						return false;
-					}
-					break;
-
-				case 'debug':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (target === 'extractteams') {
-						app.addPopup(Popup, {
-							type: 'modal',
-							htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
-						});
-					} else if (target === 'nw') {
-						try {
-							nw.Window.get().showDevTools();
-						} catch (e) {
-							this.add('|error|' + e.message);
-						}
-					} else {
-						this.add('|error|Unknown debug command.');
-						this.add('|error|Are you looking for /showdebug and /hidedebug?');
-					}
-					return false;
-
 				case 'news':
-					if (this.checkBroadcast(cmd, text)) return false;
-					app.rooms[''].addNews();
+					this.add('/news - Opens a popup containing the news.');
 					return false;
-				case 'autojoin':
-				case 'cmd':
-				case 'crq':
-				case 'query':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('This is a PS system command; do not use it.');
-					return false;
-
 				case 'ignore':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (!target) {
-						this.parseCommand('/help ignore');
-						return false;
-					}
-					if (toUserid(target) === app.user.get('userid')) {
-						this.add("You are not able to ignore yourself.");
-					} else if (app.ignore[toUserid(target)]) {
-						this.add("User '" + toName(target) + "' is already on your ignore list. (Moderator messages will not be ignored.)");
-					} else {
-						app.ignore[toUserid(target)] = 1;
-						this.add("User '" + toName(target) + "' ignored. (Moderator messages will not be ignored.)");
-						app.saveIgnore();
-					}
-					return false;
-
-				case 'clearignore':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (toID(target) !== 'confirm') {
-						this.add("Are you sure you want to clear your ignore list?");
-						this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');
-						return false;
-					}
-					if (!Object.keys(app.ignore).length) {
-						this.add("You have no ignored users.");
-						return false;
-					}
-					app.ignore = {};
-					app.saveIgnore();
-					this.add("Your ignore list was cleared.");
-					return false;
 				case 'unignore':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (!target) {
-						this.parseCommand('/help unignore');
-						return false;
-					}
-					if (!app.ignore[toUserid(target)]) {
-						this.add("User '" + toName(target) + "' isn't on your ignore list.");
-					} else {
-						delete app.ignore[toUserid(target)];
-						this.add("User '" + toName(target) + "' no longer ignored.");
-						app.saveIgnore();
-					}
+					this.add('/ignore [user] - Ignore all messages from the user [user].');
+					this.add('/unignore [user] - Remove the user [user] from your ignore list.');
+					this.add('/ignorelist - List all the users that you currently ignore.');
+					this.add('/clearignore - Remove all users on your ignore list.');
+					this.add('Note that staff messages cannot be ignored.');
 					return false;
-
-				case 'ignorelist':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var ignoreList = Object.keys(app.ignore);
-					if (ignoreList.length === 0) {
-						this.add('You are currently not ignoring anyone.');
-					} else {
-						this.add("You are currently ignoring: " + ignoreList.join(', '));
-					}
-					return false;
-
-				case 'clear':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (this.clear) {
-						this.clear();
-					} else {
-						this.add('||This room can\'t be cleared');
-					}
-					return false;
-
-				case 'clearpms':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var $pms = $('.pm-window');
-					if (!$pms.length) {
-						this.add('You do not have any PM windows open.');
-						return false;
-					}
-					$pms.each(function () {
-						var userid = $(this).data('userid');
-						if (!userid) {
-							var newsId = $(this).data('newsid');
-							if (newsId) {
-								$.cookie('showdown_readnews', '' + newsId, { expires: 365 });
-							}
-							$(this).remove();
-							return;
-						}
-						app.rooms[''].closePM(userid);
-						$(this).find('.inner').empty();
-					});
-					this.add("All PM windows cleared and closed.");
-					return false;
-
 				case 'nick':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if ($.trim(target)) {
-						app.user.rename(target);
-					} else {
-						app.addPopup(LoginPopup);
-					}
+					this.add('/nick [new username] - Change your username.');
 					return false;
-
-				case 'logout':
-					if (this.checkBroadcast(cmd, text)) return false;
-					app.user.logout();
+				case 'clear':
+					this.add('/clear - Clear the room\'s chat log.');
 					return false;
 				case 'showdebug':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Debug battle messages: ON');
-					Storage.prefs('showdebug', true);
-					var debugStyle = $('#debugstyle').get(0);
-					var onCSS = '.debug {display: block;}';
-					if (!debugStyle) {
-						$('head').append('<style id="debugstyle">' + onCSS + '</style>');
-					} else {
-						debugStyle.innerHTML = onCSS;
-					}
-					return false;
 				case 'hidedebug':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Debug battle messages: HIDDEN');
-					Storage.prefs('showdebug', false);
-					var debugStyle = $('#debugstyle').get(0);
-					var offCSS = '.debug {display: none;}';
-					if (!debugStyle) {
-						$('head').append('<style id="debugstyle">' + offCSS + '</style>');
-					} else {
-						debugStyle.innerHTML = offCSS;
-					}
+					this.add('/showdebug - Receive debug messages from battle events.');
+					this.add('/hidedebug - Ignore debug messages from battle events.');
 					return false;
-
 				case 'showjoins':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var showjoins = Dex.prefs('showjoins') || {};
-					var serverShowjoins = showjoins[Config.server.id] || {};
-					if (target) {
-						var room = toID(target);
-						if (serverShowjoins['global']) {
-							delete serverShowjoins[room];
-						} else {
-							serverShowjoins[room] = 1;
-						}
-						this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
-					} else {
-						serverShowjoins = { global: 1 };
-						this.add('Join/leave messages: ALWAYS ON');
-					}
-					showjoins[Config.server.id] = serverShowjoins;
-					Storage.prefs('showjoins', showjoins);
-					return false;
 				case 'hidejoins':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var showjoins = Dex.prefs('showjoins') || {};
-					var serverShowjoins = showjoins[Config.server.id] || {};
-					if (target) {
-						var room = toID(target);
-						if (!serverShowjoins['global']) {
-							delete serverShowjoins[room];
-						} else {
-							serverShowjoins[room] = 0;
-						}
-						this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
-					} else {
-						serverShowjoins = { global: 0 };
-						this.add('Join/leave messages: AUTOMATIC');
-					}
-					showjoins[Config.server.id] = serverShowjoins;
-					Storage.prefs('showjoins', showjoins);
+					this.add('/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
+					this.add('/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
 					return false;
-
 				case 'showbattles':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Battle messages: ON');
-					Storage.prefs('showbattles', true);
-					return false;
 				case 'hidebattles':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Battle messages: HIDDEN');
-					Storage.prefs('showbattles', false);
+					this.add('/showbattles - Receive links to new battles in Lobby.');
+					this.add('/hidebattles - Ignore links to new battles in Lobby.');
 					return false;
-
 				case 'unpackhidden':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Locked/banned users\' chat messages: ON');
-					Storage.prefs('nounlink', true);
-					return false;
 				case 'packhidden':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.add('Locked/banned users\' chat messages: HIDDEN');
-					Storage.prefs('nounlink', false);
+					this.add('/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
+					this.add('/packhidden - Hide locked or banned users\' chat messages after the fact.');
+					this.add('Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
 					return false;
-
 				case 'timestamps':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var targets = target.split(',');
-					if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
-						(['off', 'minutes', 'seconds'].indexOf(targets[1] = targets[1].trim()) === -1)) {
-						this.add('Error: Invalid /timestamps command');
-						this.parseCommand('/help timestamps'); // show help
-						return false;
-					}
-					var timestamps = Dex.prefs('timestamps') || {};
-					if (typeof timestamps === 'string') {
-						// The previous has a timestamps preference from the previous
-						// regime. We can't set properties of a string, so set it to
-						// an empty object.
-						timestamps = {};
-					}
-					switch (targets[0]) {
-						case 'all':
-							timestamps.lobby = targets[1];
-							timestamps.pms = targets[1];
-							break;
-						case 'lobby':
-							timestamps.lobby = targets[1];
-							break;
-						case 'pms':
-							timestamps.pms = targets[1];
-							break;
-					}
-					this.add("Timestamps preference set to: '" + targets[1] + "' for '" + targets[0] + "'.");
-					Storage.prefs('timestamps', timestamps);
+					this.add('Set your timestamps preference:');
+					this.add('/timestamps [all|lobby|pms], [minutes|seconds|off]');
+					this.add('all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
+					this.add('off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
 					return false;
-
-				case 'hl':
 				case 'highlight':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var highlights = Dex.prefs('highlights') || {};
-					if (target.includes(' ')) {
-						var targets = target.split(' ');
-						var subCmd = targets[0];
-						targets = targets.slice(1).join(' ').match(/([^,]+?({\d*,\d*})?)+/g);
-						// trim the targets to be safe
-						for (var i = 0, len = targets.length; i < len; i++) {
-							targets[i] = targets[i].replace(/\n/g, '').trim();
-						}
-						switch (subCmd) {
-							case 'add': case 'roomadd':
-								var key = subCmd === 'roomadd' ? (Config.server.id + '#' + this.id) : 'global';
-								var highlightList = highlights[key] || [];
-								for (var i = 0, len = targets.length; i < len; i++) {
-									if (!targets[i]) continue;
-									if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
-										// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
-										try {
-											new RegExp(targets[i]);
-										} catch (e) {
-											return this.add('|error|' + (e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message));
-										}
-									}
-									if (highlightList.includes(targets[i])) {
-										return this.add('|error|' + targets[i] + ' is already on your highlights list.');
-									}
-								}
-								highlights[key] = highlightList.concat(targets);
-								this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
-								// We update the regex
-								this.updateHighlightRegExp(highlights);
-								break;
-							case 'delete': case 'roomdelete':
-								var key = subCmd === 'roomdelete' ? (Config.server.id + '#' + this.id) : 'global';
-								var highlightList = highlights[key] || [];
-								var newHls = [];
-								for (var i = 0, len = highlightList.length; i < len; i++) {
-									if (targets.indexOf(highlightList[i]) === -1) {
-										newHls.push(highlightList[i]);
-									}
-								}
-								highlights[key] = newHls;
-								this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
-								// We update the regex
-								this.updateHighlightRegExp(highlights);
-								break;
-							default:
-								if (this.checkBroadcast(cmd, text)) return false;
-								// Wrong command
-								this.add('|error|Invalid /highlight command.');
-								this.parseCommand('/help highlight'); // show help
-								return false;
-						}
-						Storage.prefs('highlights', highlights);
-					} else {
-						if (this.checkBroadcast(cmd, text)) return false;
-						if (['clear', 'roomclear', 'clearall'].includes(target)) {
-							var key = (target === 'roomclear' ? (Config.server.id + '#' + this.id) : (target === 'clearall' ? '' : 'global'));
-							if (key) {
-								highlights[key] = [];
-								this.add("All highlights (" + (key === 'global' ? "everywhere" : "in " + key) + ") cleared.");
-								this.updateHighlightRegExp(highlightList);
-							} else {
-								Storage.prefs('highlights', false);
-								this.add("All highlights (in all rooms and globally) cleared.");
-								this.updateHighlightRegExp({});
-							}
-						} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
-							// Shows a list of the current highlighting words
-							var key = target.startsWith('room') ? (Config.server.id + '#' + this.id) : 'global';
-							if (highlights[key] && highlights[key].length > 0) {
-								this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
-							} else {
-								this.add('Your highlight list' + (key === 'global' ? '' : ' in ' + key) + ' is empty.');
-							}
-						} else {
-							// Wrong command
-							this.add('|error|Invalid /highlight command.');
-							this.parseCommand('/help highlight'); // show help
-							return false;
-						}
-					}
+				case 'hl':
+					this.add('Set up highlights:');
+					this.add('/highlight add [word 1], [word 2], [...] - Add the provided list of words to your highlight list.');
+					this.add('/highlight roomadd [word 1], [word 2], [...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
+					this.add('/highlight list - List all words that currently highlight you.');
+					this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
+					this.add('/highlight delete [word 1], [word 2], [...] - Delete the provided list of words from your entire highlight list.');
+					this.add('/highlight roomdelete [word 1], [word 2], [...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
+					this.add('/highlight clear - Clear your global highlight list.');
+					this.add('/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
+					this.add('/highlight clearall - Clear your entire highlight list (all rooms and globally).');
 					return false;
-
 				case 'rank':
 				case 'ranking':
 				case 'rating':
 				case 'ladder':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (app.localLadder) return text;
-					if (!target) {
-						target = app.user.get('userid');
-					}
-					if (this.battle && !target.includes(',')) {
-						target += ", " + this.id.split('-')[1];
-					}
-
-					var targets = target.split(',');
-					var formatTargeting = false;
-					var formats = {};
-					var gens = {};
-					for (var i = 1, len = targets.length; i < len; i++) {
-						targets[i] = $.trim(targets[i]);
-						if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
-							gens[targets[i]] = 1;
-						} else {
-							formats[toID(targets[i])] = 1;
-						}
-						formatTargeting = true;
-					}
-
-					var self = this;
-					$.get(app.user.getActionPHP(), {
-						act: 'ladderget',
-						user: targets[0]
-					}, Storage.safeJSON(function (data) {
-						if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
-						var buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
-						if (!data.length) {
-							buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
-							buffer += '</table></div>';
-							return self.add('|raw|' + buffer);
-						}
-						buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
-						var suspect = false;
-						for (var i = 0; i < data.length; i++) {
-							if ('suspect' in data[i]) suspect = true;
-						}
-						if (suspect) buffer += '<th>Suspect reqs possible?</th>';
-						buffer += '</tr>';
-						var hiddenFormats = [];
-						for (var i = 0; i < data.length; i++) {
-							var row = data[i];
-							if (!row) return self.add('|raw|Error: corrupted ranking data');
-							var formatId = toID(row.formatid);
-							if (!formatTargeting || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
-								buffer += '<tr>';
-							} else {
-								buffer += '<tr class="hidden">';
-								hiddenFormats.push(BattleLog.escapeFormat(formatId));
-							}
-
-							// Validate all the numerical data
-							var values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
-							for (var j = 0; j < values.length; j++) {
-								if (typeof values[j] !== 'number' && typeof values[j] !== 'string' || isNaN(values[j])) return self.add('|raw|Error: corrupted ranking data');
-							}
-
-							buffer += '<td>' + BattleLog.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
-							if (row.rprd > 100) {
-								// High rating deviation. Provisional rating.
-								buffer += '<td>&ndash;</td>';
-								buffer += '<td><span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span></td>';
-							} else {
-								var gxe = Math.round(row.gxe * 10);
-								buffer += '<td>' + Math.floor(gxe / 10) + '<small>.' + (gxe % 10) + '%</small></td>';
-								buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
-							}
-							var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
-							var COIL_B = LadderRoom.COIL_B[formatId];
-							if (COIL_B) {
-								buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N), 0) + '</td>';
-							} else {
-								buffer += '<td>--</td>';
-							}
-							buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td>';
-							if (suspect) {
-								if (typeof row.suspect === 'undefined') {
-									buffer += '<td>--</td>';
-								} else {
-									buffer += '<td>';
-									buffer += (row.suspect ? "Yes" : "No");
-									buffer += '</td>';
-								}
-							}
-							buffer += '</tr>';
-						}
-						if (hiddenFormats.length) {
-							if (hiddenFormats.length === data.length) {
-								buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
-							}
-							buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
-						}
-						var userid = toID(targets[0]);
-						var registered = app.user.get('registered');
-						if (registered && registered.userid === userid) {
-							buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + Config.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
-						}
-						buffer += '</table></div>';
-						self.add('|raw|' + buffer);
-					}), 'text');
+					this.add('/rating - Get your own rating.');
+					this.add('/rating [username] - Get user [username]\'s rating.');
 					return false;
-
-				case 'buttonban':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var self = this;
-					app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function (reason) {
-						self.send('/ban ' + toName(target) + ', ' + (reason || ''));
-					});
-					return false;
-
-				case 'resources':
-					app.joinRoom('resources');
-					return false;
-
-				case 'buttonmute':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var self = this;
-					app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function (reason) {
-						self.send('/mute ' + toName(target) + ', ' + (reason || ''));
-					});
-					return false;
-
-				case 'buttonunmute':
-					if (this.checkBroadcast(cmd, text)) return false;
-					this.send('/unmute ' + target);
-					return false;
-
-				case 'buttonkick':
-				case 'buttonwarn':
-					if (this.checkBroadcast(cmd, text)) return false;
-					var self = this;
-					app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function (reason) {
-						self.send('/warn ' + toName(target) + ', ' + (reason || ''));
-					});
-					return false;
-
-				case 'joim':
-				case 'join':
-				case 'j':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (noSpace) return text;
-					if (app.rooms[target]) {
-						app.focusRoom(target);
-						return false;
-					}
-					var roomid = toID(target);
-					if (app.rooms[roomid]) {
-						app.focusRoom(roomid);
-						return false;
-					}
-					return text; // Send the /join command through to the server.
-
-				case 'part':
-				case 'leave':
-					if (this.checkBroadcast(cmd, text)) return false;
-					if (this.requestLeave && !this.requestLeave()) return false;
-					return text;
-
-				case 'avatar':
-					var parts = target.split(',');
-					var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
-					// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
-					if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
-						avatar = window.BattleAvatarNumbers[avatar];
-					}
-					if (text.startsWith('/')) Storage.prefs('avatar', avatar);
-					return text.charAt(0) + 'avatar ' + avatar; // Send the command through to the server.
-
 				case 'afd':
-					if (this.checkBroadcast(cmd, text)) return false;
-					target = toID(target);
-					if (target === 'sprites') {
-						Storage.prefs('afd', 'sprites');
-						app.setAFD('sprites');
-						this.add('April Fools\' Day mode set to SPRITES.');
-					} else if (target === 'full') {
-						Storage.prefs('afd', true);
-						app.setAFD(true);
-						this.add('April Fools\' Day mode set to FULL.');
-					} else if (target === 'default') {
-						Storage.prefs('afd', null);
-						app.setAFD();
-						this.add('April Fools\' Day mode set to DEFAULT (Currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ').');
-					} else if (target === 'off' || target === 'false' || target === '0') {
-						Storage.prefs('afd', null);
-						app.setAFD(false);
-						this.add('April Fools\' Day mode set to OFF temporarily.');
-						this.add('Trying to turn it off permanently? Use /afd never');
-					} else if (target === 'never') {
-						Storage.prefs('afd', false);
-						app.setAFD(false);
-						this.add('April Fools\' Day mode set to NEVER.');
-						if (Config.server.afd) {
-							this.add('You\'re using the AFD URL, which will still override this setting and enable AFD mode on refresh.');
-						}
-					} else {
-						if (target) this.add('AFD option "' + target + '" not recognized');
-						var mode = Storage.prefs('afd');
-						if (mode === true) mode = 'FULL';
-						if (mode === false) mode = 'NEVER';
-						if (mode) mode = mode.toUpperCase();
-						if (!mode) mode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
-						this.add('AFD is currently set to ' + mode);
-						this.parseCommand('/help afd');
-					}
-					for (var roomid in app.rooms) {
-						var battle = app.rooms[roomid] && app.rooms[roomid].battle;
-						if (!battle) continue;
-						battle.resetToCurrentTurn();
-					}
+					this.add('/afd full - Enable all April Fools\' Day jokes.');
+					this.add('/afd sprites - Enable April Fools\' Day sprites.');
+					this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
+					this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
+					this.add('/afd never - Disable April Fools\' Day jokes permanently.');
 					return false;
-
-				// documentation of client commands
-				case 'help':
-				case 'h':
-					switch (toID(target)) {
-						case 'chal':
-						case 'chall':
-						case 'challenge':
-							this.add('/challenge - Open a prompt to challenge a user to a battle.');
-							this.add('/challenge [user] - Challenge the user [user] to a battle.');
-							this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
-							this.add('/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
-							this.add('[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
-							this.add('/battlerules - Detailed information on what can go in [rules].');
-							return false;
-						case 'accept':
-							this.add('/accept - Accept a challenge if only one is pending.');
-							this.add('/accept [user] - Accept a challenge from the specified user.');
-							return false;
-						case 'reject':
-							this.add('/reject - Reject a challenge if only one is pending.');
-							this.add('/reject [user] - Reject a challenge from the specified user.');
-							return false;
-						case 'user':
-						case 'open':
-							this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
-							return false;
-						case 'news':
-							this.add('/news - Opens a popup containing the news.');
-							return false;
-						case 'ignore':
-						case 'unignore':
-							this.add('/ignore [user] - Ignore all messages from the user [user].');
-							this.add('/unignore [user] - Remove the user [user] from your ignore list.');
-							this.add('/ignorelist - List all the users that you currently ignore.');
-							this.add('/clearignore - Remove all users on your ignore list.');
-							this.add('Note that staff messages cannot be ignored.');
-							return false;
-						case 'nick':
-							this.add('/nick [new username] - Change your username.');
-							return false;
-						case 'clear':
-							this.add('/clear - Clear the room\'s chat log.');
-							return false;
-						case 'showdebug':
-						case 'hidedebug':
-							this.add('/showdebug - Receive debug messages from battle events.');
-							this.add('/hidedebug - Ignore debug messages from battle events.');
-							return false;
-						case 'showjoins':
-						case 'hidejoins':
-							this.add('/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
-							this.add('/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
-							return false;
-						case 'showbattles':
-						case 'hidebattles':
-							this.add('/showbattles - Receive links to new battles in Lobby.');
-							this.add('/hidebattles - Ignore links to new battles in Lobby.');
-							return false;
-						case 'unpackhidden':
-						case 'packhidden':
-							this.add('/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
-							this.add('/packhidden - Hide locked or banned users\' chat messages after the fact.');
-							this.add('Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
-							return false;
-						case 'timestamps':
-							this.add('Set your timestamps preference:');
-							this.add('/timestamps [all|lobby|pms], [minutes|seconds|off]');
-							this.add('all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
-							this.add('off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
-							return false;
-						case 'highlight':
-						case 'hl':
-							this.add('Set up highlights:');
-							this.add('/highlight add [word 1], [word 2], [...] - Add the provided list of words to your highlight list.');
-							this.add('/highlight roomadd [word 1], [word 2], [...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
-							this.add('/highlight list - List all words that currently highlight you.');
-							this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
-							this.add('/highlight delete [word 1], [word 2], [...] - Delete the provided list of words from your entire highlight list.');
-							this.add('/highlight roomdelete [word 1], [word 2], [...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
-							this.add('/highlight clear - Clear your global highlight list.');
-							this.add('/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
-							this.add('/highlight clearall - Clear your entire highlight list (all rooms and globally).');
-							return false;
-						case 'rank':
-						case 'ranking':
-						case 'rating':
-						case 'ladder':
-							this.add('/rating - Get your own rating.');
-							this.add('/rating [username] - Get user [username]\'s rating.');
-							return false;
-						case 'afd':
-							this.add('/afd full - Enable all April Fools\' Day jokes.');
-							this.add('/afd sprites - Enable April Fools\' Day sprites.');
-							this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
-							this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
-							this.add('/afd never - Disable April Fools\' Day jokes permanently.');
-							return false;
-					}
+				}
 			}
 
 			return text;
@@ -1472,208 +1472,208 @@
 				if (line.charAt(0) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
-					case 'init':
-						// ignore (handled elsewhere)
-						break;
+				case 'init':
+					// ignore (handled elsewhere)
+					break;
 
-					case 'title':
-						this.title = row[1];
-						app.roomTitleChanged(this);
-						app.topbar.updateTabbar();
-						break;
+				case 'title':
+					this.title = row[1];
+					app.roomTitleChanged(this);
+					app.topbar.updateTabbar();
+					break;
 
-					case 'c':
-					case 'chat':
-						if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' ' + row[1];
-						this.addChat(row[1], row.slice(2).join('|'));
-						break;
+				case 'c':
+				case 'chat':
+					if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' ' + row[1];
+					this.addChat(row[1], row.slice(2).join('|'));
+					break;
 
-					case ':':
-						this.timeOffset = ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0);
-						break;
-					case 'c:':
-						if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-						var msgTime = this.timeOffset + (parseInt(row[1], 10) || 0);
-						this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
-						break;
+				case ':':
+					this.timeOffset = ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0);
+					break;
+				case 'c:':
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
+					var msgTime = this.timeOffset + (parseInt(row[1], 10) || 0);
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
+					break;
 
-					case 'tc':
-						if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-						var msgTime = row[1] ? ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0) : 0;
-						this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
-						break;
+				case 'tc':
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
+					var msgTime = row[1] ? ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0) : 0;
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
+					break;
 
-					case 'b':
-					case 'B':
-						var id = row[1];
-						name = row[2];
-						name2 = row[3];
-						silent = (row[0] === 'B');
+				case 'b':
+				case 'B':
+					var id = row[1];
+					name = row[2];
+					name2 = row[3];
+					silent = (row[0] === 'B');
 
-						var matches = ChatRoom.parseBattleID(id);
-						if (!matches) {
-							return; // bogus room ID could be used to inject JavaScript
-						}
-						var format = BattleLog.escapeFormat(matches[1]);
+					var matches = ChatRoom.parseBattleID(id);
+					if (!matches) {
+						return; // bogus room ID could be used to inject JavaScript
+					}
+					var format = BattleLog.escapeFormat(matches[1]);
 
-						if (silent && !Dex.prefs('showbattles')) return;
+					if (silent && !Dex.prefs('showbattles')) return;
 
-						this.addJoinLeave();
-						var battletype = 'Battle';
-						if (format) {
-							battletype = format + ' battle';
-							if (format === 'Random Battle') battletype = 'Random Battle';
-						}
-						this.$chat.append('<div class="notice"><a href="' + app.root + id + '" class="ilink">' + battletype + ' started between <strong style="' + BattleLog.hashColor(toUserid(name)) + '">' + BattleLog.escapeHTML(name) + '</strong> and <strong style="' + BattleLog.hashColor(toUserid(name2)) + '">' + BattleLog.escapeHTML(name2) + '</strong>.</a></div>');
-						break;
+					this.addJoinLeave();
+					var battletype = 'Battle';
+					if (format) {
+						battletype = format + ' battle';
+						if (format === 'Random Battle') battletype = 'Random Battle';
+					}
+					this.$chat.append('<div class="notice"><a href="' + app.root + id + '" class="ilink">' + battletype + ' started between <strong style="' + BattleLog.hashColor(toUserid(name)) + '">' + BattleLog.escapeHTML(name) + '</strong> and <strong style="' + BattleLog.hashColor(toUserid(name2)) + '">' + BattleLog.escapeHTML(name2) + '</strong>.</a></div>');
+					break;
 
-					case 'j':
-					case 'join':
-					case 'J':
-						this.addJoinLeave('join', row[1], null, row[0] === 'J');
-						break;
+				case 'j':
+				case 'join':
+				case 'J':
+					this.addJoinLeave('join', row[1], null, row[0] === 'J');
+					break;
 
-					case 'l':
-					case 'leave':
-					case 'L':
-						this.addJoinLeave('leave', row[1], null, row[0] === 'L');
-						break;
+				case 'l':
+				case 'leave':
+				case 'L':
+					this.addJoinLeave('leave', row[1], null, row[0] === 'L');
+					break;
 
-					case 'n':
-					case 'name':
-					case 'N':
-						this.addJoinLeave('rename', row[1], row[2], true);
-						break;
+				case 'n':
+				case 'name':
+				case 'N':
+					this.addJoinLeave('rename', row[1], row[2], true);
+					break;
 
-					case 'users':
-						this.parseUserList(row[1]);
-						break;
+				case 'users':
+					this.parseUserList(row[1]);
+					break;
 
-					case 'usercount':
-						if (this.id === 'lobby') {
-							this.userCount.globalUsers = parseInt(row[1], 10);
-							this.userList.updateUserCount();
-						}
-						break;
+				case 'usercount':
+					if (this.id === 'lobby') {
+						this.userCount.globalUsers = parseInt(row[1], 10);
+						this.userList.updateUserCount();
+					}
+					break;
 
-					case 'formats':
-						// deprecated; please send formats to the global room
-						app.parseFormats(row);
-						break;
+				case 'formats':
+					// deprecated; please send formats to the global room
+					app.parseFormats(row);
+					break;
 
-					case 'raw':
-					case 'html':
-						this.$chat.append('<div class="notice">' + BattleLog.sanitizeHTML(row.slice(1).join('|')) + '</div>');
-						break;
+				case 'raw':
+				case 'html':
+					this.$chat.append('<div class="notice">' + BattleLog.sanitizeHTML(row.slice(1).join('|')) + '</div>');
+					break;
 
-					case 'notify':
-						if (row[3] && !this.getHighlight(row[3])) return;
-						app.playNotificationSound();
-						this.notifyOnce(row[1], row[2], 'highlight');
-						break;
+				case 'notify':
+					if (row[3] && !this.getHighlight(row[3])) return;
+					app.playNotificationSound();
+					this.notifyOnce(row[1], row[2], 'highlight');
+					break;
 
-					case 'tempnotify':
-						var notifyOnce = row[4] !== '!';
-						if (!notifyOnce) row[4] = '';
-						if (row[4] && !this.getHighlight(row[4])) return;
-						if (!this.notifications) app.playNotificationSound();
-						this.notify(row[2], row[3], row[1], notifyOnce);
-						break;
+				case 'tempnotify':
+					var notifyOnce = row[4] !== '!';
+					if (!notifyOnce) row[4] = '';
+					if (row[4] && !this.getHighlight(row[4])) return;
+					if (!this.notifications) app.playNotificationSound();
+					this.notify(row[2], row[3], row[1], notifyOnce);
+					break;
 
-					case 'tempnotifyoff':
-						this.closeNotification(row[1]);
-						break;
+				case 'tempnotifyoff':
+					this.closeNotification(row[1]);
+					break;
 
-					case 'error':
-						this.$chat.append('<div class="notice message-error">' + BattleLog.parseMessage(row.slice(1).join('|'), true) + '</div>');
-						break;
+				case 'error':
+					this.$chat.append('<div class="notice message-error">' + BattleLog.parseMessage(row.slice(1).join('|'), true) + '</div>');
+					break;
 
-					case 'uhtml':
-					case 'uhtmlchange':
-						var $elements = this.$chat.find('div.uhtml-' + toID(row[1]));
-						var html = row.slice(2).join('|');
-						if (!html) {
-							$elements.remove();
-						} else if (!$elements.length) {
-							if (row[0] === 'uhtmlchange') {
-								this.$chat.prepend('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-							} else {
-								this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-							}
-						} else if (row[0] === 'uhtmlchange') {
-							$elements.html(BattleLog.sanitizeHTML(html));
+				case 'uhtml':
+				case 'uhtmlchange':
+					var $elements = this.$chat.find('div.uhtml-' + toID(row[1]));
+					var html = row.slice(2).join('|');
+					if (!html) {
+						$elements.remove();
+					} else if (!$elements.length) {
+						if (row[0] === 'uhtmlchange') {
+							this.$chat.prepend('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 						} else {
-							$elements.remove();
 							this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 						}
-						break;
+					} else if (row[0] === 'uhtmlchange') {
+						$elements.html(BattleLog.sanitizeHTML(html));
+					} else {
+						$elements.remove();
+						this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					}
+					break;
 
-					case 'unlink':
-						// |unlink| is deprecated in favor of |hidelines|
-						// note: this message has global effects, but it's handled here
-						// so that it can be included in the scrollback buffer.
-						if (Dex.prefs('nounlink')) return;
-						var user = toID(row[2]) || toID(row[1]);
-						var $messages = $('.chatmessage-' + user);
+				case 'unlink':
+					// |unlink| is deprecated in favor of |hidelines|
+					// note: this message has global effects, but it's handled here
+					// so that it can be included in the scrollback buffer.
+					if (Dex.prefs('nounlink')) return;
+					var user = toID(row[2]) || toID(row[1]);
+					var $messages = $('.chatmessage-' + user);
+					if (!$messages.length) break;
+					$messages.find('a').contents().unwrap();
+					if (row[2]) {
+						// there used to be a condition for
+						// row[1] === 'roomhide'
+						// but it's now always applied
+						$messages = this.$chat.find('.chatmessage-' + user);
 						if (!$messages.length) break;
-						$messages.find('a').contents().unwrap();
-						if (row[2]) {
-							// there used to be a condition for
-							// row[1] === 'roomhide'
-							// but it's now always applied
-							$messages = this.$chat.find('.chatmessage-' + user);
-							if (!$messages.length) break;
-							var lineCount = parseInt(row[3], 10) || 0;
-							if (lineCount) $messages = $messages.slice(-lineCount);
-							$messages.hide().addClass('revealed').find('button').parent().remove();
+						var lineCount = parseInt(row[3], 10) || 0;
+						if (lineCount) $messages = $messages.slice(-lineCount);
+						$messages.hide().addClass('revealed').find('button').parent().remove();
+						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+					}
+					break;
+				case 'hidelines':
+					if (Dex.prefs('nounlink')) return;
+					var user = toID(row[2]);
+					var $messages = $('.chatmessage-' + user);
+					if (!$messages.length) break;
+					$messages.find('a').contents().unwrap();
+					if (row[1] !== 'unlink') {
+						$messages = this.$chat.find('.chatmessage-' + user);
+						if (!$messages.length) break;
+						var lineCount = parseInt(row[3], 10) || 0;
+						if (lineCount) $messages = $messages.slice(-lineCount);
+						$messages.hide().addClass('revealed').find('button').parent().remove();
+						var staffGroups = Object.keys(Config.groups).filter(function (group) {
+							return ['staff', 'leadership'].includes(Config.groups[group].type);
+						});
+						if (row[1] === 'hide' || staffGroups.includes(this.getUserGroup(app.user.get('userid')))) {
 							this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 						}
-						break;
-					case 'hidelines':
-						if (Dex.prefs('nounlink')) return;
-						var user = toID(row[2]);
-						var $messages = $('.chatmessage-' + user);
-						if (!$messages.length) break;
-						$messages.find('a').contents().unwrap();
-						if (row[1] !== 'unlink') {
-							$messages = this.$chat.find('.chatmessage-' + user);
-							if (!$messages.length) break;
-							var lineCount = parseInt(row[3], 10) || 0;
-							if (lineCount) $messages = $messages.slice(-lineCount);
-							$messages.hide().addClass('revealed').find('button').parent().remove();
-							var staffGroups = Object.keys(Config.groups).filter(function (group) {
-								return ['staff', 'leadership'].includes(Config.groups[group].type);
-							});
-							if (row[1] === 'hide' || staffGroups.includes(this.getUserGroup(app.user.get('userid')))) {
-								this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
-							}
+					}
+					break;
+				case 'tournament':
+				case 'tournaments':
+					if (Dex.prefs('tournaments') === 'hide') {
+						if (row[1] === 'create') {
+							this.$chat.append('<div class="notice">' + BattleLog.escapeFormat(row[2]) + ' ' + BattleLog.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
+						} else if (row[1] === 'start') {
+							this.$chat.append('<div class="notice">Tournament started.</div>');
+						} else if (row[1] === 'forceend') {
+							this.$chat.append('<div class="notice">Tournament force-ended.</div>');
+						} else if (row[1] === 'end') {
+							this.$chat.append('<div class="notice">Tournament ended.</div>');
 						}
 						break;
-					case 'tournament':
-					case 'tournaments':
-						if (Dex.prefs('tournaments') === 'hide') {
-							if (row[1] === 'create') {
-								this.$chat.append('<div class="notice">' + BattleLog.escapeFormat(row[2]) + ' ' + BattleLog.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
-							} else if (row[1] === 'start') {
-								this.$chat.append('<div class="notice">Tournament started.</div>');
-							} else if (row[1] === 'forceend') {
-								this.$chat.append('<div class="notice">Tournament force-ended.</div>');
-							} else if (row[1] === 'end') {
-								this.$chat.append('<div class="notice">Tournament ended.</div>');
-							}
-							break;
-						}
-						if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
-						if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments')) break;
+					}
+					if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
+					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments')) break;
 					// fallthrough in case of unparsed message
 
-					case '':
-						this.$chat.append('<div class="notice">' + BattleLog.escapeHTML(row.slice(1).join('|')) + '</div>');
-						break;
+				case '':
+					this.$chat.append('<div class="notice">' + BattleLog.escapeHTML(row.slice(1).join('|')) + '</div>');
+					break;
 
-					default:
-						this.$chat.append('<div class="notice"><code>|' + BattleLog.escapeHTML(row.join('|')) + '</code></div>');
-						break;
+				default:
+					this.$chat.append('<div class="notice"><code>|' + BattleLog.escapeHTML(row.join('|')) + '</code></div>');
+					break;
 				}
 			}
 		},
@@ -2022,12 +2022,12 @@
 			// look at the part of the `id` after the roomid
 			var id = elem.id.substr(this.room.id.length + 1);
 			switch (id) {
-				case 'userlist-users':
-					return -1; // `elem` comes first
-				case 'userlist-empty':
-				case 'userlist-unregistered':
-				case 'userlist-guests':
-					return 1; // `userid` comes first
+			case 'userlist-users':
+				return -1; // `elem` comes first
+			case 'userlist-empty':
+			case 'userlist-unregistered':
+			case 'userlist-guests':
+				return 1; // `userid` comes first
 			}
 			// extract the portion of the `id` after 'userlist-user-'
 			var elemuserid = id.substr(14);
@@ -2150,7 +2150,7 @@
 				if (pluginName.startsWith('chat-plugins')) {
 					pluginName = 'Chat plugin: ' + pluginName.split('/').slice(1).join('/');
 				} else if (pluginName.startsWith('chat-commands')) {
-					pluginName = 'Core commands: ' + pluginName.split('/').slice(1).join('/');;
+					pluginName = 'Core commands: ' + pluginName.split('/').slice(1).join('/'); ;
 				}
 				var matchedCmds = [];
 				for (var j = 0; j < cmdTable.length; j++) {
@@ -2177,8 +2177,8 @@
 			}
 			return buf;
 		},
-		join: function () { },
-		leave: function () { }
+		join: function () {},
+		leave: function () {}
 	});
 
 }).call(this, jQuery);

@@ -13,7 +13,7 @@ export class BattleSceneStub {
 	timeOffset = NaN;
 	interruptionCount = NaN;
 	messagebarOpen = false;
-	log: BattleLog = { add: (args: Args, kwargs?: KWArgs) => { } } as any;
+	log: BattleLog = { add: (args: Args, kwargs?: KWArgs) => {} } as any;
 	$frame?: JQuery;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }

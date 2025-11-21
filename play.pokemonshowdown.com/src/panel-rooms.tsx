@@ -206,7 +206,7 @@ class RoomsPanel extends PSRoomPanel {
 						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
 					></span>
 					<strong>{rooms.userCount || '-'}</strong> users online
-				</a> { }
+				</a> {}
 				<a class="button" href="battles" title="Watch an active battle">
 					<span
 						class="pixelated battlecount"
@@ -270,7 +270,7 @@ class RoomsPanel extends PSRoomPanel {
 						<small>{roomInfo.desc || ''}</small>
 					</a>
 					{roomInfo.subRooms && <div class="subrooms">
-						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: { }
+						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
 						{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
 							<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 						</a>, ' '])}

@@ -75,81 +75,81 @@ export class ChatRoom extends PSRoom {
 	}
 	override receiveLine(args: Args) {
 		switch (args[0]) {
-			case 'users':
-				const usernames = args[1].split(',');
-				const count = parseInt(usernames.shift()!, 10);
-				this.setUsers(count, usernames);
+		case 'users':
+			const usernames = args[1].split(',');
+			const count = parseInt(usernames.shift()!, 10);
+			this.setUsers(count, usernames);
+			return;
+
+		case 'join': case 'j': case 'J':
+			this.addUser(args[1]);
+			this.handleJoinLeave("join", args[1], args[0] === "J");
+			return true;
+
+		case 'leave': case 'l': case 'L':
+			this.removeUser(args[1]);
+			this.handleJoinLeave("leave", args[1], args[0] === "L");
+			return true;
+
+		case 'name': case 'n': case 'N':
+			this.renameUser(args[1], args[2]);
+			break;
+
+		case 'tournament': case 'tournaments':
+			this.tour ||= new ChatTournament(this);
+			this.tour.receiveLine(args);
+			return;
+
+		case 'noinit':
+			if (this.battle) {
+				// check the Replays database
+				(this as any as BattleRoom).loadReplay();
+			} else {
+				this.receiveLine(['bigerror', 'Room does not exist']);
+			}
+			return;
+		case 'expire':
+			this.connected = 'expired';
+			this.receiveLine(['', `This room has expired (you can't chat in it anymore)`]);
+			return;
+
+		case 'chat': case 'c':
+			if (`${args[2]} `.startsWith('/challenge ')) {
+				this.updateChallenge(args[1], args[2].slice(11));
 				return;
-
-			case 'join': case 'j': case 'J':
-				this.addUser(args[1]);
-				this.handleJoinLeave("join", args[1], args[0] === "J");
-				return true;
-
-			case 'leave': case 'l': case 'L':
-				this.removeUser(args[1]);
-				this.handleJoinLeave("leave", args[1], args[0] === "L");
-				return true;
-
-			case 'name': case 'n': case 'N':
-				this.renameUser(args[1], args[2]);
-				break;
-
-			case 'tournament': case 'tournaments':
-				this.tour ||= new ChatTournament(this);
-				this.tour.receiveLine(args);
+			} else if (args[2].startsWith('/warn ')) {
+				const reason = args[2].replace('/warn ', '');
+				PS.join(`rules-warn` as RoomID, {
+					args: {
+						type: 'warn',
+						message: reason?.trim() || undefined,
+					},
+					parentElem: null,
+				});
 				return;
-
-			case 'noinit':
-				if (this.battle) {
-					// check the Replays database
-					(this as any as BattleRoom).loadReplay();
-				} else {
-					this.receiveLine(['bigerror', 'Room does not exist']);
-				}
-				return;
-			case 'expire':
-				this.connected = 'expired';
-				this.receiveLine(['', `This room has expired (you can't chat in it anymore)`]);
-				return;
-
-			case 'chat': case 'c':
-				if (`${args[2]} `.startsWith('/challenge ')) {
-					this.updateChallenge(args[1], args[2].slice(11));
-					return;
-				} else if (args[2].startsWith('/warn ')) {
-					const reason = args[2].replace('/warn ', '');
-					PS.join(`rules-warn` as RoomID, {
-						args: {
-							type: 'warn',
-							message: reason?.trim() || undefined,
-						},
-						parentElem: null,
-					});
-					return;
-				}
+			}
 			// falls through
-			case 'c:':
-				if (args[0] === 'c:') PS.lastMessageTime = args[1];
-				this.lastMessage = args;
-				this.joinLeave = null;
-				this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
-				if (this.tour) this.tour.joinLeave = null;
-				if (this.id.startsWith("dm-")) {
-					const fromUser = args[args[0] === 'c:' ? 2 : 1];
-					if (toID(fromUser) === PS.user.userid) break;
-					const message = args[args[0] === 'c:' ? 3 : 2];
-					this.notify({
-						title: `${this.title}`,
-						body: message,
-					});
-				} else {
-					this.subtleNotify();
-				}
-				break;
-			case ':':
-				this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
-				break;
+		case 'c:':
+			if (args[0] === 'c:') PS.lastMessageTime = args[1];
+			this.lastMessage = args;
+			this.joinLeave = null;
+			this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
+			if (this.tour) this.tour.joinLeave = null;
+			if (this.id.startsWith("dm-")) {
+				const fromUser = args[args[0] === 'c:' ? 2 : 1];
+				if (toID(fromUser) === PS.user.userid) break;
+				const message = args[args[0] === 'c:' ? 3 : 2];
+				this.notify({
+					title: `${this.title}`,
+					body: message,
+				});
+			} else {
+				this.subtleNotify();
+			}
+			break;
+		case ':':
+			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
+			break;
 		}
 		super.receiveLine(args);
 	}
@@ -302,8 +302,21 @@ export class ChatRoom extends PSRoom {
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge'(target) {
 			if (target) {
-				const [targetUser, format] = target.split(',');
-				PS.join(`challenge-${toID(targetUser)}` as RoomID);
+				let [targetUser, format] = target.split(',');
+				if (this.pmTarget && (format === undefined || targetUser.includes('@@@'))) {
+					format = target;
+					targetUser = this.pmTarget;
+				}
+				format = (format || '').trim();
+				if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
+				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
+					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
+					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format } });
+				});
+				return;
+			}
+			if (this.challengeMenuOpen) {
+				this.cancelChallenge();
 				return;
 			}
 			this.openChallenge();
@@ -450,8 +463,20 @@ export class ChatRoom extends PSRoom {
 			this.battle.pause();
 			this.update(null);
 		},
-		'ffto,fastfowardto'(target) {
+		'ffto,fastfowardto'(target, cmd, parentElem) {
 			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!target) {
+				PS.prompt("Turn number?", {
+					defaultValue: `${this.battle.turn}`,
+					type: 'numeric',
+					okButton: 'Go',
+					parentElem,
+				}).then(turnNum => {
+					if (turnNum?.trim()) this.send(`/ffto ${turnNum}`, parentElem);
+				});
+				return;
+			}
+
 			let turnNum = Number(target);
 			if (target.startsWith('+') || turnNum < 0) {
 				turnNum += this.battle.turn;
@@ -460,7 +485,7 @@ export class ChatRoom extends PSRoom {
 				turnNum = Infinity;
 			}
 			if (isNaN(turnNum)) {
-				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
+				this.errorReply(`Invalid turn number: ${target}`);
 				return;
 			}
 			this.battle.seekTurn(turnNum);
@@ -548,6 +573,7 @@ export class ChatRoom extends PSRoom {
 	updateChallenge(name: string, challengeString: string) {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
+		if (this.args?.format) this.args.format = null;
 
 		if (userid === PS.user.userid) {
 			if (!challenge && !this.challenging) {
@@ -725,8 +751,8 @@ export class CopyableURLBox extends preact.Component<{ url: string }> {
 			<input
 				type="text" class="textbox" readOnly size={45} value={this.props.url}
 				style="field-sizing:content"
-			/> { }
-			<button class="button" onClick={this.copy}>Copy</button> { }
+			/> {}
+			<button class="button" onClick={this.copy}>Copy</button> {}
 			<a href={this.props.url} target="_blank" class="no-panel-intercept">
 				<button class="button">Visit</button>
 			</a>
@@ -913,10 +939,10 @@ export class ChatTextEntry extends preact.Component<{
 				PS.leave(PS.room.id);
 				return true;
 			}
-			// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
-			// 	const newValue = `/pm ${PS.user.lastPM}, `;
-			// 	this.setValue(newValue, newValue.length);
-			// 	return true;
+		// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
+		// 	const newValue = `/pm ${PS.user.lastPM}, `;
+		// 	this.setValue(newValue, newValue.length);
+		// 	return true;
 		}
 		return false;
 	}
@@ -1178,18 +1204,22 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
+		const defaultFormat = room.args?.format as string | undefined;
+		if (defaultFormat?.startsWith('!!')) {
+			room.args!.format = undefined;
+		}
 		const challengeTo = room.challenging ? <div class="challenge">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.makeChallenge}>
+			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
 				<button type="submit" class="button button-first">
 					<strong>Challenge</strong>
 				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
 					<i class="fa fa-caret-down" aria-hidden></i>
-				</button> { }
+				</button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
@@ -1202,17 +1232,20 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				</button>
 				{room.challenged.formatName && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
 					<i class="fa fa-caret-down" aria-hidden></i>
-				</button>} { }
+				</button>} {}
 				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
 
 		return <PSPanelWrapper room={room} focusClick fullSize>
-			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
+			<ChatLog
+				class={`chat-log${tinyLayout ? '' : ' hasuserlist'}`} room={this.props.room}
+				left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}
+			>
 				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
 					<button class="button" data-cmd="/reconnect">
 						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
-					</button> { }
+					</button> {}
 					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
 				</p>}
 			</ChatLog>

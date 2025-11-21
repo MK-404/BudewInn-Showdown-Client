@@ -67,40 +67,40 @@ export class PSHeader extends preact.Component {
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
 		let title = room.title;
 		switch (room.type) {
-			case 'battle':
-				let idChunks = room.id.slice(7).split('-');
-				let formatName;
-				// TODO: relocate to room implementation
-				if (idChunks.length <= 1) {
-					if (idChunks[0] === 'uploadedreplay') formatName = 'Uploaded Replay';
+		case 'battle':
+			const idChunks = room.id.split('-');
+			let formatName;
+			// TODO: relocate to room implementation
+			if (idChunks.length <= 2) {
+				if (idChunks[1] === 'uploadedreplay') formatName = 'Uploaded Replay';
+			} else {
+				formatName = window.BattleLog ? BattleLog.formatName(idChunks[1]) : idChunks[1];
+			}
+			if (!title) {
+				const battle = (room as any).battle as Battle | undefined;
+				const p1 = battle?.p1?.name || '';
+				const p2 = battle?.p2?.name || '';
+				if (p1 && p2) {
+					title = `${p1} v. ${p2}`;
+				} else if (p1 || p2) {
+					title = `${p1}${p2}`;
 				} else {
-					formatName = window.BattleLog ? BattleLog.formatName(idChunks[0]) : idChunks[0];
+					title = `(empty room)`;
 				}
-				if (!title) {
-					let battle = (room as any).battle as Battle | undefined;
-					let p1 = battle?.p1?.name || '';
-					let p2 = battle?.p2?.name || '';
-					if (p1 && p2) {
-						title = `${p1} v. ${p2}`;
-					} else if (p1 || p2) {
-						title = `${p1}${p2}`;
-					} else {
-						title = `(empty room)`;
-					}
+			}
+			icon = <i class="text">{formatName}</i>;
+			break;
+		case 'html':
+		default:
+			if (title.startsWith('[')) {
+				let closeBracketIndex = title.indexOf(']');
+				if (closeBracketIndex > 0) {
+					icon = <i class="text">{title.slice(1, closeBracketIndex)}</i>;
+					title = title.slice(closeBracketIndex + 1);
+					break;
 				}
-				icon = <i class="text">{formatName}</i>;
-				break;
-			case 'html':
-			default:
-				if (title.startsWith('[')) {
-					let closeBracketIndex = title.indexOf(']');
-					if (closeBracketIndex > 0) {
-						icon = <i class="text">{title.slice(1, closeBracketIndex)}</i>;
-						title = title.slice(closeBracketIndex + 1);
-						break;
-					}
-				}
-				break;
+			}
+			break;
 		}
 		return { icon, title };
 	}
@@ -175,6 +175,7 @@ export class PSHeader extends preact.Component {
 		}
 		if (PSView.narrowMode) {
 			document.documentElement.classList?.remove('scroll-snap-enabled');
+			document.documentElement.style.width = 'auto';
 			PSView.narrowMode = false;
 		}
 
@@ -242,11 +243,11 @@ export class PSHeader extends preact.Component {
 			</div>
 			{null /* overflow */}
 			<div class="userbar">
-				{this.renderUser()} { }
+				{this.renderUser()} {}
 				<div style="float:right">
 					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
-					</button> { }
+					</button> {}
 					<button class="icon button" data-href="options" title="Options" aria-label="Options">
 						<i class="fa fa-cog" aria-hidden></i>
 					</button>
@@ -283,10 +284,10 @@ export class PSHeader extends preact.Component {
 				</button>
 			</div>
 			<div class="userbar">
-				{this.renderUser()} { }
+				{this.renderUser()} {}
 				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
-				</button> { }
+				</button> {}
 				<button class="icon button" data-href="options" title="Options" aria-label="Options">
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>

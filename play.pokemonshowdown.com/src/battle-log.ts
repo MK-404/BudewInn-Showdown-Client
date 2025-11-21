@@ -145,194 +145,194 @@ export class BattleLog {
 		let noNotify: boolean | undefined;
 		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
-			case 'chat': case 'c': case 'c:':
-				let name;
-				let message;
-				let timestamp = 0;
-				if (args[0] === 'c:') {
-					timestamp = parseInt(args[1]);
-					name = args[2];
-					message = args[3];
+		case 'chat': case 'c': case 'c:':
+			let name;
+			let message;
+			let timestamp = 0;
+			if (args[0] === 'c:') {
+				timestamp = parseInt(args[1]);
+				name = args[2];
+				message = args[3];
+			} else {
+				name = args[1];
+				message = args[2];
+			}
+			let rank = name.charAt(0);
+			if (battle?.ignoreSpects && ' +'.includes(rank)) return;
+			if (battle?.ignoreOpponent) {
+				if (
+					'\u2605\u2606'.includes(rank) &&
+					toUserid(name) !== (window.app?.user?.get('userid') || window.PS?.user?.userid)
+				) {
+					return;
+				}
+			}
+			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
+			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
+			let timestampHtml = '';
+			if (showTimestamps) {
+				const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
+				const components = [date.getHours(), date.getMinutes()];
+				if (showTimestamps === 'seconds') {
+					components.push(date.getSeconds());
+				}
+				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
+			}
+			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
+			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
+			if (!noNotify && isHighlighted) {
+				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
+				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+			}
+			break;
+
+		case 'join': case 'j': case 'leave': case 'l': {
+			const user = BattleTextParser.parseNameParts(args[1]);
+			if (battle?.ignoreSpects && ' +'.includes(user.group)) return;
+			const formattedUser = user.group + user.name;
+			const isJoin = (args[0].startsWith('j'));
+			if (!this.joinLeave) {
+				this.joinLeave = {
+					joins: [],
+					leaves: [],
+					element: document.createElement('div'),
+				};
+				this.joinLeave.element.className = 'chat';
+			}
+
+			if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
+				this.joinLeave.leaves.splice(this.joinLeave.leaves.indexOf(formattedUser), 1);
+			} else {
+				this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
+			}
+
+			let buf = '';
+			if (this.joinLeave.joins.length) {
+				buf += `${this.textList(this.joinLeave.joins)} joined`;
+			}
+			if (this.joinLeave.leaves.length) {
+				if (this.joinLeave.joins.length) buf += `; `;
+				buf += `${this.textList(this.joinLeave.leaves)} left`;
+			}
+			this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
+			return;
+		}
+
+		case 'name': case 'n': {
+			const user = BattleTextParser.parseNameParts(args[1]);
+			if (toID(args[2]) === toID(user.name)) return;
+			if (!this.lastRename || toID(this.lastRename.to) !== toID(user.name)) {
+				this.lastRename = {
+					from: args[2],
+					to: '',
+					element: document.createElement('div'),
+				};
+				this.lastRename.element.className = 'chat';
+			}
+			this.lastRename.to = user.group + user.name;
+			this.lastRename.element.innerHTML = `<small>${BattleLog.escapeHTML(this.lastRename.to)} renamed from ${BattleLog.escapeHTML(this.lastRename.from)}.</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.lastRename.element);
+			return;
+		}
+
+		case 'chatmsg': case '':
+			divHTML = BattleLog.escapeHTML(args[1]);
+			break;
+
+		case 'chatmsg-raw': case 'raw': case 'html':
+			divHTML = BattleLog.sanitizeHTML(args[1]);
+			break;
+
+		case 'uhtml': case 'uhtmlchange':
+			this.changeUhtml(args[1], args[2], args[0] === 'uhtml');
+			return ['', ''];
+
+		case 'error': case 'inactive': case 'inactiveoff':
+			divClass = 'chat message-error';
+			divHTML = BattleLog.escapeHTML(args[1]);
+			break;
+
+		case 'bigerror':
+			this.message('<div class="broadcast-red">' + BattleLog.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
+			return;
+
+		case 'pm':
+			divHTML = `<strong data-href="user-${BattleLog.escapeHTML(args[1])}"> ${BattleLog.escapeHTML(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="user-${BattleLog.escapeHTML(args[1], true)}">(Private to ${BattleLog.escapeHTML(args[2])})</i> ${BattleLog.parseMessage(args[3])} </span>`;
+			break;
+
+		case 'askreg':
+			this.addDiv('chat', '<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
+			return;
+
+		case 'unlink': {
+			// |unlink| is deprecated in favor of |hidelines|
+			if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
+			const user = toID(args[2]) || toID(args[1]);
+			this.unlinkChatFrom(user);
+			if (args[2]) {
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, true, lineCount);
+			}
+			return;
+		}
+
+		case 'hidelines': {
+			if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
+			const user = toID(args[2]);
+			this.unlinkChatFrom(user);
+			if (args[1] !== 'unlink') {
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, args[1] === 'hide', lineCount);
+			}
+			return;
+		}
+
+		case 'debug':
+			divClass = 'debug';
+			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
+			break;
+
+		case 'notify':
+			const title = args[1];
+			const body = args[2];
+			const roomid = this.scene?.battle.roomid;
+			if (!roomid) break;
+			window.app?.rooms[roomid].notifyOnce(title, body, 'highlight');
+			break;
+
+		case 'showteam': {
+			if (!battle) return;
+			const team = Teams.unpack(args[2]);
+			if (!team.length) return;
+			const side = battle.getSide(args[1]);
+			const exportedTeam = team.map(set => {
+				let buf = Teams.export([set], battle.dex).replace(/\n/g, '<br />');
+				if (set.name && set.name !== set.species) {
+					buf = buf.replace(set.name, BattleLog.sanitizeHTML(
+						`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
 				} else {
-					name = args[1];
-					message = args[2];
+					buf = buf.replace(set.species,
+						`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.species}`);
 				}
-				let rank = name.charAt(0);
-				if (battle?.ignoreSpects && ' +'.includes(rank)) return;
-				if (battle?.ignoreOpponent) {
-					if (
-						'\u2605\u2606'.includes(rank) &&
-						toUserid(name) !== (window.app?.user?.get('userid') || window.PS?.user?.userid)
-					) {
-						return;
-					}
+				if (set.item) {
+					buf = buf.replace(set.item, `${set.item} <span class="itemicon" style="${Dex.getItemIcon(set.item)}"></span>`);
 				}
-				const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
-				if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
-				let timestampHtml = '';
-				if (showTimestamps) {
-					const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
-					const components = [date.getHours(), date.getMinutes()];
-					if (showTimestamps === 'seconds') {
-						components.push(date.getSeconds());
-					}
-					timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
-				}
-				const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
-				[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
-				if (!noNotify && isHighlighted) {
-					const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
-					window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
-				}
-				break;
+				return buf;
+			}).join('');
+			divHTML = `<div class="infobox"><details class="details"><summary>Open team sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
+			break;
+		}
 
-			case 'join': case 'j': case 'leave': case 'l': {
-				const user = BattleTextParser.parseNameParts(args[1]);
-				if (battle?.ignoreSpects && ' +'.includes(user.group)) return;
-				const formattedUser = user.group + user.name;
-				const isJoin = (args[0].startsWith('j'));
-				if (!this.joinLeave) {
-					this.joinLeave = {
-						joins: [],
-						leaves: [],
-						element: document.createElement('div'),
-					};
-					this.joinLeave.element.className = 'chat';
-				}
+		case 'seed': case 'choice': case ':': case 'timer': case 't:':
+		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
+		case 'initdone':
+			return;
 
-				if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
-					this.joinLeave.leaves.splice(this.joinLeave.leaves.indexOf(formattedUser), 1);
-				} else {
-					this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
-				}
-
-				let buf = '';
-				if (this.joinLeave.joins.length) {
-					buf += `${this.textList(this.joinLeave.joins)} joined`;
-				}
-				if (this.joinLeave.leaves.length) {
-					if (this.joinLeave.joins.length) buf += `; `;
-					buf += `${this.textList(this.joinLeave.leaves)} left`;
-				}
-				this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
-				(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
-				return;
-			}
-
-			case 'name': case 'n': {
-				const user = BattleTextParser.parseNameParts(args[1]);
-				if (toID(args[2]) === toID(user.name)) return;
-				if (!this.lastRename || toID(this.lastRename.to) !== toID(user.name)) {
-					this.lastRename = {
-						from: args[2],
-						to: '',
-						element: document.createElement('div'),
-					};
-					this.lastRename.element.className = 'chat';
-				}
-				this.lastRename.to = user.group + user.name;
-				this.lastRename.element.innerHTML = `<small>${BattleLog.escapeHTML(this.lastRename.to)} renamed from ${BattleLog.escapeHTML(this.lastRename.from)}.</small>`;
-				(preempt ? this.preemptElem : this.innerElem).appendChild(this.lastRename.element);
-				return;
-			}
-
-			case 'chatmsg': case '':
-				divHTML = BattleLog.escapeHTML(args[1]);
-				break;
-
-			case 'chatmsg-raw': case 'raw': case 'html':
-				divHTML = BattleLog.sanitizeHTML(args[1]);
-				break;
-
-			case 'uhtml': case 'uhtmlchange':
-				this.changeUhtml(args[1], args[2], args[0] === 'uhtml');
-				return ['', ''];
-
-			case 'error': case 'inactive': case 'inactiveoff':
-				divClass = 'chat message-error';
-				divHTML = BattleLog.escapeHTML(args[1]);
-				break;
-
-			case 'bigerror':
-				this.message('<div class="broadcast-red">' + BattleLog.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
-				return;
-
-			case 'pm':
-				divHTML = `<strong data-href="user-${BattleLog.escapeHTML(args[1])}"> ${BattleLog.escapeHTML(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="user-${BattleLog.escapeHTML(args[1], true)}">(Private to ${BattleLog.escapeHTML(args[2])})</i> ${BattleLog.parseMessage(args[3])} </span>`;
-				break;
-
-			case 'askreg':
-				this.addDiv('chat', '<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
-				return;
-
-			case 'unlink': {
-				// |unlink| is deprecated in favor of |hidelines|
-				if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
-				const user = toID(args[2]) || toID(args[1]);
-				this.unlinkChatFrom(user);
-				if (args[2]) {
-					const lineCount = parseInt(args[3], 10);
-					this.hideChatFrom(user, true, lineCount);
-				}
-				return;
-			}
-
-			case 'hidelines': {
-				if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
-				const user = toID(args[2]);
-				this.unlinkChatFrom(user);
-				if (args[1] !== 'unlink') {
-					const lineCount = parseInt(args[3], 10);
-					this.hideChatFrom(user, args[1] === 'hide', lineCount);
-				}
-				return;
-			}
-
-			case 'debug':
-				divClass = 'debug';
-				divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
-				break;
-
-			case 'notify':
-				const title = args[1];
-				const body = args[2];
-				const roomid = this.scene?.battle.roomid;
-				if (!roomid) break;
-				window.app?.rooms[roomid].notifyOnce(title, body, 'highlight');
-				break;
-
-			case 'showteam': {
-				if (!battle) return;
-				const team = Teams.unpack(args[2]);
-				if (!team.length) return;
-				const side = battle.getSide(args[1]);
-				const exportedTeam = team.map(set => {
-					let buf = Teams.export([set], battle.dex).replace(/\n/g, '<br />');
-					if (set.name && set.name !== set.species) {
-						buf = buf.replace(set.name, BattleLog.sanitizeHTML(
-							`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
-					} else {
-						buf = buf.replace(set.species,
-							`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.species}`);
-					}
-					if (set.item) {
-						buf = buf.replace(set.item, `${set.item} <span class="itemicon" style="${Dex.getItemIcon(set.item)}"></span>`);
-					}
-					return buf;
-				}).join('');
-				divHTML = `<div class="infobox"><details class="details"><summary>Open team sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
-				break;
-			}
-
-			case 'seed': case 'choice': case ':': case 'timer': case 't:':
-			case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
-			case 'initdone':
-				return;
-
-			default:
-				this.addBattleMessage(args, kwArgs);
-				this.joinLeave = null;
-				return;
+		default:
+			this.addBattleMessage(args, kwArgs);
+			this.joinLeave = null;
+			return;
 		}
 		if (divHTML) {
 			this.addDiv(divClass, divHTML, preempt);
@@ -341,57 +341,57 @@ export class BattleLog {
 	}
 	addBattleMessage(args: Args, kwArgs?: KWArgs) {
 		switch (args[0]) {
-			case 'warning':
-				this.message('<strong>Warning:</strong> ' + BattleLog.escapeHTML(args[1]));
-				this.message(`Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer's Smogon thread</a>`);
-				if (this.scene) this.scene.wait(1000);
+		case 'warning':
+			this.message('<strong>Warning:</strong> ' + BattleLog.escapeHTML(args[1]));
+			this.message(`Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer's Smogon thread</a>`);
+			if (this.scene) this.scene.wait(1000);
+			return;
+
+		case 'variation':
+			this.addDiv('', '<small>Variation: <em>' + BattleLog.escapeHTML(args[1]) + '</em></small>');
+			break;
+
+		case 'rule':
+			const ruleArgs = args[1].split(': ');
+			this.addDiv('', '<small><em>' + BattleLog.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + BattleLog.escapeHTML(ruleArgs[1] || '') + '</small>');
+			break;
+
+		case 'rated':
+			this.addDiv('rated', '<strong>' + (BattleLog.escapeHTML(args[1]) || 'Rated battle') + '</strong>');
+			break;
+
+		case 'tier':
+			this.addDiv('', '<small>Format:</small> <br /><strong>' + BattleLog.escapeHTML(args[1]) + '</strong>');
+			break;
+
+		case 'turn':
+			const h2elem = document.createElement('h2');
+			h2elem.className = 'battle-history';
+			let turnMessage;
+			if (this.battleParser) {
+				turnMessage = this.battleParser.parseArgs(args, {}).trim();
+				if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
+					throw new Error("Turn message must be a heading.");
+				}
+				turnMessage = turnMessage.slice(2, -2).trim();
+				this.battleParser.curLineSection = 'break';
+			} else {
+				turnMessage = `Turn ${args[1]}`;
+			}
+			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
+			this.addSpacer();
+			this.addNode(h2elem);
+			break;
+
+		default:
+			if (this.addAFDMessage(args, kwArgs)) return;
+			const line = this.battleParser?.parseArgs(args, kwArgs || {}, true) ?? null;
+			if (line === null) {
+				this.addDiv('chat message-error', 'Unrecognized: |' + BattleLog.escapeHTML(args.join('|')));
 				return;
-
-			case 'variation':
-				this.addDiv('', '<small>Variation: <em>' + BattleLog.escapeHTML(args[1]) + '</em></small>');
-				break;
-
-			case 'rule':
-				const ruleArgs = args[1].split(': ');
-				this.addDiv('', '<small><em>' + BattleLog.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + BattleLog.escapeHTML(ruleArgs[1] || '') + '</small>');
-				break;
-
-			case 'rated':
-				this.addDiv('rated', '<strong>' + (BattleLog.escapeHTML(args[1]) || 'Rated battle') + '</strong>');
-				break;
-
-			case 'tier':
-				this.addDiv('', '<small>Format:</small> <br /><strong>' + BattleLog.escapeHTML(args[1]) + '</strong>');
-				break;
-
-			case 'turn':
-				const h2elem = document.createElement('h2');
-				h2elem.className = 'battle-history';
-				let turnMessage;
-				if (this.battleParser) {
-					turnMessage = this.battleParser.parseArgs(args, {}).trim();
-					if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
-						throw new Error("Turn message must be a heading.");
-					}
-					turnMessage = turnMessage.slice(2, -2).trim();
-					this.battleParser.curLineSection = 'break';
-				} else {
-					turnMessage = `Turn ${args[1]}`;
-				}
-				h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
-				this.addSpacer();
-				this.addNode(h2elem);
-				break;
-
-			default:
-				if (this.addAFDMessage(args, kwArgs)) return;
-				const line = this.battleParser?.parseArgs(args, kwArgs || {}, true) ?? null;
-				if (line === null) {
-					this.addDiv('chat message-error', 'Unrecognized: |' + BattleLog.escapeHTML(args.join('|')));
-					return;
-				}
-				if (line) this.messageFromLog(line);
-				break;
+			}
+			if (line) this.messageFromLog(line);
+			break;
 		}
 	}
 	addAFDMessage(args: Args, kwArgs: KWArgs = {}) {
@@ -873,18 +873,18 @@ export class BattleLog {
 				messageFromArgs(['move', args[1], 'Fissure']);
 				this.messageFromLog('Just kidding! It was **Earthquake**!');
 				return true;
-				// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
-				// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
-				// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
-				// 	let buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
-				// 	let people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
-				// 	let button;
-				// 	for (let i = 0; i < 10; i++) {
-				// 		let name = people[Math.floor(Math.random() * people.length)];
-				// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-				// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
-				// 		button = (name === 'Diatom' ? "thanks diatom" : null);
-				// 	}
+			// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
+			// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
+			// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+			// 	let buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
+			// 	let people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
+			// 	let button;
+			// 	for (let i = 0; i < 10; i++) {
+			// 		let name = people[Math.floor(Math.random() * people.length)];
+			// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
+			// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+			// 		button = (name === 'Diatom' ? "thanks diatom" : null);
+			// 	}
 			} else if (moveid === 'stealthrock') {
 				// April Fool's 2016
 				const srNames = [
@@ -1196,12 +1196,12 @@ export class BattleLog {
 		let G1;
 		let B1;
 		switch (Math.floor(H / 60)) {
-			case 1: R1 = X; G1 = C; B1 = 0; break;
-			case 2: R1 = 0; G1 = C; B1 = X; break;
-			case 3: R1 = 0; G1 = X; B1 = C; break;
-			case 4: R1 = X; G1 = 0; B1 = C; break;
-			case 5: R1 = C; G1 = 0; B1 = X; break;
-			case 0: default: R1 = C; G1 = X; B1 = 0; break;
+		case 1: R1 = X; G1 = C; B1 = 0; break;
+		case 2: R1 = 0; G1 = C; B1 = X; break;
+		case 3: R1 = 0; G1 = X; B1 = C; break;
+		case 4: R1 = X; G1 = 0; B1 = C; break;
+		case 5: R1 = C; G1 = 0; B1 = X; break;
+		case 0: default: R1 = C; G1 = X; B1 = 0; break;
 		}
 		let R = R1 + m;
 		let G = G1 + m;
@@ -1247,79 +1247,79 @@ export class BattleLog {
 		}
 
 		switch (cmd) {
-			case 'me':
-			case 'mee':
-				let parsedMessage = BattleLog.parseMessage(' ' + target);
-				if (cmd === 'mee') parsedMessage = parsedMessage.slice(1);
-				if (!showMe) {
-					return [
-						'chat chatmessage-' + toID(name) + hlClass + mineClass,
-						`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>/me${parsedMessage}</em>`,
-					];
-				}
+		case 'me':
+		case 'mee':
+			let parsedMessage = BattleLog.parseMessage(' ' + target);
+			if (cmd === 'mee') parsedMessage = parsedMessage.slice(1);
+			if (!showMe) {
 				return [
 					'chat chatmessage-' + toID(name) + hlClass + mineClass,
-					`${timestamp}<em><i><strong${colorStyle}>&bull; ${clickableName}</strong>${parsedMessage}</i></em>`,
+					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>/me${parsedMessage}</em>`,
 				];
-			case 'invite':
-				let roomid = toRoomid(target);
+			}
+			return [
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
+				`${timestamp}<em><i><strong${colorStyle}>&bull; ${clickableName}</strong>${parsedMessage}</i></em>`,
+			];
+		case 'invite':
+			let roomid = toRoomid(target);
+			return [
+				'chat',
+				`${timestamp}<em>${clickableName} invited you to join the room "${roomid}"</em>` +
+				`<div class="notice"><button class="button" name="joinRoom" value="${roomid}">Join ${roomid}</button></div>`,
+			];
+		case 'announce':
+			return [
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <span class="message-announce">${BattleLog.parseMessage(target)}</span>`,
+			];
+		case 'log':
+			return [
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
+				`${timestamp}<span class="message-log">${BattleLog.parseMessage(target)}</span>`,
+			];
+		case 'data-pokemon':
+		case 'data-item':
+		case 'data-ability':
+		case 'data-move':
+			return ['chat message-error', '[outdated code no longer supported]'];
+		case 'text':
+			return ['chat', BattleLog.parseMessage(target)];
+		case 'error':
+			return ['chat message-error', formatText(target, true)];
+		case 'html':
+			if (!name) {
 				return [
-					'chat',
-					`${timestamp}<em>${clickableName} invited you to join the room "${roomid}"</em>` +
-					`<div class="notice"><button class="button" name="joinRoom" value="${roomid}">Join ${roomid}</button></div>`,
+					'chat' + hlClass,
+					`${timestamp}<em>${BattleLog.sanitizeHTML(target)}</em>`,
 				];
-			case 'announce':
+			}
+			return [
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.sanitizeHTML(target)}</em>`,
+			];
+		case 'uhtml':
+		case 'uhtmlchange':
+			let parts = target.split(',');
+			let htmlSrc = parts.slice(1).join(',').trim();
+			this.changeUhtml(parts[0], htmlSrc, cmd === 'uhtml');
+			return ['', ''];
+		case 'raw':
+			return ['chat', BattleLog.sanitizeHTML(target), true];
+		case 'nonotify':
+			return ['chat', BattleLog.sanitizeHTML(target), true];
+		default:
+			// Not a command or unsupported. Parsed as a normal chat message.
+			if (!name) {
 				return [
-					'chat chatmessage-' + toID(name) + hlClass + mineClass,
-					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <span class="message-announce">${BattleLog.parseMessage(target)}</span>`,
+					'chat' + hlClass,
+					`${timestamp}<em>${BattleLog.parseMessage(message)}</em>`,
 				];
-			case 'log':
-				return [
-					'chat chatmessage-' + toID(name) + hlClass + mineClass,
-					`${timestamp}<span class="message-log">${BattleLog.parseMessage(target)}</span>`,
-				];
-			case 'data-pokemon':
-			case 'data-item':
-			case 'data-ability':
-			case 'data-move':
-				return ['chat message-error', '[outdated code no longer supported]'];
-			case 'text':
-				return ['chat', BattleLog.parseMessage(target)];
-			case 'error':
-				return ['chat message-error', formatText(target, true)];
-			case 'html':
-				if (!name) {
-					return [
-						'chat' + hlClass,
-						`${timestamp}<em>${BattleLog.sanitizeHTML(target)}</em>`,
-					];
-				}
-				return [
-					'chat chatmessage-' + toID(name) + hlClass + mineClass,
-					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.sanitizeHTML(target)}</em>`,
-				];
-			case 'uhtml':
-			case 'uhtmlchange':
-				let parts = target.split(',');
-				let htmlSrc = parts.slice(1).join(',').trim();
-				this.changeUhtml(parts[0], htmlSrc, cmd === 'uhtml');
-				return ['', ''];
-			case 'raw':
-				return ['chat', BattleLog.sanitizeHTML(target), true];
-			case 'nonotify':
-				return ['chat', BattleLog.sanitizeHTML(target), true];
-			default:
-				// Not a command or unsupported. Parsed as a normal chat message.
-				if (!name) {
-					return [
-						'chat' + hlClass,
-						`${timestamp}<em>${BattleLog.parseMessage(message)}</em>`,
-					];
-				}
-				return [
-					'chat chatmessage-' + toID(name) + hlClass + mineClass,
-					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.parseMessage(message)}</em>`,
-				];
+			}
+			return [
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.parseMessage(message)}</em>`,
+			];
 		}
 	}
 
@@ -1813,8 +1813,8 @@ export class BattleLog {
 }
 
 if (window.Net) {
-	Net(`/config/colors.json`).get().then(response => {
+	Net(`/config/colors.json?${Math.random()}`).get().then(response => {
 		const data = JSON.parse(response);
 		Object.assign(Config.customcolors, data);
-	}).catch(() => { });
+	}).catch(() => {});
 }

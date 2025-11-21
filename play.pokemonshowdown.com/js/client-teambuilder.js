@@ -30,6 +30,9 @@
 				if (this.curTeam.format.includes('bdsp')) {
 					this.curTeam.dex = Dex.mod('gen8bdsp');
 				}
+				if (this.curTeam.format.includes('legends')) {
+					this.curTeam.dex = Dex.mod('gen9legendsou');
+				}
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -305,16 +308,16 @@
 					continue;
 				}
 				switch (format.slice(0, 4)) {
-					case 'gen1': format = 'I' + format.slice(4); break;
-					case 'gen2': format = 'H' + format.slice(4); break;
-					case 'gen3': format = 'G' + format.slice(4); break;
-					case 'gen4': format = 'F' + format.slice(4); break;
-					case 'gen5': format = 'E' + format.slice(4); break;
-					case 'gen6': format = 'D' + format.slice(4); break;
-					case 'gen7': format = 'C' + format.slice(4); break;
-					case 'gen8': format = 'B' + format.slice(4); break;
-					case 'gen9': format = 'A' + format.slice(4); break;
-					default: format = 'X' + format; break;
+				case 'gen1': format = 'I' + format.slice(4); break;
+				case 'gen2': format = 'H' + format.slice(4); break;
+				case 'gen3': format = 'G' + format.slice(4); break;
+				case 'gen4': format = 'F' + format.slice(4); break;
+				case 'gen5': format = 'E' + format.slice(4); break;
+				case 'gen6': format = 'D' + format.slice(4); break;
+				case 'gen7': format = 'C' + format.slice(4); break;
+				case 'gen8': format = 'B' + format.slice(4); break;
+				case 'gen9': format = 'A' + format.slice(4); break;
+				default: format = 'X' + format; break;
 				}
 				folders.push(format);
 			}
@@ -326,17 +329,17 @@
 				var format = folders[i];
 				var newGen;
 				switch (format.charAt(0)) {
-					case 'I': newGen = '1'; break;
-					case 'H': newGen = '2'; break;
-					case 'G': newGen = '3'; break;
-					case 'F': newGen = '4'; break;
-					case 'E': newGen = '5'; break;
-					case 'D': newGen = '6'; break;
-					case 'C': newGen = '7'; break;
-					case 'B': newGen = '8'; break;
-					case 'A': newGen = '9'; break;
-					case 'X': newGen = 'X'; break;
-					case 'Z': newGen = '/'; break;
+				case 'I': newGen = '1'; break;
+				case 'H': newGen = '2'; break;
+				case 'G': newGen = '3'; break;
+				case 'F': newGen = '4'; break;
+				case 'E': newGen = '5'; break;
+				case 'D': newGen = '6'; break;
+				case 'C': newGen = '7'; break;
+				case 'B': newGen = '8'; break;
+				case 'A': newGen = '9'; break;
+				case 'X': newGen = 'X'; break;
+				case 'Z': newGen = '/'; break;
 				}
 				if (gen !== newGen) {
 					gen = newGen;
@@ -639,11 +642,9 @@
 				if (format === '+') {
 					e.stopImmediatePropagation();
 					var self = this;
-					app.addPopup(FormatPopup, {
-						format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
-							self.selectFolder(newFormat);
-						}
-					});
+					app.addPopup(FormatPopup, { format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
+						self.selectFolder(newFormat);
+					} });
 					return;
 				}
 				if (format === '++') {
@@ -652,21 +653,19 @@
 					// app.addPopupPrompt("Folder name:", "Create folder", function (newFormat) {
 					// 	self.selectFolder(newFormat + '/');
 					// });
-					app.addPopup(PromptPopup, {
-						message: "Folder name:", button: "Create folder", sourceEl: e.currentTarget, callback: function (name) {
-							name = $.trim(name);
-							if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
-								app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
-								name = name.replace(/[\\\/]/g, '');
-							}
-							if (name.indexOf('|') >= 0) {
-								app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
-								name = name.replace(/\|/g, '');
-							}
-							if (!name) return;
-							self.selectFolder(name + '/');
+					app.addPopup(PromptPopup, { message: "Folder name:", button: "Create folder", sourceEl: e.currentTarget, callback: function (name) {
+						name = $.trim(name);
+						if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
+							app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
+							name = name.replace(/[\\\/]/g, '');
 						}
-					});
+						if (name.indexOf('|') >= 0) {
+							app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+							name = name.replace(/\|/g, '');
+						}
+						if (!name) return;
+						self.selectFolder(name + '/');
+					} });
 					return;
 				}
 			} else {
@@ -681,29 +680,27 @@
 			if (this.curFolder.slice(-1) !== '/') return;
 			var oldFolder = this.curFolder.slice(0, -1);
 			var self = this;
-			app.addPopup(PromptPopup, {
-				message: "Folder name:", button: "Rename folder", value: oldFolder, callback: function (name) {
-					name = $.trim(name);
-					if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
-						app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
-						name = name.replace(/[\\\/]/g, '');
-					}
-					if (name.indexOf('|') >= 0) {
-						app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
-						name = name.replace(/\|/g, '');
-					}
-					if (!name) return;
-					if (name === oldFolder) return;
-					for (var i = 0; i < Storage.teams.length; i++) {
-						var team = Storage.teams[i];
-						if (team.folder !== oldFolder) continue;
-						team.folder = name;
-						if (window.nodewebkit) Storage.saveTeam(team);
-					}
-					if (!window.nodewebkit) Storage.saveTeams();
-					self.selectFolder(name + '/');
+			app.addPopup(PromptPopup, { message: "Folder name:", button: "Rename folder", value: oldFolder, callback: function (name) {
+				name = $.trim(name);
+				if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
+					app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
+					name = name.replace(/[\\\/]/g, '');
 				}
-			});
+				if (name.indexOf('|') >= 0) {
+					app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+					name = name.replace(/\|/g, '');
+				}
+				if (!name) return;
+				if (name === oldFolder) return;
+				for (var i = 0; i < Storage.teams.length; i++) {
+					var team = Storage.teams[i];
+					if (team.folder !== oldFolder) continue;
+					team.folder = name;
+					if (window.nodewebkit) Storage.saveTeam(team);
+				}
+				if (!window.nodewebkit) Storage.saveTeams();
+				self.selectFolder(name + '/');
+			} });
 		},
 		promptDeleteFolder: function () {
 			app.addPopup(DeleteFolderPopup, { folder: this.curFolder, room: this });
@@ -760,6 +757,9 @@
 			}
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
+			}
+			if (this.curTeam.format.includes('legends')) {
+				this.curTeam.dex = Dex.mod('gen9legendsou');
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
@@ -1468,11 +1468,11 @@
 			var path = match[2];
 
 			switch (host) {
-				case 'pokepast.es':
-					return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/json';
-				default: // gist
-					var split = path.split('/');
-					return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
+			case 'pokepast.es':
+				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/json';
+			default: // gist
+				var split = path.split('/');
+				return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
 			}
 		},
 		addPokemon: function () {
@@ -1600,11 +1600,9 @@
 				return;
 			}
 			var self = this;
-			app.addPopup(FormatPopup, {
-				format: format, sourceEl: button, selectType: 'teambuilder', onselect: function (newFormat) {
-					self.changeFormat(newFormat);
-				}
-			});
+			app.addPopup(FormatPopup, { format: format, sourceEl: button, selectType: 'teambuilder', onselect: function (newFormat) {
+				self.changeFormat(newFormat);
+			} });
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
@@ -1615,6 +1613,9 @@
 			}
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
+			}
+			if (this.curTeam.format.includes('legends')) {
+				this.curTeam.dex = Dex.mod('gen9legendsou');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
@@ -2221,32 +2222,32 @@
 				smogdexid = 'meowstic-m';
 			} else if (species.forme) {
 				switch (species.baseSpecies) {
-					case 'Alcremie':
-					case 'Basculin':
-					case 'Burmy':
-					case 'Castform':
-					case 'Cherrim':
-					case 'Deerling':
-					case 'Flabebe':
-					case 'Floette':
-					case 'Florges':
-					case 'Furfrou':
-					case 'Gastrodon':
-					case 'Genesect':
-					case 'Keldeo':
-					case 'Mimikyu':
-					case 'Minior':
-					case 'Pikachu':
-					case 'Polteageist':
-					case 'Sawsbuck':
-					case 'Shellos':
-					case 'Sinistea':
-					case 'Tatsugiri':
-					case 'Vivillon':
-						break;
-					default:
-						smogdexid += '-' + toID(species.forme);
-						break;
+				case 'Alcremie':
+				case 'Basculin':
+				case 'Burmy':
+				case 'Castform':
+				case 'Cherrim':
+				case 'Deerling':
+				case 'Flabebe':
+				case 'Floette':
+				case 'Florges':
+				case 'Furfrou':
+				case 'Gastrodon':
+				case 'Genesect':
+				case 'Keldeo':
+				case 'Mimikyu':
+				case 'Minior':
+				case 'Pikachu':
+				case 'Polteageist':
+				case 'Sawsbuck':
+				case 'Shellos':
+				case 'Sinistea':
+				case 'Tatsugiri':
+				case 'Vivillon':
+					break;
+				default:
+					smogdexid += '-' + toID(species.forme);
+					break;
 				}
 			}
 
@@ -2415,38 +2416,38 @@
 				if (hpType && !this.canHyperTrain(set)) {
 					var hpIVs;
 					switch (hpType) {
-						case 'dark':
-							hpIVs = ['111111']; break;
-						case 'dragon':
-							hpIVs = ['011111', '101111', '110111']; break;
-						case 'ice':
-							hpIVs = ['010111', '100111', '111110']; break;
-						case 'psychic':
-							hpIVs = ['011110', '101110', '110110']; break;
-						case 'electric':
-							hpIVs = ['010110', '100110', '111011']; break;
-						case 'grass':
-							hpIVs = ['011011', '101011', '110011']; break;
-						case 'water':
-							hpIVs = ['100011', '111010']; break;
-						case 'fire':
-							hpIVs = ['101010', '110010']; break;
-						case 'steel':
-							hpIVs = ['100010', '111101']; break;
-						case 'ghost':
-							hpIVs = ['101101', '110101']; break;
-						case 'bug':
-							hpIVs = ['100101', '111100', '101100']; break;
-						case 'rock':
-							hpIVs = ['001100', '110100', '100100']; break;
-						case 'ground':
-							hpIVs = ['000100', '111001', '101001']; break;
-						case 'poison':
-							hpIVs = ['001001', '110001', '100001']; break;
-						case 'flying':
-							hpIVs = ['000001', '111000', '101000']; break;
-						case 'fighting':
-							hpIVs = ['001000', '110000', '100000']; break;
+					case 'dark':
+						hpIVs = ['111111']; break;
+					case 'dragon':
+						hpIVs = ['011111', '101111', '110111']; break;
+					case 'ice':
+						hpIVs = ['010111', '100111', '111110']; break;
+					case 'psychic':
+						hpIVs = ['011110', '101110', '110110']; break;
+					case 'electric':
+						hpIVs = ['010110', '100110', '111011']; break;
+					case 'grass':
+						hpIVs = ['011011', '101011', '110011']; break;
+					case 'water':
+						hpIVs = ['100011', '111010']; break;
+					case 'fire':
+						hpIVs = ['101010', '110010']; break;
+					case 'steel':
+						hpIVs = ['100010', '111101']; break;
+					case 'ghost':
+						hpIVs = ['101101', '110101']; break;
+					case 'bug':
+						hpIVs = ['100101', '111100', '101100']; break;
+					case 'rock':
+						hpIVs = ['001100', '110100', '100100']; break;
+					case 'ground':
+						hpIVs = ['000100', '111001', '101001']; break;
+					case 'poison':
+						hpIVs = ['001001', '110001', '100001']; break;
+					case 'flying':
+						hpIVs = ['000001', '111000', '101000']; break;
+					case 'fighting':
+						hpIVs = ['001000', '110000', '100000']; break;
 					}
 					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
 					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
@@ -3206,34 +3207,34 @@
 			var val = '';
 			var format = this.curTeam.format;
 			switch (name) {
-				case 'pokemon':
-					val = (id in BattlePokedex ? this.curTeam.dex.species.get(e.currentTarget.value).name : '');
-					break;
-				case 'ability':
-					if (id in BattleItems && format && format.endsWith("dualwielding")) {
-						val = BattleItems[id].name;
-					} else if (id in BattleMovedex && format && format.endsWith("trademarked")) {
-						val = BattleMovedex[id].name;
-					} else {
-						val = (id in BattleAbilities ? BattleAbilities[id].name : '');
-					}
-					break;
-				case 'item':
-					if (id in BattleMovedex && format && format.endsWith("fortemons")) {
-						val = BattleMovedex[id].name;
-					} else if (id in BattleAbilities && format && format.endsWith("multibility")) {
-						val = BattleAbilities[id].name;
-					} else {
-						val = (id in BattleItems ? BattleItems[id].name : '');
-					}
-					break;
-				case 'move1': case 'move2': case 'move3': case 'move4':
-					if (id in BattlePokedex && format && format.endsWith("pokemoves")) {
-						val = BattlePokedex[id].name;
-					} else {
-						val = (id in BattleMovedex ? BattleMovedex[id].name : '');
-					}
-					break;
+			case 'pokemon':
+				val = (id in BattlePokedex ? this.curTeam.dex.species.get(e.currentTarget.value).name : '');
+				break;
+			case 'ability':
+				if (id in BattleItems && format && format.endsWith("dualwielding")) {
+					val = BattleItems[id].name;
+				} else if (id in BattleMovedex && format && format.endsWith("trademarked")) {
+					val = BattleMovedex[id].name;
+				} else {
+					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
+				}
+				break;
+			case 'item':
+				if (id in BattleMovedex && format && format.endsWith("fortemons")) {
+					val = BattleMovedex[id].name;
+				} else if (id in BattleAbilities && format && format.endsWith("multibility")) {
+					val = BattleAbilities[id].name;
+				} else {
+					val = (id in BattleItems ? BattleItems[id].name : '');
+				}
+				break;
+			case 'move1': case 'move2': case 'move3': case 'move4':
+				if (id in BattlePokedex && format && format.endsWith("pokemoves")) {
+					val = BattlePokedex[id].name;
+				} else {
+					val = (id in BattleMovedex ? BattleMovedex[id].name : '');
+				}
+				break;
 			}
 			if (!val) {
 				if (name === 'pokemon' || name === 'ability' || id) {
@@ -3341,51 +3342,51 @@
 			if (this.chartSetCustom(input.val())) return;
 			input.val(val).removeClass('incomplete');
 			switch (inputName) {
-				case 'pokemon':
-					this.setPokemon(val, selectNext);
-					break;
-				case 'item':
-					this.curSet.item = val;
-					this.updatePokemonSprite();
-					if (selectNext) this.$(this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]').select();
-					break;
-				case 'ability':
-					this.curSet.ability = val;
-					if (selectNext) this.$('input[name=move1]').select();
-					break;
-				case 'move1':
-					this.unChooseMove(this.curSet.moves[0]);
-					this.curSet.moves[0] = val;
-					this.chooseMove(val);
-					if (selectNext) this.$('input[name=move2]').select();
-					break;
-				case 'move2':
-					if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-					this.unChooseMove(this.curSet.moves[1]);
-					this.curSet.moves[1] = val;
-					this.chooseMove(val);
-					if (selectNext) this.$('input[name=move3]').select();
-					break;
-				case 'move3':
-					if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-					if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
-					this.unChooseMove(this.curSet.moves[2]);
-					this.curSet.moves[2] = val;
-					this.chooseMove(val);
-					if (selectNext) this.$('input[name=move4]').select();
-					break;
-				case 'move4':
-					if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-					if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
-					if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
-					this.unChooseMove(this.curSet.moves[3]);
-					this.curSet.moves[3] = val;
-					this.chooseMove(val);
-					if (selectNext) {
-						this.stats();
-						this.$('button.setstats').focus();
-					}
-					break;
+			case 'pokemon':
+				this.setPokemon(val, selectNext);
+				break;
+			case 'item':
+				this.curSet.item = val;
+				this.updatePokemonSprite();
+				if (selectNext) this.$(this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]').select();
+				break;
+			case 'ability':
+				this.curSet.ability = val;
+				if (selectNext) this.$('input[name=move1]').select();
+				break;
+			case 'move1':
+				this.unChooseMove(this.curSet.moves[0]);
+				this.curSet.moves[0] = val;
+				this.chooseMove(val);
+				if (selectNext) this.$('input[name=move2]').select();
+				break;
+			case 'move2':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				this.unChooseMove(this.curSet.moves[1]);
+				this.curSet.moves[1] = val;
+				this.chooseMove(val);
+				if (selectNext) this.$('input[name=move3]').select();
+				break;
+			case 'move3':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
+				this.unChooseMove(this.curSet.moves[2]);
+				this.curSet.moves[2] = val;
+				this.chooseMove(val);
+				if (selectNext) this.$('input[name=move4]').select();
+				break;
+			case 'move4':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
+				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
+				this.unChooseMove(this.curSet.moves[3]);
+				this.curSet.moves[3] = val;
+				this.chooseMove(val);
+				if (selectNext) {
+					this.stats();
+					this.$('button.setstats').focus();
+				}
+				break;
 			}
 			this.save();
 		},
@@ -3462,7 +3463,7 @@
 
 			var minAtk = true;
 			// only available through an event with 31 Atk IVs
-			if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon'].includes(set.species)) minAtk = false;
+			if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon', 'Gimmighoul-Roaming'].includes(set.species)) minAtk = false;
 			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
 			var hasHiddenPower = false;
 			var moves = set.moves;

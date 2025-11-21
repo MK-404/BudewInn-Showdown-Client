@@ -288,100 +288,100 @@ export class BattleTooltips {
 
 		let buf: string;
 		switch (type) {
-			case 'move':
-			case 'zmove':
-			case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
-				let move = this.battle.dex.moves.get(args[1]);
-				let teamIndex = parseInt(args[2], 10);
-				let pokemon = this.battle.nearSide.active[
-					teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2)
-				];
-				let gmaxMove = args[3] ? this.battle.dex.moves.get(args[3]) : undefined;
-				if (!pokemon) return false;
-				let serverPokemon = this.battle.myPokemon![teamIndex];
-				buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
-				break;
-			}
+		case 'move':
+		case 'zmove':
+		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
+			let move = this.battle.dex.moves.get(args[1]);
+			let teamIndex = parseInt(args[2], 10);
+			let pokemon = this.battle.nearSide.active[
+				teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2)
+			];
+			let gmaxMove = args[3] ? this.battle.dex.moves.get(args[3]) : undefined;
+			if (!pokemon) return false;
+			let serverPokemon = this.battle.myPokemon![teamIndex];
+			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
+			break;
+		}
 
-			case 'pokemon': { // pokemon|SIDE|POKEMON
-				// mouse over sidebar pokemon
-				// pokemon definitely exists, serverPokemon always ignored
-				let sideIndex = parseInt(args[1], 10);
-				let side = this.battle.sides[sideIndex];
-				let pokemon = side.pokemon[parseInt(args[2], 10)];
-				if (args[3] === 'illusion') {
-					buf = '';
-					const species = pokemon.getBaseSpecies().baseSpecies;
-					let index = 1;
-					for (const otherPokemon of side.pokemon) {
-						if (otherPokemon.getBaseSpecies().baseSpecies === species) {
-							buf += this.showPokemonTooltip(otherPokemon, null, false, index);
-							index++;
-						}
+		case 'pokemon': { // pokemon|SIDE|POKEMON
+			// mouse over sidebar pokemon
+			// pokemon definitely exists, serverPokemon always ignored
+			let sideIndex = parseInt(args[1], 10);
+			let side = this.battle.sides[sideIndex];
+			let pokemon = side.pokemon[parseInt(args[2], 10)];
+			if (args[3] === 'illusion') {
+				buf = '';
+				const species = pokemon.getBaseSpecies().baseSpecies;
+				let index = 1;
+				for (const otherPokemon of side.pokemon) {
+					if (otherPokemon.getBaseSpecies().baseSpecies === species) {
+						buf += this.showPokemonTooltip(otherPokemon, null, false, index);
+						index++;
 					}
-				} else {
-					buf = this.showPokemonTooltip(pokemon);
 				}
-				break;
+			} else {
+				buf = this.showPokemonTooltip(pokemon);
 			}
-			case 'activepokemon': { // activepokemon|SIDE|ACTIVE
-				// mouse over active pokemon
-				// pokemon definitely exists, serverPokemon maybe
-				let sideIndex = parseInt(args[1], 10);
-				let side = this.battle.sides[+this.battle.viewpointSwitched ^ sideIndex];
-				let activeIndex = parseInt(args[2], 10);
-				let pokemonIndex = activeIndex;
-				if (activeIndex >= 1 && this.battle.sides.length > 2) {
-					pokemonIndex -= 1;
-					side = this.battle.sides[side.n + 2];
-				}
-				let pokemon = side.active[activeIndex];
-				let serverPokemon = null;
-				if (side === this.battle.mySide && this.battle.myPokemon) {
-					serverPokemon = this.battle.myPokemon[pokemonIndex];
-				}
-				if (side === this.battle.mySide.ally && this.battle.myAllyPokemon) {
-					serverPokemon = this.battle.myAllyPokemon[pokemonIndex];
-				}
-				if (!pokemon) return false;
-				buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
-				break;
+			break;
+		}
+		case 'activepokemon': { // activepokemon|SIDE|ACTIVE
+			// mouse over active pokemon
+			// pokemon definitely exists, serverPokemon maybe
+			let sideIndex = parseInt(args[1], 10);
+			let side = this.battle.sides[+this.battle.viewpointSwitched ^ sideIndex];
+			let activeIndex = parseInt(args[2], 10);
+			let pokemonIndex = activeIndex;
+			if (activeIndex >= 1 && this.battle.sides.length > 2) {
+				pokemonIndex -= 1;
+				side = this.battle.sides[side.n + 2];
 			}
-			case 'switchpokemon': { // switchpokemon|POKEMON
-				// mouse over switchable pokemon
-				// serverPokemon definitely exists, sidePokemon maybe
-				// let side = this.battle.mySide;
-				let activeIndex = parseInt(args[1], 10);
-				let pokemon = null;
-				/* if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
-					pokemon = side.active[activeIndex];
-					if (pokemon && pokemon.side === side.ally) pokemon = null;
-				} */
-				let serverPokemon = this.battle.myPokemon![activeIndex];
-				buf = this.showPokemonTooltip(pokemon, serverPokemon);
-				break;
+			let pokemon = side.active[activeIndex];
+			let serverPokemon = null;
+			if (side === this.battle.mySide && this.battle.myPokemon) {
+				serverPokemon = this.battle.myPokemon[pokemonIndex];
 			}
-			case 'allypokemon': { // allypokemon|POKEMON
-				// mouse over ally's pokemon in multi battles
-				// serverPokemon definitely exists, sidePokemon maybe
-				// let side = this.battle.mySide.ally;
-				let activeIndex = parseInt(args[1], 10);
-				let pokemon = null;
-				/* if (activeIndex < side.pokemon.length) {
-					pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
-				} */
-				let serverPokemon = this.battle.myAllyPokemon ? this.battle.myAllyPokemon[activeIndex] : null;
-				buf = this.showPokemonTooltip(pokemon, serverPokemon);
-				break;
+			if (side === this.battle.mySide.ally && this.battle.myAllyPokemon) {
+				serverPokemon = this.battle.myAllyPokemon[pokemonIndex];
 			}
-			case 'field': {
-				buf = this.showFieldTooltip();
-				break;
-			}
-			default:
-				// "throws" an error without crashing
-				Promise.resolve(new Error(`unrecognized type`));
-				buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack!}</p>`;
+			if (!pokemon) return false;
+			buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
+			break;
+		}
+		case 'switchpokemon': { // switchpokemon|POKEMON
+			// mouse over switchable pokemon
+			// serverPokemon definitely exists, sidePokemon maybe
+			// let side = this.battle.mySide;
+			let activeIndex = parseInt(args[1], 10);
+			let pokemon = null;
+			/* if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
+				pokemon = side.active[activeIndex];
+				if (pokemon && pokemon.side === side.ally) pokemon = null;
+			} */
+			let serverPokemon = this.battle.myPokemon![activeIndex];
+			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			break;
+		}
+		case 'allypokemon': { // allypokemon|POKEMON
+			// mouse over ally's pokemon in multi battles
+			// serverPokemon definitely exists, sidePokemon maybe
+			// let side = this.battle.mySide.ally;
+			let activeIndex = parseInt(args[1], 10);
+			let pokemon = null;
+			/* if (activeIndex < side.pokemon.length) {
+				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
+			} */
+			let serverPokemon = this.battle.myAllyPokemon ? this.battle.myAllyPokemon[activeIndex] : null;
+			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			break;
+		}
+		case 'field': {
+			buf = this.showFieldTooltip();
+			break;
+		}
+		default:
+			// "throws" an error without crashing
+			Promise.resolve(new Error(`unrecognized type`));
+			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack!}</p>`;
 		}
 
 		this.placeTooltip(buf, elem, ownHeight, type);
@@ -420,7 +420,7 @@ export class BattleTooltips {
 				try {
 					const selection = window.getSelection()!;
 					if (selection.type === 'Range') return;
-				} catch { }
+				} catch {}
 				BattleTooltips.hideTooltip();
 			});
 		} else {
@@ -586,21 +586,21 @@ export class BattleTooltips {
 				}
 				if (move.id === 'weatherball') {
 					switch (this.battle.weather) {
-						case 'sunnyday':
-						case 'desolateland':
-							zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
-							break;
-						case 'raindance':
-						case 'primordialsea':
-							zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Water']);
-							break;
-						case 'sandstorm':
-							zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
-							break;
-						case 'hail':
-						case 'snowscape':
-							zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
-							break;
+					case 'sunnyday':
+					case 'desolateland':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
+						break;
+					case 'raindance':
+					case 'primordialsea':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Water']);
+						break;
+					case 'sandstorm':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
+						break;
+					case 'hail':
+					case 'snowscape':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
+						break;
 					}
 				}
 				move = new Move(zMove.id, zMove.name, {
@@ -830,8 +830,10 @@ export class BattleTooltips {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
-		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.speciesForme !== pokemon.name) {
+		const ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
+		const nickname = ignoreNicks ? Dex.species.get(pokemon.speciesForme).baseSpecies : pokemon.name;
+		let name = BattleLog.escapeHTML(nickname);
+		if (pokemon.speciesForme !== nickname) {
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
 		}
 
@@ -1587,23 +1589,23 @@ export class BattleTooltips {
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && value.weatherModify(0)) {
 			switch (this.battle.weather) {
-				case 'sunnyday':
-				case 'desolateland':
-					if (item.id === 'utilityumbrella') break;
-					moveType = 'Fire';
-					break;
-				case 'raindance':
-				case 'primordialsea':
-					if (item.id === 'utilityumbrella') break;
-					moveType = 'Water';
-					break;
-				case 'sandstorm':
-					moveType = 'Rock';
-					break;
-				case 'hail':
-				case 'snowscape':
-					moveType = 'Ice';
-					break;
+			case 'sunnyday':
+			case 'desolateland':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Fire';
+				break;
+			case 'raindance':
+			case 'primordialsea':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Water';
+				break;
+			case 'sandstorm':
+				moveType = 'Rock';
+				break;
+			case 'hail':
+			case 'snowscape':
+				moveType = 'Ice';
+				break;
 			}
 		}
 		if (move.id === 'terrainpulse' && pokemon.isGrounded(serverPokemon)) {
@@ -1631,29 +1633,29 @@ export class BattleTooltips {
 		// Raging Bull's type depends on the Tauros forme
 		if (move.id === 'ragingbull') {
 			switch (pokemon.getSpeciesForme()) {
-				case 'Tauros-Paldea-Combat':
-					moveType = 'Fighting';
-					break;
-				case 'Tauros-Paldea-Blaze':
-					moveType = 'Fire';
-					break;
-				case 'Tauros-Paldea-Aqua':
-					moveType = 'Water';
-					break;
+			case 'Tauros-Paldea-Combat':
+				moveType = 'Fighting';
+				break;
+			case 'Tauros-Paldea-Blaze':
+				moveType = 'Fire';
+				break;
+			case 'Tauros-Paldea-Aqua':
+				moveType = 'Water';
+				break;
 			}
 		}
 		// Ivy Cudgel's type depends on the Ogerpon forme
 		if (move.id === 'ivycudgel') {
 			switch (pokemon.getSpeciesForme()) {
-				case 'Ogerpon-Wellspring': case 'Ogerpon-Wellspring-Tera':
-					moveType = 'Water';
-					break;
-				case 'Ogerpon-Hearthflame': case 'Ogerpon-Hearthflame-Tera':
-					moveType = 'Fire';
-					break;
-				case 'Ogerpon-Cornerstone': case 'Ogerpon-Cornerstone-Tera':
-					moveType = 'Rock';
-					break;
+			case 'Ogerpon-Wellspring': case 'Ogerpon-Wellspring-Tera':
+				moveType = 'Water';
+				break;
+			case 'Ogerpon-Hearthflame': case 'Ogerpon-Hearthflame-Tera':
+				moveType = 'Fire';
+				break;
+			case 'Ogerpon-Cornerstone': case 'Ogerpon-Cornerstone-Tera':
+				moveType = 'Rock';
+				break;
 			}
 		}
 

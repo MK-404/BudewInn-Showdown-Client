@@ -66,26 +66,26 @@ export class PSConnection {
 			worker.onmessage = event => {
 				const { type, data } = event.data;
 				switch (type) {
-					case 'connected':
-						console.log('\u2705 (CONNECTED via worker)');
-						this.connected = true;
-						this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
-						this.queue = [];
-						PS.update();
-						break;
-					case 'message':
-						PS.receive(data);
-						break;
-					case 'disconnected':
-						this.handleDisconnect();
-						break;
-					case 'error':
-						console.warn(`Worker connection error: ${data}`);
-						this.worker = null;
-						// onerror can occur on abrupt disconnects or fatal errors.
-						// handleDisconnect ensures proper cleanup and also attemps to reconnect.
-						this.handleDisconnect(); // fallback
-						break;
+				case 'connected':
+					console.log('\u2705 (CONNECTED via worker)');
+					this.connected = true;
+					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
+					this.queue = [];
+					PS.update();
+					break;
+				case 'message':
+					PS.receive(data);
+					break;
+				case 'disconnected':
+					this.handleDisconnect();
+					break;
+				case 'error':
+					console.warn(`Worker connection error: ${data}`);
+					this.worker = null;
+					// onerror can occur on abrupt disconnects or fatal errors.
+					// handleDisconnect ensures proper cleanup and also attemps to reconnect.
+					this.handleDisconnect(); // fallback
+					break;
 				}
 			};
 
@@ -278,92 +278,96 @@ export class PSStorage {
 		const data = e.data;
 		// console.log(`top recv: ${data}`);
 		switch (data.charAt(0)) {
-			case 'c':
-				Config.server = JSON.parse(data.substr(1));
-				if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
-					const link = document.createElement('link');
-					link.rel = 'stylesheet';
-					link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
-					document.head.appendChild(link);
-				}
-				Object.assign(PS.server, Config.server);
-				break;
-			case 'p':
-				const newData = JSON.parse(data.substr(1));
-				if (newData) PS.prefs.load(newData, true);
-				PS.prefs.save = function () {
-					const prefData = JSON.stringify(PS.prefs.storage);
-					PSStorage.postCrossOriginMessage('P' + prefData);
+		case 'c':
+			Config.server = JSON.parse(data.substr(1));
+			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
+				const link = document.createElement('link');
+				link.rel = 'stylesheet';
+				link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
+				document.head.appendChild(link);
+			}
+			if ((Config.server as any).https === false) {
+				Config.server.protocol = 'http';
+				Config.server.httpport = Config.server.port;
+			}
+			Object.assign(PS.server, Config.server);
+			break;
+		case 'p':
+			const newData = JSON.parse(data.substr(1));
+			if (newData) PS.prefs.load(newData, true);
+			PS.prefs.save = function () {
+				const prefData = JSON.stringify(PS.prefs.storage);
+				PSStorage.postCrossOriginMessage('P' + prefData);
 
-					// in Safari, cross-origin local storage is apparently treated as session
-					// storage, so mirror the storage in the current origin just in case
+				// in Safari, cross-origin local storage is apparently treated as session
+				// storage, so mirror the storage in the current origin just in case
+				try {
+					localStorage.setItem('showdown_prefs', prefData);
+				} catch {}
+			};
+			PS.prefs.update(null);
+			break;
+		case 't':
+			if (window.nodewebkit) return;
+			let oldTeams;
+			if (PS.teams.list.length) {
+				// Teams are still stored in the old location; merge them with the
+				// new teams.
+				oldTeams = PS.teams.list;
+			}
+			PS.teams.unpackAll(data.substr(1));
+			PS.teams.save = function () {
+				const packedTeams = PS.teams.packAll(PS.teams.list);
+				PSStorage.postCrossOriginMessage('T' + packedTeams);
+
+				// in Safari, cross-origin local storage is apparently treated as session
+				// storage, so mirror the storage in the current origin just in case
+				if (document.location.hostname === Config.routes.client) {
 					try {
-						localStorage.setItem('showdown_prefs', prefData);
-					} catch { }
-				};
-				PS.prefs.update(null);
-				break;
-			case 't':
-				if (window.nodewebkit) return;
-				let oldTeams;
-				if (PS.teams.list.length) {
-					// Teams are still stored in the old location; merge them with the
-					// new teams.
-					oldTeams = PS.teams.list;
+						localStorage.setItem('showdown_teams_local', packedTeams);
+					} catch {}
 				}
-				PS.teams.unpackAll(data.substr(1));
-				PS.teams.save = function () {
-					const packedTeams = PS.teams.packAll(PS.teams.list);
-					PSStorage.postCrossOriginMessage('T' + packedTeams);
+				PS.teams.update('team');
+			};
+			if (oldTeams) {
+				PS.teams.list = PS.teams.list.concat(oldTeams);
+				PS.teams.save();
+				localStorage.removeItem('showdown_teams');
+			}
+			if (data === 'tnull' && !PS.teams.list.length) {
+				PS.teams.unpackAll(localStorage.getItem('showdown_teams_local'));
+			}
+			break;
+		case 'a':
+			if (data === 'a0') {
+				PS.alert("Your browser doesn't support third-party cookies. Some things might not work correctly.");
+			}
+			if (!window.nodewebkit) {
+				// for whatever reason, Node-Webkit doesn't let us make remote
+				// Ajax requests or something. Oh well, making them direct
+				// isn't a problem, either.
 
-					// in Safari, cross-origin local storage is apparently treated as session
-					// storage, so mirror the storage in the current origin just in case
-					if (document.location.hostname === Config.routes.client) {
-						try {
-							localStorage.setItem('showdown_teams_local', packedTeams);
-						} catch { }
-					}
-					PS.teams.update('team');
-				};
-				if (oldTeams) {
-					PS.teams.list = PS.teams.list.concat(oldTeams);
-					PS.teams.save();
-					localStorage.removeItem('showdown_teams');
+				try {
+					// I really hope this is a Chrome bug that this can fail
+					PSStorage.frame!.postMessage("", PSStorage.origin);
+				} catch {
+					return;
 				}
-				if (data === 'tnull' && !PS.teams.list.length) {
-					PS.teams.unpackAll(localStorage.getItem('showdown_teams_local'));
-				}
-				break;
-			case 'a':
-				if (data === 'a0') {
-					PS.alert("Your browser doesn't support third-party cookies. Some things might not work correctly.");
-				}
-				if (!window.nodewebkit) {
-					// for whatever reason, Node-Webkit doesn't let us make remote
-					// Ajax requests or something. Oh well, making them direct
-					// isn't a problem, either.
 
-					try {
-						// I really hope this is a Chrome bug that this can fail
-						PSStorage.frame!.postMessage("", PSStorage.origin);
-					} catch {
-						return;
-					}
-
-					PSStorage.requests = {};
-				}
-				PSStorage.loaded = true;
-				PSStorage.loader?.();
-				PSStorage.loader = undefined;
-				break;
-			case 'r':
-				const reqData = JSON.parse(data.slice(1));
-				const idx = reqData[0];
-				if (PSStorage.requests![idx]) {
-					PSStorage.requests![idx](reqData[1]);
-					delete PSStorage.requests![idx];
-				}
-				break;
+				PSStorage.requests = {};
+			}
+			PSStorage.loaded = true;
+			PSStorage.loader?.();
+			PSStorage.loader = undefined;
+			break;
+		case 'r':
+			const reqData = JSON.parse(data.slice(1));
+			const idx = reqData[0];
+			if (PSStorage.requests![idx]) {
+				PSStorage.requests![idx](reqData[1]);
+				delete PSStorage.requests![idx];
+			}
+			break;
 		}
 	};
 	static request(type: 'GET' | 'POST', uri: string, data: any): void | Promise<string> {
@@ -434,7 +438,7 @@ class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch { }
+		} catch {}
 	}
 }
 class NetRequest {

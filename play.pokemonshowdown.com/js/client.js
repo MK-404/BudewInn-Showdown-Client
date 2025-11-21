@@ -194,17 +194,17 @@ function toId() {
 			var settings = _.clone(this.get('settings'));
 			if (settings[setting] !== value) {
 				switch (setting) {
-					case 'blockPMs':
-						app.send(value ? '/blockpms ' + value : '/unblockpms');
-						break;
-					case 'blockChallenges':
-						app.send(value ? '/blockchallenges' : '/unblockchallenges');
-						break;
-					case 'language':
-						app.send('/language ' + value);
-						break;
-					default:
-						throw new TypeError('Unknown setting:' + setting);
+				case 'blockPMs':
+					app.send(value ? '/blockpms ' + value : '/unblockpms');
+					break;
+				case 'blockChallenges':
+					app.send(value ? '/blockchallenges' : '/unblockchallenges');
+					break;
+				case 'language':
+					app.send('/language ' + value);
+					break;
+				default:
+					throw new TypeError('Unknown setting:' + setting);
 				}
 				// Optimistically update, might get corrected by the |updateuser| response
 				settings[setting] = value;
@@ -316,7 +316,7 @@ function toId() {
 					if (special === '@gmail') {
 						try {
 							gapi.auth2.getAuthInstance().signOut(); // eslint-disable-line no-undef
-						} catch (e) { }
+						} catch (e) {}
 					}
 					app.addPopup(LoginPasswordPopup, {
 						username: name,
@@ -413,12 +413,12 @@ function toId() {
 			this.topbar = new Topbar({ el: $('#header') });
 			if (this.down) {
 				this.isDisconnected = true;
-				// } else if (location.origin === 'http://smogtours.psim.us') {
-				// 	this.isDisconnected = true;
-				// 	this.addPopup(Popup, {
-				// 		message: "The Smogtours server no longer supports HTTP. Please use https://smogtours.psim.us",
-				// 		type: 'modal'
-				// 	});
+			// } else if (location.origin === 'http://smogtours.psim.us') {
+			// 	this.isDisconnected = true;
+			// 	this.addPopup(Popup, {
+			// 		message: "The Smogtours server no longer supports HTTP. Please use https://smogtours.psim.us",
+			// 		type: 'modal'
+			// 	});
 			} else {
 				var hostname = document.location.hostname;
 				if (hostname === Config.routes.client || Config.testclient || hostname.startsWith(Config.defaultserver.id + '-')) {
@@ -695,12 +695,12 @@ function toId() {
 			Storage.whenAppLoaded.load(this);
 
 			// load custom colors from loginserver
-			$.get('/config/colors.json', {}, function (data) {
+			$.get('/config/colors.json?' + Math.random(), {}, function (data) {
 				Object.assign(Config.customcolors, data);
 			});
 
 			// get coil values too
-			$.get('/config/coil.json', {}, function (data) {
+			$.get('/config/coil.json?' + Math.random(), {}, function (data) {
 				Object.assign(LadderRoom.COIL_B, data);
 			});
 
@@ -1136,179 +1136,179 @@ function toId() {
 			}
 
 			switch (parts[0]) {
-				case 'customgroups':
-					var nlIndex = data.indexOf('\n');
-					if (nlIndex > 0) {
-						this.receive(data.substr(nlIndex + 1));
+			case 'customgroups':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+				}
+
+				var tarRow = data.slice(14, nlIndex);
+				this.parseGroups(tarRow);
+				break;
+
+			case 'challstr':
+				if (parts[2]) {
+					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
+				} else {
+					this.user.receiveChallstr(parts[1]);
+				}
+				break;
+
+			case 'formats':
+				this.parseFormats(parts);
+				break;
+
+			case 'updateuser':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+					parts = data.slice(1, nlIndex).split('|');
+				}
+				var parsed = BattleTextParser.parseNameParts(parts[1]);
+				var named = !!+parts[2];
+
+				var userid = toUserid(parsed.name);
+				if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
+					$.post(app.user.getActionPHP(), {
+						act: 'changeusername',
+						username: parsed.name
+					}, function () {}, 'text');
+				}
+
+				var settings = _.clone(app.user.get('settings'));
+				if (parts.length > 4) {
+					// Update our existing settings based on what the server has sent us.
+					// This approach is more robust as it works regardless of whether the
+					// server sends us all the values or just the diffs.
+					var update = JSON.parse(parts[4]);
+					for (var key in update) {
+						settings[key] = update[key];
 					}
+				}
 
-					var tarRow = data.slice(14, nlIndex);
-					this.parseGroups(tarRow);
-					break;
+				this.user.set({
+					name: parsed.name,
+					userid: userid,
+					named: named,
+					avatar: parts[3],
+					settings: settings,
+					status: parsed.status,
+					away: parsed.away
+				});
+				this.user.setPersistentName(named ? parsed.name : null);
+				if (named) {
+					this.trigger('init:choosename');
+				}
+				if (app.ignore[userid]) {
+					delete app.ignore[userid];
+					app.saveIgnore();
+				}
+				break;
 
-				case 'challstr':
-					if (parts[2]) {
-						this.user.receiveChallstr(parts[1] + '|' + parts[2]);
-					} else {
-						this.user.receiveChallstr(parts[1]);
-					}
-					break;
+			case 'nametaken':
+				app.addPopup(LoginPopup, { name: parts[1] || '', error: parts[2] || '' });
+				break;
 
-				case 'formats':
-					this.parseFormats(parts);
-					break;
+			case 'queryresponse':
+				var responseData = JSON.parse(data.substr(16 + parts[1].length));
+				app.trigger('response:' + parts[1], responseData);
+				break;
 
-				case 'updateuser':
-					var nlIndex = data.indexOf('\n');
-					if (nlIndex > 0) {
-						this.receive(data.substr(nlIndex + 1));
-						parts = data.slice(1, nlIndex).split('|');
-					}
-					var parsed = BattleTextParser.parseNameParts(parts[1]);
-					var named = !!+parts[2];
+			case 'updatechallenges':
+				if (this.rooms['']) {
+					this.rooms[''].updateChallenges(JSON.parse(data.substr(18)));
+				}
+				break;
 
-					var userid = toUserid(parsed.name);
-					if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
-						$.post(app.user.getActionPHP(), {
-							act: 'changeusername',
-							username: parsed.name
-						}, function () { }, 'text');
-					}
+			case 'updatesearch':
+				if (this.rooms['']) {
+					this.rooms[''].updateSearch(JSON.parse(data.substr(14)));
+				}
+				break;
 
-					var settings = _.clone(app.user.get('settings'));
-					if (parts.length > 4) {
-						// Update our existing settings based on what the server has sent us.
-						// This approach is more robust as it works regardless of whether the
-						// server sends us all the values or just the diffs.
-						var update = JSON.parse(parts[4]);
-						for (var key in update) {
-							settings[key] = update[key];
-						}
-					}
-
-					this.user.set({
-						name: parsed.name,
-						userid: userid,
-						named: named,
-						avatar: parts[3],
-						settings: settings,
-						status: parsed.status,
-						away: parsed.away
-					});
-					this.user.setPersistentName(named ? parsed.name : null);
-					if (named) {
-						this.trigger('init:choosename');
-					}
-					if (app.ignore[userid]) {
-						delete app.ignore[userid];
-						app.saveIgnore();
-					}
-					break;
-
-				case 'nametaken':
-					app.addPopup(LoginPopup, { name: parts[1] || '', error: parts[2] || '' });
-					break;
-
-				case 'queryresponse':
-					var responseData = JSON.parse(data.substr(16 + parts[1].length));
-					app.trigger('response:' + parts[1], responseData);
-					break;
-
-				case 'updatechallenges':
-					if (this.rooms['']) {
-						this.rooms[''].updateChallenges(JSON.parse(data.substr(18)));
-					}
-					break;
-
-				case 'updatesearch':
-					if (this.rooms['']) {
-						this.rooms[''].updateSearch(JSON.parse(data.substr(14)));
-					}
-					break;
-
-				case 'popup':
-					var maxWidth;
-					var type = 'semimodal';
+			case 'popup':
+				var maxWidth;
+				var type = 'semimodal';
+				data = data.substr(7);
+				if (data.substr(0, 6) === '|wide|') {
+					data = data.substr(6);
+					maxWidth = 960;
+				}
+				if (data.substr(0, 7) === '|modal|') {
 					data = data.substr(7);
-					if (data.substr(0, 6) === '|wide|') {
-						data = data.substr(6);
-						maxWidth = 960;
-					}
-					if (data.substr(0, 7) === '|modal|') {
-						data = data.substr(7);
-						type = 'modal';
-					}
-					if (data.substr(0, 6) === '|html|') {
-						data = data.substr(6);
-						app.addPopup(Popup, {
-							type: type,
-							maxWidth: maxWidth,
-							htmlMessage: BattleLog.sanitizeHTML(data)
-						});
-					} else {
-						app.addPopup(Popup, {
-							type: type,
-							maxWidth: maxWidth,
-							message: data.replace(/\|\|/g, '\n')
-						});
-					}
-					if (this.rooms['']) this.rooms[''].resetPending();
-					break;
+					type = 'modal';
+				}
+				if (data.substr(0, 6) === '|html|') {
+					data = data.substr(6);
+					app.addPopup(Popup, {
+						type: type,
+						maxWidth: maxWidth,
+						htmlMessage: BattleLog.sanitizeHTML(data)
+					});
+				} else {
+					app.addPopup(Popup, {
+						type: type,
+						maxWidth: maxWidth,
+						message: data.replace(/\|\|/g, '\n')
+					});
+				}
+				if (this.rooms['']) this.rooms[''].resetPending();
+				break;
 
-				case 'disconnect':
-					app.trigger('init:socketclosed', BattleLog.sanitizeHTML(data.substr(12)));
-					break;
+			case 'disconnect':
+				app.trigger('init:socketclosed', BattleLog.sanitizeHTML(data.substr(12)));
+				break;
 
-				case 'pm':
-					var dataLines = data.split('\n');
-					for (var i = 0; i < dataLines.length; i++) {
-						parts = dataLines[i].slice(1).split('|');
-						var message = parts.slice(3).join('|');
-						this.rooms[''].addPM(parts[1], message, parts[2]);
-						if (toUserid(parts[1]) !== app.user.get('userid')) {
-							app.user.lastPM = toUserid(parts[1]);
-						}
+			case 'pm':
+				var dataLines = data.split('\n');
+				for (var i = 0; i < dataLines.length; i++) {
+					parts = dataLines[i].slice(1).split('|');
+					var message = parts.slice(3).join('|');
+					this.rooms[''].addPM(parts[1], message, parts[2]);
+					if (toUserid(parts[1]) !== app.user.get('userid')) {
+						app.user.lastPM = toUserid(parts[1]);
 					}
-					break;
+				}
+				break;
 
-				case 'roomerror':
-					// deprecated; use |deinit| or |noinit|
-					this.unjoinRoom(parts[1]);
-					this.addPopupMessage(parts.slice(2).join('|'));
-					break;
+			case 'roomerror':
+				// deprecated; use |deinit| or |noinit|
+				this.unjoinRoom(parts[1]);
+				this.addPopupMessage(parts.slice(2).join('|'));
+				break;
 
-				case 'refresh':
-					// refresh the page
-					document.location.reload(true);
-					break;
+			case 'refresh':
+				// refresh the page
+				document.location.reload(true);
+				break;
 
-				case 'openpage':
-					// main server only, side servers don't get this
-					if (Config.server.id !== 'showdown') break;
-					var uri = parts[1];
-					if (!BattleLog.interstice.isWhitelisted(uri)) {
-						uri = BattleLog.interstice.getURI(uri);
+			case 'openpage':
+				// main server only, side servers don't get this
+				if (Config.server.id !== 'showdown') break;
+				var uri = parts[1];
+				if (!BattleLog.interstice.isWhitelisted(uri)) {
+					uri = BattleLog.interstice.getURI(uri);
+				}
+				this.openInNewWindow(uri);
+				break;
+			case 'c':
+			case 'chat':
+				if (parts[1] === '~') {
+					if (parts[2].substr(0, 6) === '/warn ') {
+						app.addPopup(RulesPopup, { warning: parts[2].substr(6) });
+						break;
 					}
-					this.openInNewWindow(uri);
-					break;
-				case 'c':
-				case 'chat':
-					if (parts[1] === '~') {
-						if (parts[2].substr(0, 6) === '/warn ') {
-							app.addPopup(RulesPopup, { warning: parts[2].substr(6) });
-							break;
-						}
-					}
+				}
 
-				/* fall through */
-				default:
-					// the messagetype wasn't in our list of recognized global
-					// messagetypes; so the message is presumed to be for the
-					// lobby.
-					if (this.rooms['lobby']) {
-						this.rooms['lobby'].receive(data);
-					}
-					break;
+			/* fall through */
+			default:
+				// the messagetype wasn't in our list of recognized global
+				// messagetypes; so the message is presumed to be for the
+				// lobby.
+				if (this.rooms['lobby']) {
+					this.rooms['lobby'].receive(data);
+				}
+				break;
 			}
 		},
 		saveIgnore: function () {
@@ -1327,7 +1327,7 @@ function toId() {
 			var data = null;
 			try {
 				data = JSON.parse(groupsList);
-			} catch (e) { }
+			} catch (e) {}
 			if (!data) return; // broken JSON - keep default ranks
 
 			var groups = {};
@@ -2268,11 +2268,9 @@ function toId() {
 		 */
 		selectformat: function (value, target) {
 			var format = value || 'gen9randombattle';
-			app.addPopup(FormatPopup, {
-				format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
-					target.value = newFormat;
-				}
-			});
+			app.addPopup(FormatPopup, { format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+				target.value = newFormat;
+			} });
 		},
 
 		copyText: function (value, target) {
@@ -2296,16 +2294,16 @@ function toId() {
 		show: function (position, leftWidth) {
 			this.leftWidth = 0;
 			switch (position) {
-				case 'left':
-					this.$el.css({ left: 0, width: leftWidth, right: 'auto' });
-					break;
-				case 'right':
-					this.$el.css({ left: leftWidth + 1, width: 'auto', right: 0 });
-					this.leftWidth = leftWidth;
-					break;
-				case 'full':
-					this.$el.css({ left: 0, width: 'auto', right: 0 });
-					break;
+			case 'left':
+				this.$el.css({ left: 0, width: leftWidth, right: 'auto' });
+				break;
+			case 'right':
+				this.$el.css({ left: leftWidth + 1, width: 'auto', right: 0 });
+				this.leftWidth = leftWidth;
+				break;
+			case 'full':
+				this.$el.css({ left: 0, width: 'auto', right: 0 });
+				break;
 			}
 			this.$el.show();
 			this.dismissAllNotifications(true);
@@ -2314,10 +2312,10 @@ function toId() {
 			this.blur();
 			this.$el.hide();
 		},
-		focus: function () { },
-		blur: function () { },
-		join: function () { },
-		leave: function () { },
+		focus: function () {},
+		blur: function () {},
+		join: function () {},
+		leave: function () {},
 
 		// notifications
 
@@ -2331,9 +2329,9 @@ function toId() {
 					// the new Notification spec anyway.
 					webkitNotifications.requestPermission();
 				} else if (window.Notification && Notification.requestPermission) {
-					Notification.requestPermission(function (permission) { });
+					Notification.requestPermission(function (permission) {});
 				}
-			} catch (e) { }
+			} catch (e) {}
 		},
 		notificationClass: '',
 		notifications: null,
@@ -2420,7 +2418,7 @@ function toId() {
 					// it doesn't.
 					// "Unexpected call to method or property access"
 					this.notifications[tag].close();
-				} catch (err) { }
+				} catch (err) {}
 			}
 			delete this.notifications[tag];
 			if (_.isEmpty(this.notifications)) {
@@ -2440,7 +2438,7 @@ function toId() {
 					try {
 						// Edge bug? - see closeNotification
 						this.notifications[tag].close();
-					} catch (err) { }
+					} catch (err) {}
 				}
 				this.notifications = null;
 			}
@@ -2455,7 +2453,7 @@ function toId() {
 			try {
 				// Edge bug? - see closeNotification
 				this.notifications[tag].close();
-			} catch (err) { }
+			} catch (err) {}
 			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
 			if (this.notifications[tag].psAutoclose) {
 				delete this.notifications[tag];
@@ -2488,7 +2486,7 @@ function toId() {
 					try {
 						// Edge bug? - see closeNotification
 						this.notifications[tag].close();
-					} catch (err) { }
+					} catch (err) {}
 					delete this.notifications[tag];
 				}
 				if (!this.notifications || _.isEmpty(this.notifications)) {
@@ -2985,8 +2983,7 @@ function toId() {
 			var buf = '<form>';
 
 			if (data.cantconnect) {
-				buf += '<p class="error">Server in Manutenzione!!!!!</p>';
-				buf += '<img src="https://budewinn.it/sprites/showdown.gif" style="width: 100%; height: auto;">';
+				buf += '<p class="error">Couldn\'t connect to server!</p>';
 				if (window.wiiu && document.location.protocol === 'https:') {
 					buf += '<p class="error">The Wii U does not support secure connections.</p>';
 					buf += '<p class="buttonbar"><button name="tryhttp" class="button autofocus"><strong>Connect insecurely</button> <button name="close" class="button">Work offline</button></p>';

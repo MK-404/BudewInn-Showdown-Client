@@ -475,70 +475,70 @@
 				}
 			}
 			switch (cmd.toLowerCase()) {
-				case 'ignore':
-					if (app.ignore[userid]) {
-						$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
-					} else {
-						app.ignore[userid] = 1;
-						$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
-						app.saveIgnore();
-					}
-					break;
-				case 'unignore':
-					if (!app.ignore[userid]) {
-						$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
-					} else {
-						delete app.ignore[userid];
-						$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
-						app.saveIgnore();
-					}
-					break;
-				case 'nick':
-					if ($.trim(data)) {
-						app.user.rename(data);
-					} else {
-						app.addPopup(LoginPopup);
-					}
-					return false;
-				case 'chal':
-				case 'chall':
-				case 'challenge':
-					this.challenge(userid, data);
-					break;
-				case 'clear':
-					$chat.empty();
-					break;
-				case 'rank': case 'ranking': case 'rating': case 'ladder':
-				case 'user': case 'open':
-				case 'debug':
-				case 'news':
-				case 'ignorelist':
-				case 'clearpms':
-				case 'showdebug': case 'hidedebug':
-				case 'showjoins': case 'hidejoins':
-				case 'showbattles': case 'hidebattles':
-				case 'packhidden': case 'unpackhidden':
-				case 'timestamps':
-				case 'hl': case 'highlight':
-				case 'buttonban': case 'buttonmute': case 'buttonunmute': case 'buttonkick': case 'buttonwarn':
-				case 'part': case 'leave':
-				case 'afd':
-					$chat.append('<div class="chat">Use this command in a proper chat room.</div>');
-					break;
-				default:
-					if (!userid) userid = '~';
-					if (text.startsWith('\n')) text = text.slice(1);
-					if (text.endsWith('\n')) text = text.slice(0, -1);
-					text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').slice(1);
-					if (text.length > 80000) {
-						app.addPopupMessage("Your message is too long.");
-						return;
-					}
-					if (!(text.startsWith('/') || text.startsWith('!')) && app.ignore[userid]) {
-						app.addPopupMessage("You can't PM a user you've ignored. Use /unignore to remove them from your ignore list.");
-						return;
-					}
-					this.send(text);
+			case 'ignore':
+				if (app.ignore[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
+				} else {
+					app.ignore[userid] = 1;
+					$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
+					app.saveIgnore();
+				}
+				break;
+			case 'unignore':
+				if (!app.ignore[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
+				} else {
+					delete app.ignore[userid];
+					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
+					app.saveIgnore();
+				}
+				break;
+			case 'nick':
+				if ($.trim(data)) {
+					app.user.rename(data);
+				} else {
+					app.addPopup(LoginPopup);
+				}
+				return false;
+			case 'chal':
+			case 'chall':
+			case 'challenge':
+				this.challenge(userid, data);
+				break;
+			case 'clear':
+				$chat.empty();
+				break;
+			case 'rank': case 'ranking': case 'rating': case 'ladder':
+			case 'user': case 'open':
+			case 'debug':
+			case 'news':
+			case 'ignorelist':
+			case 'clearpms':
+			case 'showdebug': case 'hidedebug':
+			case 'showjoins': case 'hidejoins':
+			case 'showbattles': case 'hidebattles':
+			case 'packhidden': case 'unpackhidden':
+			case 'timestamps':
+			case 'hl': case 'highlight':
+			case 'buttonban': case 'buttonmute': case 'buttonunmute': case 'buttonkick': case 'buttonwarn':
+			case 'part': case 'leave':
+			case 'afd':
+				$chat.append('<div class="chat">Use this command in a proper chat room.</div>');
+				break;
+			default:
+				if (!userid) userid = '~';
+				if (text.startsWith('\n')) text = text.slice(1);
+				if (text.endsWith('\n')) text = text.slice(0, -1);
+				text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').slice(1);
+				if (text.length > 80000) {
+					app.addPopupMessage("Your message is too long.");
+					return;
+				}
+				if (!(text.startsWith('/') || text.startsWith('!')) && app.ignore[userid]) {
+					app.addPopupMessage("You can't PM a user you've ignored. Use /unignore to remove them from your ignore list.");
+					return;
+				}
+				this.send(text);
 			}
 			$target.val('');
 			$target.trigger('keyup'); // force a resize
@@ -1195,64 +1195,64 @@
 			}
 
 			switch (cmd) {
-				case 'me':
-					if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
-					return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
-				case 'mee':
-					if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
-					return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
-				case 'invite':
-					var roomid = toRoomid(target);
-					return [
-						'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
-						'<div class="notice"><button name="joinRoom" value="' + roomid + '" class="button">Join ' + roomid + '</button></div>'
-					];
-				case 'announce':
-					return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
-				case 'log':
-					return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
-				case 'data-pokemon':
-				case 'data-item':
-				case 'data-ability':
-				case 'data-move':
-					return '[outdated message type not supported]';
-				case 'text':
-					return { message: '<div class="chat">' + BattleLog.parseMessage(target) + '</div>', noNotify: true };
-				case 'error':
-					return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
-				case 'html':
-					if (!name) {
-						return { message: '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
-					}
-					return { message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
-				case 'uhtml':
-				case 'uhtmlchange':
-					var parts = target.split(',');
-					var $elements = $chatElem.find('div.uhtml-' + toID(parts[0]));
-					var html = parts.slice(1).join(',');
-					if (!html) {
-						$elements.remove();
-					} else if (!$elements.length) {
-						$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-					} else if (cmd === 'uhtmlchange') {
-						$elements.html(BattleLog.sanitizeHTML(html));
-					} else {
-						$elements.remove();
-						$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-					}
-					return { message: '', noNotify: isNotPM };
-				case 'raw':
-					return { message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isNotPM };
-				case 'nonotify':
-					return { message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true };
-				case 'challenge':
-					return { challenge: target };
-				default:
-					// Not a command or unsupported. Parsed as a normal chat message.
-					if (!name) {
-						return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
-					}
-					return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
+			case 'me':
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
+			case 'mee':
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
+			case 'invite':
+				var roomid = toRoomid(target);
+				return [
+					'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
+					'<div class="notice"><button name="joinRoom" value="' + roomid + '" class="button">Join ' + roomid + '</button></div>'
+				];
+			case 'announce':
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
+			case 'log':
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
+			case 'data-pokemon':
+			case 'data-item':
+			case 'data-ability':
+			case 'data-move':
+				return '[outdated message type not supported]';
+			case 'text':
+				return { message: '<div class="chat">' + BattleLog.parseMessage(target) + '</div>', noNotify: true };
+			case 'error':
+				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
+			case 'html':
+				if (!name) {
+					return { message: '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
+				}
+				return { message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
+			case 'uhtml':
+			case 'uhtmlchange':
+				var parts = target.split(',');
+				var $elements = $chatElem.find('div.uhtml-' + toID(parts[0]));
+				var html = parts.slice(1).join(',');
+				if (!html) {
+					$elements.remove();
+				} else if (!$elements.length) {
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+				} else if (cmd === 'uhtmlchange') {
+					$elements.html(BattleLog.sanitizeHTML(html));
+				} else {
+					$elements.remove();
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+				}
+				return { message: '', noNotify: isNotPM };
+			case 'raw':
+				return { message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isNotPM };
+			case 'nonotify':
+				return { message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true };
+			case 'challenge':
+				return { challenge: target };
+			default:
+				// Not a command or unsupported. Parsed as a normal chat message.
+				if (!name) {
+					return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
+				}
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
 			}
 		}
 	});
