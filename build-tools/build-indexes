@@ -582,10 +582,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {
-				OU: 1, UUBL: 1, AG: 1, Uber: 1, UU: 1, RU: 1, NU: 1, PU: 1, ZU: 1, NFE: 1, LC: 1, DOU: 1, DUU: 1,
-				"(DUU)": 1, New: 1, Legal: 1, Regular: 1, "Restricted Legendary": 1, "CAP LC": 1,
-			}) {
+			if (tier in { OU: 1, AG: 1, Uber: 1, UU: 1, RU: 1, NU: 1, PU: 1, ZU: 1, NFE: 1, LC: 1, DOU: 1, DUU: 1, "(DUU)": 1, New: 1, Legal: 1, Regular: 1, "Restricted Legendary": 1, "CAP LC": 1 }) {
 				let usedTier = tier;
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
@@ -646,55 +643,23 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
-				// mainstays
-				case 'choiceband':
-				case 'choicespecs':
-				case 'eviolite':
-					greatItems.push(id);
-					break;
-				// great everywhere but metronome
 				case 'leftovers':
 				case 'lifeorb':
+				case 'choiceband':
 				case 'choicescarf':
+				case 'choicespecs':
+				case 'eviolite':
 				case 'assaultvest':
 				case 'focussash':
 				case 'powerherb':
 				case 'rockyhelmet':
-					if (!isMetBattle) greatItems.push(id);
-					else goodItems.push(id);
-					break;
-				// just singles
-				case 'airballoon':
-				case 'loadeddice':
 				case 'heavydutyboots':
 				case 'expertbelt':
 				case 'salacberry':
-					if (isDoubles || isMetBattle) goodItems.push(id);
-					else greatItems.push(id);
+					greatItems.push(id);
 					break;
-				// just doubles
-				case 'safetygoggles':
-				case 'ejectbutton':
-				case 'ejectpack':
-					if (isDoubles) greatItems.push(id);
-					else goodItems.push(id);
-					break;
-				// doubles + metronome
-				case 'covertcloak':
-				case 'clearamulet':
-				case 'weaknesspolicy':
-					if (isDoubles || isMetBattle) greatItems.push(id);
-					else goodItems.push(id);
-					break;
-				// metronome only
-				case 'mirrorherb':
-					if (isMetBattle) greatItems.push(id);
-					else goodItems.push(id);
-					break;
-				// generation specific
 				case 'mentalherb':
-					if (isMetBattle) goodItems.push(id);
-					else if (genNum > 4) greatItems.push(id);
+					if (genNum > 4) greatItems.push(id);
 					else poorItems.push(id);
 					break;
 				case 'lumberry':
@@ -702,8 +667,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					else greatItems.push(id);
 					break;
 				case 'sitrusberry':
-					if (genNum > 3 && (genNum < 7 || isDoubles)) greatItems.push(id);
-					else if (genNum > 6) goodItems.push(id);
+					if (genNum > 6) goodItems.push(id);
+					else if (genNum > 3 && genNum < 7) greatItems.push(id);
 					else poorItems.push(id);
 					break;
 				case 'aguavberry':
@@ -711,8 +676,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				case 'iapapaberry':
 				case 'magoberry':
 				case 'wikiberry':
-					if (genNum === 7) greatItems.push(id);
-					else if (genNum >= 8) goodItems.push(id);
+					if (genNum >= 7) greatItems.push(id);
 					else poorItems.push(id);
 					break;
 				case 'berryjuice':
@@ -738,9 +702,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				case 'blueorb':
 				case 'redorb':
 				case 'souldew':
-				// falls through
 				// Other
-				case 'leek':
+				// fallsthrough
 				case 'stick':
 				case 'thickclub':
 				case 'lightball':
@@ -799,12 +762,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				case 'chippedpot':
 				case 'crackedpot':
 				case 'galaricawreath':
-				case 'auspiciousarmor':
-				case 'maliciousarmor':
-				case 'masterpieceteacup':
-				case 'metalalloy':
-				case 'unremarkableteacup':
-				case 'bignugget':
 					badItems.push(id);
 					break;
 				// outclassed items
@@ -851,6 +808,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
 						if (genNum >= 6) {
 							unreleasedItems.push(id);
+						} else if (item.name === "Flying Gem") {
+							greatItems.push(id);
 						} else {
 							goodItems.push(id);
 						}
@@ -1295,7 +1254,6 @@ process.stdout.write("Building `data/pokedex.js`... ");
 
 {
 	const Pokedex = requireNoCache('../caches/BudewInn-Showdown-Server/dist/data/pokedex.js').Pokedex;
-	console.log(Pokedex);
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Dex.data.FormatsData[id]) {

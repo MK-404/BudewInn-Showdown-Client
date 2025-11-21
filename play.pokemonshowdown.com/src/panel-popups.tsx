@@ -131,19 +131,19 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		if (!hideInteraction) {
 			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
+					<button class="button" disabled>Challenge</button> { }
 					<button class="button" data-href="dm-">Chat Self</button>
 				</p>
 			) : !PS.user.named ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button> {}
+					<button class="button" disabled>Challenge</button> { }
+					<button class="button" disabled>Chat</button> { }
 					<button class="button" disabled>{'\u2026'}</button>
 				</p>
 			) : (
 				<p class="buttonbar">
-					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> { }
+					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> { }
 					<button class="button" data-href={`useroptions-${user.userid}-${room.parentRoomid || ''}`}>{'\u2026'}</button>
 				</p>
 			));
@@ -151,7 +151,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				buttonbar.push(
 					<hr />,
 					<p class="buttonbar" style="text-align: right">
-						<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
+						<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> { }
 						<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
 					</p>
 				);
@@ -201,11 +201,11 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		return <PSPanelWrapper room={room}><div class="pad">
 			{showLookup && <form onSubmit={this.lookup} style={{ minWidth: '278px' }}>
 				<label class="label">
-					Username: {}
+					Username: { }
 					<input type="search" name="username" class="textbox autofocus" onInput={this.maybeReset} onChange={this.maybeReset} />
 				</label>
 				{!room.userid && <p class="buttonbar">
-					<button type="submit" class="button"><strong>Look up</strong></button> {}
+					<button type="submit" class="button"><strong>Look up</strong></button> { }
 					<button name="closeRoom" class="button">Close</button>
 				</p>}
 				{!!room.userid && <hr />}
@@ -403,13 +403,13 @@ class UserOptionsPanel extends PSRoomPanel {
 			{(canMute || canBan || canLock) && <hr />}
 			{this.state.showConfirm && <p>
 				<small>
-					{this.state.data?.action} <b>{targetUser}</b> {}
+					{this.state.data?.action} <b>{targetUser}</b> { }
 					{!this.state.data?.action.endsWith('ock') ? <>from <b>{targetRoom?.title}</b></> : ''} for {this.state.data?.duration}?
 				</small>
 				<p class="buttonbar">
 					<button class="button" onClick={this.handleConfirm}>
 						<i class="fa fa-confirm" aria-hidden></i> Confirm
-					</button> {}
+					</button> { }
 					<button class="button" onClick={this.handleCancel}>
 						Cancel
 					</button>
@@ -419,42 +419,42 @@ class UserOptionsPanel extends PSRoomPanel {
 				{isVisible('mute') && (this.state.showMuteInput ? (
 					<div>
 						<label class="label">
-							Reason: {}
+							Reason: { }
 							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
-						</label> {} <br />
-						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
+						</label> { } <br />
+						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> { }
+						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> { }
 						<button class="button" onClick={this.handleCancel}> Cancel</button>
 					</div>
 				) : (
 					<button class="button" onClick={this.handleMute}>
 						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
 					</button>
-				))} {}
+				))} { }
 				{isVisible('ban') && (this.state.showBanInput ? (
 					<div>
 						<label class="label">
-							Reason: {}
+							Reason: { }
 							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
 						</label><br />
-						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
+						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> { }
+						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> { }
 						<button class="button" onClick={this.handleCancel}>Cancel</button>
 					</div>
 				) : (
 					<button class="button" onClick={this.handleBan}>
 						<i class="fa fa-gavel" aria-hidden></i> Ban
 					</button>
-				))} {}
+				))} { }
 				{isVisible('lock') && (this.state.showLockInput ? (
 					<div>
 						<label class="label">
-							Reason: {}
+							Reason: { }
 							<input name="lockreason" class="textbox autofocus" placeholder="Lock reason (optional)" />
 						</label><br />
-						<button class="button" onClick={this.lockUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.lockUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.lockUser} value="nmlk">Namelock</button> {}
+						<button class="button" onClick={this.lockUser} value="2d">For 2 Days</button> { }
+						<button class="button" onClick={this.lockUser} value="1wk">For 1 Week</button> { }
+						<button class="button" onClick={this.lockUser} value="nmlk">Namelock</button> { }
 						<button class="button" onClick={this.handleCancel}>Cancel</button>
 					</div>
 				) : (
@@ -534,7 +534,7 @@ class VolumePanel extends PSRoomPanel {
 			</p>
 			<p class="volume">
 				<label class="optlabel">
-					Notifications: {}
+					Notifications: { }
 					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
@@ -571,16 +571,16 @@ class OptionsPanel extends PSRoomPanel {
 	setLayout = (e: Event) => {
 		const layout = (e.currentTarget as HTMLSelectElement).value;
 		switch (layout) {
-		case '':
-			PS.prefs.set('onepanel', null);
-			PS.rightPanel ||= PS.rooms['rooms'] || null;
-			break;
-		case 'onepanel':
-			PS.prefs.set('onepanel', true);
-			break;
-		case 'vertical':
-			PS.prefs.set('onepanel', 'vertical');
-			break;
+			case '':
+				PS.prefs.set('onepanel', null);
+				PS.rightPanel ||= PS.rooms['rooms'] || null;
+				break;
+			case 'onepanel':
+				PS.prefs.set('onepanel', true);
+				break;
+			case 'vertical':
+				PS.prefs.set('onepanel', 'vertical');
+				break;
 		}
 		PS.update();
 	};
@@ -604,38 +604,38 @@ class OptionsPanel extends PSRoomPanel {
 		let setting = elem.name;
 		let value = elem.checked;
 		switch (setting) {
-		case 'blockPMs': {
-			PS.prefs.set("blockPMs", value);
-			PS.send(value ? '/blockpms' : '/unblockpms');
-			break;
-		}
-		case 'blockChallenges': {
-			PS.prefs.set("blockChallenges", value);
-			PS.send(value ? '/blockchallenges' : '/unblockchallenges');
-			break;
-		}
-		case 'bwgfx': {
-			PS.prefs.set('bwgfx', value);
-			Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
-			break;
-		}
-		case 'language': {
-			PS.prefs.set(setting, elem.value);
-			PS.send(`/language ${elem.value}`);
-			break;
-		}
-		case 'tournaments': {
-			PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
-			break;
-		}
-		case 'refreshprompt':
-		case 'noanim':
-		case 'nopastgens':
-		case 'noselfhighlight':
-		case 'leavePopupRoom':
-		case 'inchatpm':
-			PS.prefs.set(setting, value);
-			break;
+			case 'blockPMs': {
+				PS.prefs.set("blockPMs", value);
+				PS.send(value ? '/blockpms' : '/unblockpms');
+				break;
+			}
+			case 'blockChallenges': {
+				PS.prefs.set("blockChallenges", value);
+				PS.send(value ? '/blockchallenges' : '/unblockchallenges');
+				break;
+			}
+			case 'bwgfx': {
+				PS.prefs.set('bwgfx', value);
+				Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
+				break;
+			}
+			case 'language': {
+				PS.prefs.set(setting, elem.value);
+				PS.send(`/language ${elem.value}`);
+				break;
+			}
+			case 'tournaments': {
+				PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
+				break;
+			}
+			case 'refreshprompt':
+			case 'noanim':
+			case 'nopastgens':
+			case 'noselfhighlight':
+			case 'leavePopupRoom':
+			case 'inchatpm':
+				PS.prefs.set(setting, value);
+				break;
 		}
 	};
 
@@ -654,7 +654,7 @@ class OptionsPanel extends PSRoomPanel {
 				<img
 					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)} data-href="avatars"
-				/> {}
+				/> { }
 				<strong>{PS.user.name}</strong>
 			</p>
 			<p>
@@ -749,7 +749,7 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="optlabel">
-					Language: {}
+					Language: { }
 					<select name="language" onChange={this.handleOnChange} class="button">
 						<option value="german" selected={PS.prefs.language === "german"}>Deutsch</option>
 						<option value="english" selected={PS.prefs.language === "english"}>English</option>
@@ -791,17 +791,17 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="optlabel">
-					Chat preferences: {}
+					Chat preferences: { }
 					<button class="button" data-href="chatformatting">Text formatting...</button>
 				</label>
 			</p>
 			<hr />
 			{PS.user.named ? <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
+				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> { }
 				<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
 			</p> : <p class="buttonbar" style="text-align: right">
 				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Choose name</button>
-			</p> }
+			</p>}
 		</div></PSPanelWrapper>;
 	}
 }
@@ -912,7 +912,7 @@ class LoginPanel extends PSRoomPanel {
 				{loginState?.needsPassword && <p>
 					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if you registered this name:</strong>
 					<label class="label">
-						Password: {}
+						Password: { }
 						<input
 							class="textbox" type={this.state.passwordShown ? 'text' : 'password'} name="password"
 							autocomplete="current-password" style="width:173px"
@@ -932,17 +932,17 @@ class LoginPanel extends PSRoomPanel {
 						<button disabled class="cur">Logging in...</button>
 					) : loginState?.needsPassword ? (
 						<>
-							<button type="submit" class="button"><strong>Log in</strong></button> {}
+							<button type="submit" class="button"><strong>Log in</strong></button> { }
 							<button type="button" onClick={this.reset} class="button">Cancel</button>
 						</>
 					) : loginState?.needsGoogle ? (
 						<button type="button" onClick={this.reset} class="button">Cancel</button>
 					) : (
 						<>
-							<button type="submit" class="button"><strong>Choose name</strong></button> {}
+							<button type="submit" class="button"><strong>Choose name</strong></button> { }
 							<button type="button" name="closeRoom" class="button">Cancel</button>
 						</>
-					)} {}
+					)} { }
 				</p>
 				{loginState?.name && <div>
 					<p>
@@ -1006,11 +1006,11 @@ class BattleForfeitPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Forfeiting makes you lose the battle. Are you sure?</p>
 			<p>
-				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
-				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
+				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> { }
+				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> { }
 				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 					Replace player
-				</button>} {}
+				</button>} { }
 				<button type="button" data-cmd="/close" class="button">
 					Cancel
 				</button>
@@ -1050,7 +1050,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 				<p>
 					<button type="submit" class="button">
 						<strong>Replace</strong>
-					</button> {}
+					</button> { }
 					<button type="button" data-cmd="/close" class="button">
 						Cancel
 					</button>
@@ -1098,38 +1098,38 @@ class ChangePasswordPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<form onSubmit={this.handleChangePassword}>
-				{ !!this.state.errorMsg?.length && <p>
+				{!!this.state.errorMsg?.length && <p>
 					<b class="message-error"> {this.state.errorMsg}</b>
-				</p> }
+				</p>}
 				<p>Change your password:</p>
 				<p>
 					<label class="label">
-						Username: {}
+						Username: { }
 						<input name="username" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Old password: {}
+						Old password: { }
 						<input name="oldpassword" type="password" autocomplete="current-password" class="textbox autofocus" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						New password: {}
+						New password: { }
 						<input name="password" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						New password (confirm): {}
+						New password (confirm): { }
 						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
 				<p class="buttonbar">
 					<button type="submit" class="button">
 						<strong>Change password</strong>
-					</button> {}
+					</button> { }
 					<button type="button" data-cmd="/close" class="button">Cancel</button>
 				</p>
 			</form>
@@ -1184,25 +1184,25 @@ class RegisterPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<form onSubmit={this.handleRegisterUser}>
-				{ !!this.state.errorMsg?.length && <p>
+				{!!this.state.errorMsg?.length && <p>
 					<b class="message-error"> {this.state.errorMsg}</b>
-				</p> }
+				</p>}
 				<p>Register your account:</p>
 				<p>
 					<label class="label">
-						Username: {}
+						Username: { }
 						<input name="name" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Password: {}
+						Password: { }
 						<input name="password" type="password" autocomplete="new-password" class="textbox autofocus" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Password (confirm): {}
+						Password (confirm): { }
 						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
@@ -1214,12 +1214,12 @@ class RegisterPanel extends PSRoomPanel {
 				</p>
 				<p>
 					<label class="label">
-						What is this pokemon? {}
+						What is this pokemon? { }
 						<input name="captcha" class="textbox" />
 					</label>
 				</p>
 				<p class="buttonbar">
-					<button type="submit" class="button"><strong>Register</strong></button> {}
+					<button type="submit" class="button"><strong>Register</strong></button> { }
 					<button type="button" data-cmd="/close" class="button">Cancel</button>
 				</p>
 			</form>
@@ -1316,7 +1316,7 @@ class BackgroundListPanel extends PSRoomPanel {
 					<img src={room.args.bgUrl as string} style="display:block;margin:auto;max-width:90%;max-height:500px" />
 				</p>
 				<p class="buttonbar">
-					<button onClick={this.setBg} value="custom" class="button"><strong>Set as background</strong></button> {}
+					<button onClick={this.setBg} value="custom" class="button"><strong>Set as background</strong></button> { }
 					<button data-cmd="/close" class="button">Cancel</button>
 				</p>
 			</div></PSPanelWrapper>;
@@ -1346,29 +1346,9 @@ class BackgroundListPanel extends PSRoomPanel {
 			<div style="clear: left"></div>
 			<p><strong>Official</strong></p>
 			<div class="bglist">
-				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
-					<span class="bg" style="background-position: 0 -0px"></span>{}
-					Charizards
-				</button>
-				<button onClick={this.setBg} value="horizon" class={option('horizon')}>
-					<span class="bg" style="background-position: 0 -90px"></span>{}
-					Horizon
-				</button>
-				<button onClick={this.setBg} value="waterfall" class={option('waterfall')}>
-					<span class="bg" style="background-position: 0 -180px"></span>{}
-					Waterfall
-				</button>
-				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
-					<span class="bg" style="background-position: 0 -270px"></span>{}
-					Ocean
-				</button>
-				<button onClick={this.setBg} value="shaymin" class={option('shaymin')}>
-					<span class="bg" style="background-position: 0 -360px"></span>{}
-					Shaymin
-				</button>
-				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
-					<span class="bg" style="background: #344b6c"></span>{}
-					Solid blue
+				<button onClick={this.setBg} value="zadaynight" class={option('zadaynight')}>
+					<span class="bg" style="background-position: 0 -0px"></span>{ }
+					Z:A Day/Night
 				</button>
 			</div>
 			<div style="clear: left"></div>
@@ -1485,7 +1465,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 			<p class="buttonbar">
 				<button data-cmd={`/closeand /close ${parentRoomid}`} class="button autofocus">
 					<strong>Close Room</strong>
-				</button> {}
+				</button> { }
 				<button data-cmd="/close" class="button">
 					Cancel
 				</button>
@@ -1560,37 +1540,37 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const room = this.getBattleRoom();
 
 		switch (setting) {
-		case 'autotimer': {
-			PS.prefs.set('autotimer', value);
-			if (value) {
-				room?.send('/timer on');
+			case 'autotimer': {
+				PS.prefs.set('autotimer', value);
+				if (value) {
+					room?.send('/timer on');
+				}
+				break;
 			}
-			break;
-		}
-		case 'ignoreopp': {
-			PS.prefs.set('ignoreopp', value);
-			this.handleIgnoreOpponent(value);
-			break;
-		}
-		case 'ignorespects': {
-			PS.prefs.set('ignorespects', value);
-			this.handleIgnoreSpectators(value);
-			break;
-		}
-		case 'ignorenicks': {
-			PS.prefs.set('ignorenicks', value);
-			this.handleIgnoreNicks(value);
-			break;
-		}
-		case 'rightpanel': {
-			PS.prefs.set('rightpanelbattles', value);
-			break;
-		}
-		case 'disallowspectators': {
-			PS.prefs.set('disallowspectators', value);
-			PS.mainmenu.disallowSpectators = value;
-			break;
-		}
+			case 'ignoreopp': {
+				PS.prefs.set('ignoreopp', value);
+				this.handleIgnoreOpponent(value);
+				break;
+			}
+			case 'ignorespects': {
+				PS.prefs.set('ignorespects', value);
+				this.handleIgnoreSpectators(value);
+				break;
+			}
+			case 'ignorenicks': {
+				PS.prefs.set('ignorenicks', value);
+				this.handleIgnoreNicks(value);
+				break;
+			}
+			case 'rightpanel': {
+				PS.prefs.set('rightpanelbattles', value);
+				break;
+			}
+			case 'disallowspectators': {
+				PS.prefs.set('disallowspectators', value);
+				PS.mainmenu.disallowSpectators = value;
+				break;
+			}
 		}
 	};
 	getBattleRoom() {
@@ -1689,7 +1669,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 				</label>
 			</p>}
 			<p class="buttonbar">
-				<button data-cmd="/close" class="button">Done</button> {}
+				<button data-cmd="/close" class="button">Done</button> { }
 				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
 					Offer Tie
 				</button>}
@@ -1756,8 +1736,8 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 				<p class="buttonbar">
 					<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
 						<strong>{okButton}</strong>
-					</button> {}
-					{otherButtons} {}
+					</button> { }
+					{otherButtons} { }
 					{!!cancelButton && <button class="button" data-cmd="/close" type="button">
 						{cancelButton}
 					</button>}

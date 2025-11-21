@@ -800,7 +800,7 @@
 			const avatarList = await fetch("https://api.budewinn.it/avatar")
 			const avatarListJson = await avatarList.json()
 
-			for (avatar of avatarListJson) buf += '<button class="option pixelated" name="setAvatar" value="' + avatar + '" title="/avatar ' + avatar + '" style="background:url(https://api.budewinn.it/avatar/' + avatar + '.png) no-repeat"></button>';
+			for (avatar of avatarListJson) buf += '<button class="option pixelated" name="setAvatar" value="' + avatar + '" title="/avatar ' + avatar + '" style="background:url(https://budewinn.it/sprites/trainers/' + avatar + '.png) no-repeat"></button>';
 
 			buf += '</div><div style="clear:left"></div>';
 
@@ -948,12 +948,7 @@
 			buf += '<p><strong>Official</strong></p>';
 			buf += '<div class="bglist">';
 			//TODO MK
-			buf += '<button name="setBg" value="charizards" class="option' + (cur === 'charizards' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 0) + 'px"></span>Charizards</button>';
-			buf += '<button name="setBg" value="horizon" class="option' + (cur === 'horizon' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 1) + 'px"></span>Horizon</button>';
-			buf += '<button name="setBg" value="waterfall" class="option' + (cur === 'waterfall' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 2) + 'px"></span>Waterfall</button>';
-			buf += '<button name="setBg" value="ocean" class="option' + (cur === 'ocean' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Ocean</button>';
-			buf += '<button name="setBg" value="shaymin" class="option' + (cur === 'shaymin' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 4) + 'px"></span>Shaymin</button>';
-			buf += '<button name="setBg" value="solidblue" class="option' + (cur === 'solidblue' ? ' cur' : '') + '"><span class="bg" style="background: #344b6c"></span>Solid blue</button>';
+			buf += '<button name="setBg" value="zadaynight" class="option' + (cur === 'zadaynight' ? ' cur' : '') + '"><span class="bg" style="background:url(https://budewinn.it/fx/zadaynight_mini.png)"></span>Za Day/Night</button>';
 
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Custom</strong></p>';

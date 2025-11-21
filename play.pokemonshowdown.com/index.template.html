@@ -8,7 +8,7 @@
  ########+   +########////
                      ////,  PokemonShowdown.com
  ########+   +########///
- +###################+//
+ +###################+// 
   +#################+
    +###############+
       +#########+///////,
@@ -33,6 +33,7 @@ https://psim.us/dev
 <link rel="stylesheet" href="./style/sim-types.css" />
 <link rel="stylesheet" href="./style/utilichart.css" />
 <link rel="stylesheet" href="./style/font-awesome.css" />
+<link rel="stylesheet" href="./style/custom.css" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="/manifest.json" />
 <!--[if lte IE 8]><script>document.location.replace('http://pokemonshowdown.com/autodownload/win');</script><![endif]-->
@@ -92,6 +93,8 @@ https://psim.us/dev
 <script src="./js/lib/backbone.js"></script>
 <script src="./js/lib/d3.v3.min.js"></script>
 
+
+
 <script>
 	LM.innerHTML += ' DONE<br />Loading data...';
 </script>
@@ -147,3 +150,15 @@ https://psim.us/dev
 
 <script src="./data/aliases.js" async></script>
 <script src="./js/clean-cookies.php" async></script>
+
+
+<script>
+	// forza subito il tema dark
+	document.documentElement.classList.add('dark');
+	// memorizza la preferenza come dark
+	localStorage.setItem('theme', JSON.stringify('dark'));
+	Storage.prefs('theme', "dark")
+
+	localStorage.setItem('bwgfx', JSON.stringify(true));
+	Storage.prefs('bwgfx', JSON.stringify(true));
+</script>

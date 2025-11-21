@@ -1595,9 +1595,10 @@ export class BattleScene implements BattleSceneStub {
 	rollBgm() {
 		this.setBgm(1 + this.numericId % 15);
 	}
-	setBgm(bgmNum: number) {
+	async setBgm(bgmNum: number) {
 		if (this.bgmNum === bgmNum) return;
 		this.bgmNum = bgmNum;
+
 
 		switch (bgmNum) {
 			case -1:
@@ -1661,6 +1662,48 @@ export class BattleScene implements BattleSceneStub {
 		}
 
 		this.updateBgm();
+
+
+		const LanciaSfidaUrl = `audio/${this.battle.nearSide.id}.mp3?${Math.floor(Math.random() * 100)}`;
+		const RiceviSfidaUrl = `audio/${this.battle.farSide.id}.mp3?${Math.floor(Math.random() * 100)}`;
+
+		try {
+			console.log(LanciaSfidaUrl)
+			let res = await fetch(LanciaSfidaUrl, { method: "HEAD" });
+			if (!res.ok) throw new Error("OST non trovata (LanciaSfida)");
+
+			this.bgm = BattleSound.loadBgm(LanciaSfidaUrl, 0, 68131, this.bgm);
+			this.updateBgm();
+			console.log("Metto la ost di: " + this.battle.farSide.id);
+
+		} catch (err) {
+			console.warn(err);
+
+			try {
+				console.log(RiceviSfidaUrl)
+				let res2 = await fetch(RiceviSfidaUrl, { method: "HEAD" });
+				if (!res2.ok) throw new Error("OST non trovata (RiceviSfida)");
+
+				this.bgm = BattleSound.loadBgm(RiceviSfidaUrl, 0, 68131, this.bgm);
+				this.updateBgm();
+				console.log("Metto la ost di: " + this.battle.farSide.id);
+
+			} catch (err2) {
+				console.warn(err2);
+			}
+		}
+
+
+
+
+		//da modificare, all'inizio faccio una chiamata con budewinn.it/audioregistry/idplayer, nell'api lui prende 
+		//l'id player e checka in un json se c'è quell'ost (la struttura della singola canzone json deve essere "idplayer: intero che rappresenta la durata del mp3(che verrà generato quando si manda l'ost ad overser"))
+		//poi ritorna la durata della canzone, altrimenti se non c'è ritorna 404
+		//se c'è la risposta allora il codice continua e fa la chiamata normalmente alla canzone e invec edi 68131 ci mette la risposta originale
+
+
+
+
 	}
 	updateBgm() {
 		/**
@@ -1675,9 +1718,14 @@ export class BattleScene implements BattleSceneStub {
 		const nowPlaying = (
 			this.battle.turn >= 0 && !this.battle.ended && !this.battle.paused
 		);
+
 		if (nowPlaying) {
-			if (!this.bgm) this.rollBgm();
+			if (!this.bgm) {
+				this.rollBgm();
+				console.log("ho rollato bgm")
+			}
 			this.bgm!.resume();
+
 		} else if (this.bgm) {
 			this.bgm.pause();
 		}

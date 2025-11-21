@@ -5,7 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const spriteDir = "/home/flame"
+const spriteDir = "/home/helios/sprites"
 const certDir = "/etc/ssl"
 const domain = "budewinn.it"
 const sdSpriteUrl = "https://play.pokemonshowdown.com"
@@ -33,6 +33,20 @@ app.get('*', async (req, res) => {
 			// opzionale: log errore
 		}
 	}
+
+	if (requestedDir.includes("/audio/")) {
+		console.log(requestedDir)
+		try {
+			const response = await axios.get("https://api.budewinn.it/audio/" + requestedDir.replace("/audio/", ""), {
+				responseType: 'arraybuffer'
+			});
+			res.writeHead(200);
+			return res.end(response.data);
+		} catch (err) {
+			// opzionale: log errore
+		}
+	}
+
 
 	if (exist) {
 		res.sendFile(filePath);
