@@ -89,7 +89,7 @@ const compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'),
 if (process.argv[2] === 'full') {
 	delete compileOpts.ignore;
 	compiler.compileToDir(
-		['caches/pokemon-showdown/server/chat-formatter.ts', 'caches/pokemon-showdown/sim/teams.ts'],
+		['caches/BudewInn-Showdown-Server/server/chat-formatter.ts', 'caches/BudewInn-Showdown-Server/sim/teams.ts'],
 		'play.pokemonshowdown.com/js/server/',
 		compileOpts
 	);
@@ -117,7 +117,7 @@ try {
 			'play.pokemonshowdown.com/src/battle-dex-data.ts',
 			'play.pokemonshowdown.com/src/battle-log.ts',
 			'play.pokemonshowdown.com/src/battle-log-misc.js',
-			'caches/pokemon-showdown/server/chat-formatter.ts',
+			'caches/BudewInn-Showdown-Server/server/chat-formatter.ts',
 			'play.pokemonshowdown.com/data/text.js',
 			'play.pokemonshowdown.com/data/text-afd.js',
 			'play.pokemonshowdown.com/src/battle-text-parser.ts',

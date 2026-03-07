@@ -235,3 +235,50 @@ body {
 .menugroup {
     background: rgb(0 14 4 / 68%);
 }
+
+
+
+/********************************************************* * Battles *********************************************************/
+
+
+.badge-marquee {
+    white-space: nowrap;
+    animation: marquee 10s linear infinite;
+    display: flex;
+    position: absolute;
+    height: 20px;
+}
+
+.badge-marquee-wrapper {
+    overflow: hidden;
+    display: inline-block;
+    position: relative;
+    top: 5px;
+    width: 100%;
+    height: 20px;
+}
+
+.badge-marquee-wrapper:hover .badge-marquee {
+    animation-play-state: paused;
+}
+
+.userbadges {
+    height: auto;
+    display: flex;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+.userbadge {
+    height: 20px;
+    width: 20px;
+    pointer-events: visible;
+}

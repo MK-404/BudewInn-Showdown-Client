@@ -21490,5 +21490,101 @@
   "pokestarblackbelt-g5back": {
     "w": 96,
     "h": 96
+  },
+  "clefablemega-front": {
+    "w": 203,
+    "h": 108
+  },
+  "clefablemega-back": {
+    "w": 196,
+    "h": 124
+  },
+  "victreebelmega-front": {
+    "w": 84,
+    "h": 134
+  },
+  "victreebelmega-back": {
+    "w": 80,
+    "h": 133
+  },
+  "starmiemega-front": {
+    "w": 79,
+    "h": 95
+  },
+  "starmiemega-back": {
+    "w": 77,
+    "h": 93
+  },
+  "dragonitemega-front": {
+    "w": 152,
+    "h": 127
+  },
+  "dragonitemega-back": {
+    "w": 221,
+    "h": 124
+  },
+  "meganiummega-front": {
+    "w": 81,
+    "h": 114
+  },
+  "meganiummega-back": {
+    "w": 91,
+    "h": 107
+  },
+  "feraligatrmega-front": {
+    "w": 106,
+    "h": 150
+  },
+  "feraligatrmega-back": {
+    "w": 104,
+    "h": 152
+  },
+  "skarmorymega-front": {
+    "w": 167,
+    "h": 116
+  },
+  "skarmorymega-back": {
+    "w": 149,
+    "h": 128
+  },
+  "froslassmega-front": {
+    "w": 84,
+    "h": 124
+  },
+  "froslassmega-back": {
+    "w": 83,
+    "h": 121
+  },
+  "emboarmega-front": {
+    "w": 103,
+    "h": 153
+  },
+  "emboarmega-back": {
+    "w": 113,
+    "h": 131
+  },
+  "gholdengo-front": {
+    "w": 63,
+    "h": 82
+  },
+  "gimmighoulroaming-front": {
+    "w": 30,
+    "h": 33
+  },
+  "gimmighoulroaming-back": {
+    "w": 26,
+    "h": 32
+  },
+  "gholdengo-back": {
+    "w": 68,
+    "h": 82
+  },
+  "gimmighoul-front": {
+    "w": 64,
+    "h": 81
+  },
+  "gimmighoul-back": {
+    "w": 66,
+    "h": 81
   }
 }

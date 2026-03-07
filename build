@@ -7,8 +7,23 @@ if (!require('assert').strict) {
 
 var execSync = require('child_process').execSync;
 var fs = require('fs');
+var path = require('path');
 
 process.chdir(__dirname);
+
+// Copia automatica chat-formatter.ts dal server alla cache del client
+// Necessario per compilare battledata.js con formatText
+var serverPath = path.resolve(__dirname, '../BudewInn-Showdown-Server/server/chat-formatter.ts');
+var cachePath = path.resolve(__dirname, 'caches/BudewInn-Showdown-Server/server/chat-formatter.ts');
+var cacheDir = path.dirname(cachePath);
+
+if (fs.existsSync(serverPath)) {
+	if (!fs.existsSync(cacheDir)) {
+		fs.mkdirSync(cacheDir, { recursive: true });
+	}
+	fs.copyFileSync(serverPath, cachePath);
+	console.log('Copied chat-formatter.ts from server to client cache');
+}
 
 try {
 	require.resolve('@babel/core');
@@ -36,7 +51,7 @@ switch (process.argv[2] || '') {
 case 'full':
 	execSync(`node ./build-tools/build-indexes`, options);
 	execSync(`node ./build-tools/build-learnsets`, options);
-	execSync(`node ./build-tools/build-minidex`, options);
+	// execSync(`node ./build-tools/build-minidex`, options); // DISABLED: remote fetch troppo lento
 	full = ' full';
 	break;
 case 'indexes':
@@ -47,7 +62,8 @@ case 'learnsets':
 	break;
 case 'minidex':
 case 'sprites':
-	execSync(`node ./build-tools/build-minidex`, options);
+	// execSync(`node ./build-tools/build-minidex`, options); // DISABLED: remote fetch troppo lento
+	console.log('Minidex build disabled - using cached sprite dimensions');
 	break;
 case 'commands':
 	execSync(`node ./build-tools/build-commands`, options);
