@@ -572,6 +572,29 @@ export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	zygardemega: 1320 + 107,
 	drampamega: 1320 + 108,
 	falinksmega: 1320 + 109,
+	raichumegax: 26,
+	raichumegay: 26,
+	chimechomega: 358,
+	absolmegaz: 359,
+	staraptormega: 398,
+	garchompmegaz: 445,
+	lucariomegaz: 448,
+	heatranmega: 485,
+	darkraimega: 491,
+	golurkmega: 623,
+	meowsticmmega: 678,
+	meowsticfmega: 1032 + 115,
+	crabominablemega: 740,
+	golisopodmega: 768,
+	magearnamega: 801,
+	magearnaoriginalmega: 1032 + 152,
+	zeraoramega: 807,
+	scovillainmega: 952,
+	glimmoramega: 970,
+	tatsugiricurlymega: 978,
+	baxcaliburmega: 998,
+	tatsugiridroopymega: 1032 + 231,
+	tatsugiristretchymega: 1032 + 232,
 
 	// CAP
 	syclant: 1548 + 0,
@@ -1131,8 +1154,7 @@ export class Item implements Effect {
 	readonly desc: string;
 	readonly shortDesc: string;
 
-	readonly megaStone: string;
-	readonly megaEvolves: string;
+	readonly megaStone: { [megaEvolves: string]: string };
 	readonly zMove: string | true | null;
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
@@ -1158,8 +1180,7 @@ export class Item implements Effect {
 		this.desc = data.desc || data.shortDesc || '';
 		this.shortDesc = data.shortDesc || this.desc;
 
-		this.megaStone = data.megaStone || '';
-		this.megaEvolves = data.megaEvolves || '';
+		this.megaStone = data.megaStone || null;
 		this.zMove = data.zMove || null;
 		this.zMoveType = data.zMoveType || '';
 		this.zMoveFrom = data.zMoveFrom || '';
