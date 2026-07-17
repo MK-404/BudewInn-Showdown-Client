@@ -127,7 +127,12 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 	constructor() {
 		super();
 		try {
-			let bg = localStorage.getItem('showdown_bg')?.split('\n') || [''];
+			const BG_FORCED_VERSION = 'v1';
+			if (localStorage.getItem('showdown_bg_forced') !== BG_FORCED_VERSION) {
+				localStorage.setItem('showdown_bg_forced', BG_FORCED_VERSION);
+				localStorage.setItem('showdown_bg', 'megadimensions');
+			}
+			let bg = localStorage.getItem('showdown_bg')?.split('\n') || ['megadimensions'];
 			if (bg.length === 1) {
 				// id
 				this.load('', bg[0]);
@@ -163,8 +168,8 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else {
-				const bgs = ["zadaynight"];
-				bgid = bgs[Math.floor(Math.random() * 1)];
+				const bgs = ["zadaynight", "megadimensions", "neonlumeose"];
+				bgid = bgs[Math.floor(Math.random() * 3)];
 				// if someone clicked the random button, try to roll a different bg than before
 				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * 1)];
 			}
@@ -185,11 +190,24 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		let attrib = null;
 		switch (bgid) {
 			case 'zadaynight':
-				menuColors = [];
 				attrib = {
 					url: 'https://budewinn.it/fx/client-bg-zadaynight.jpg',
 					title: 'Z:A Day/Night',
 					artist: 'GameFreak',
+				};
+				break;
+			case 'megadimensions':
+				attrib = {
+					url: 'https://budewinn.it/fx/client-bg-megadimensions.jpg',
+					title: 'megadimensions',
+					artist: '',
+				};
+				break;
+			case 'neonlumeose':
+				attrib = {
+					url: 'https://budewinn.it/fx/client-bg-neonlumeose.jpg',
+					title: 'neonlumeose',
+					artist: '',
 				};
 				break;
 		}

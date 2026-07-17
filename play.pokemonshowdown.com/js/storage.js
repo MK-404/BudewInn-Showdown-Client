@@ -56,7 +56,7 @@ Storage.bg = {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else if (location.host === Config.routes.client) {
-				bgid = ["zadaynight"][Math.floor(Math.random() * 1)];
+				bgid = ["zadaynight", "megadimensions", "neonlumeose"][Math.floor(Math.random() * 3)];
 			} else {
 				$(document.body).css({
 					background: '',
@@ -65,6 +65,8 @@ Storage.bg = {
 				$('#mainmenubuttoncolors').remove();
 				return true;
 			}
+			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
+		} else if (!bgUrl && bgid !== 'custom') {
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
 
@@ -90,7 +92,6 @@ Storage.bg = {
 		if (!hues) {
 			switch (bgid) {
 				case "zadaynight":
-					hues = [];
 					attrib = '<a href="https://budewinn.it/fx/client-bg-zadaynight.jpg" target="_blank" class="subtle">"Z:A Day/Night" <small>background by GameFreak</small></a>';
 					break;
 			}
@@ -175,6 +176,11 @@ Storage.bg = {
 };
 
 try {
+	var BG_FORCED_VERSION = 'v1';
+	if (localStorage.getItem('showdown_bg_forced') !== BG_FORCED_VERSION) {
+		localStorage.setItem('showdown_bg_forced', BG_FORCED_VERSION);
+		localStorage.setItem('showdown_bg', 'megadimensions');
+	}
 	var bg = localStorage.getItem('showdown_bg').split('\n');
 	if (bg.length >= 2) {
 		Storage.bg.load(bg[0], bg[1]);
@@ -183,7 +189,7 @@ try {
 } catch (e) { }
 
 if (!Storage.bg.id) {
-	Storage.bg.load();
+	Storage.bg.load('', 'megadimensions');
 }
 
 /*********************************************************

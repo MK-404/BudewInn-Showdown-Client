@@ -1350,6 +1350,14 @@ class BackgroundListPanel extends PSRoomPanel {
 					<span class="bg" style="background-position: 0 -0px"></span>{ }
 					Z:A Day/Night
 				</button>
+				<button onClick={this.setBg} value="megadimensions" class={option('megadimensions')}>
+					<span class="bg" style="background:url(https://budewinn.it/fx/client-bg-megadimensions.jpg) no-repeat center center / cover"></span>{ }
+					megadimensions
+				</button>
+				<button onClick={this.setBg} value="neonlumeose" class={option('neonlumeose')}>
+					<span class="bg" style="background:url(https://budewinn.it/fx/client-bg-neonlumeose.jpg) no-repeat center center / cover"></span>{ }
+					neonlumeose
+				</button>
 			</div>
 			<div style="clear: left"></div>
 			<p><strong>Custom</strong></p>

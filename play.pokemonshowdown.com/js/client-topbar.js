@@ -949,6 +949,8 @@
 			buf += '<div class="bglist">';
 			//TODO MK
 			buf += '<button name="setBg" value="zadaynight" class="option' + (cur === 'zadaynight' ? ' cur' : '') + '"><span class="bg" style="background:url(https://budewinn.it/fx/zadaynight_mini.png)"></span>Za Day/Night</button>';
+			buf += '<button name="setBg" value="megadimensions" class="option' + (cur === 'megadimensions' ? ' cur' : '') + '"><span class="bg" style="background:url(https://budewinn.it/fx/client-bg-megadimensions.jpg) no-repeat center center / cover"></span>megadimensions</button>';
+			buf += '<button name="setBg" value="neonlumeose" class="option' + (cur === 'neonlumeose' ? ' cur' : '') + '"><span class="bg" style="background:url(https://budewinn.it/fx/client-bg-neonlumeose.jpg) no-repeat center center / cover"></span>neonlumeose</button>';
 
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Custom</strong></p>';
