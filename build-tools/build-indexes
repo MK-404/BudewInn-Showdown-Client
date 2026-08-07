@@ -12,8 +12,17 @@ if (!fs.existsSync('caches/BudewInn-Showdown-Server')) {
 	});
 }
 
-/*process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', { cwd: 'caches/BudewInn-Showdown-Server' });*/
+process.stdout.write("Syncing data from Git repository... ");
+child_process.execSync('git fetch origin master', { cwd: 'caches/BudewInn-Showdown-Server' });
+child_process.execSync('git reset --hard origin/master', { cwd: 'caches/BudewInn-Showdown-Server' });
+console.log("DONE");
+
+if (!fs.existsSync('caches/BudewInn-Showdown-Server/node_modules')) {
+	process.stdout.write("Installing server cache dependencies... ");
+	child_process.execSync('npm install', { cwd: 'caches/BudewInn-Showdown-Server' });
+	console.log("DONE");
+}
+
 child_process.execSync('npm run build', { cwd: 'caches/BudewInn-Showdown-Server' });
 console.log("DONE");
 

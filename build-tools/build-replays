@@ -5,10 +5,10 @@
  * It can be removed once replays/manage is ported to New Replays.
  */
 
-import crypto from 'node:crypto';
-import fs from 'node:fs';
+const crypto = require('node:crypto');
+const fs = require('node:fs');
 
-process.chdir(import.meta.dirname + '/..');
+process.chdir(__dirname + '/..');
 
 function updateIndex() {
 	let indexContents = fs.readFileSync('replay.pokemonshowdown.com/theme/wrapper.inc.template.php', { encoding: 'utf8' });

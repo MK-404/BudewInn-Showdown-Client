@@ -120,8 +120,8 @@ async function updateSizes() {
 	buf = buf.slice(0, -2) + `\n};\n`;
 	g5buf = g5buf.slice(0, -2) + `\n};\n`;
 
-	fs.writeFileSync('../play.pokemonshowdown.com/data/pokedex-mini.js', buf);
-	fs.writeFileSync('../play.pokemonshowdown.com/data/pokedex-mini-bw.js', g5buf);
+	fs.writeFileSync(path.resolve(__dirname, '../play.pokemonshowdown.com/data/pokedex-mini.js'), buf);
+	fs.writeFileSync(path.resolve(__dirname, '../play.pokemonshowdown.com/data/pokedex-mini-bw.js'), g5buf);
 }
 
 (async () => {

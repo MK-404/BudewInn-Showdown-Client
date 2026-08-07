@@ -10,10 +10,10 @@
  * @license MIT
  */
 
-import * as babel from '@babel/core';
-import fs from 'node:fs';
-import path from 'node:path';
-import sourceMap from 'source-map';
+const babel = require('@babel/core');
+const fs = require('node:fs');
+const path = require('node:path');
+const sourceMap = require('source-map');
 
 const VERBOSE = false;
 
@@ -217,4 +217,4 @@ function compileToFile(srcFile, destFile, opts) {
 	return results.length;
 }
 
-export { compileToDir, compileToFile };
+module.exports = { compileToDir, compileToFile };

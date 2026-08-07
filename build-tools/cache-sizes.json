@@ -21586,5 +21586,225 @@
   "gimmighoul-back": {
     "w": 66,
     "h": 81
+  },
+  "raticatealolatotem-front": {
+    "w": 118,
+    "h": 97
+  },
+  "raticatealolatotem-back": {
+    "w": 136,
+    "h": 104
+  },
+  "raichumegax-front": {
+    "w": 90,
+    "h": 89
+  },
+  "raichumegay-front": {
+    "w": 89,
+    "h": 90
+  },
+  "marowakalolatotem-front": {
+    "w": 125,
+    "h": 102
+  },
+  "marowakalolatotem-back": {
+    "w": 126,
+    "h": 115
+  },
+  "chimechomega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "staraptormega-front": {
+    "w": 90,
+    "h": 87
+  },
+  "excadrillmega-front": {
+    "w": 90,
+    "h": 73
+  },
+  "scolipedemega-front": {
+    "w": 80,
+    "h": 90
+  },
+  "scraftymega-front": {
+    "w": 86,
+    "h": 90
+  },
+  "eelektrossmega-front": {
+    "w": 90,
+    "h": 70
+  },
+  "chandeluremega-front": {
+    "w": 90,
+    "h": 89
+  },
+  "golurkmega-front": {
+    "w": 90,
+    "h": 89
+  },
+  "chesnaughtmega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "delphoxmega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "greninjamega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "pyroarmega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "floettemega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "meowsticmmega-front": {
+    "w": 86,
+    "h": 90
+  },
+  "meowsticfmega-front": {
+    "w": 86,
+    "h": 90
+  },
+  "malamarmega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "dragalgemega-front": {
+    "w": 89,
+    "h": 90
+  },
+  "barbaraclemega-front": {
+    "w": 90,
+    "h": 89
+  },
+  "hawluchamega-front": {
+    "w": 90,
+    "h": 79
+  },
+  "crabominablemega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "mimikyubustedtotem-front": {
+    "w": 86,
+    "h": 51
+  },
+  "mimikyubustedtotem-back": {
+    "w": 87,
+    "h": 52
+  },
+  "drampamega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "cramorant-g5front": {
+    "w": 72,
+    "h": 78
+  },
+  "falinksmega-front": {
+    "w": 90,
+    "h": 80
+  },
+  "scovillainmega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "glimmoramega-front": {
+    "w": 90,
+    "h": 90
+  },
+  "greattusk-front": {
+    "w": 104,
+    "h": 68
+  },
+  "fluttermane-front": {
+    "w": 112,
+    "h": 87
+  },
+  "brutebonnet-front": {
+    "w": 96,
+    "h": 84
+  },
+  "screamtail-front": {
+    "w": 63,
+    "h": 67
+  },
+  "fluttermane-back": {
+    "w": 106,
+    "h": 92
+  },
+  "greattusk-back": {
+    "w": 151,
+    "h": 67
+  },
+  "brutebonnet-back": {
+    "w": 104,
+    "h": 79
+  },
+  "screamtail-back": {
+    "w": 94,
+    "h": 65
+  },
+  "sandyshocks-front": {
+    "w": 74,
+    "h": 115
+  },
+  "slitherwing-front": {
+    "w": 92,
+    "h": 105
+  },
+  "sandyshocks-back": {
+    "w": 97,
+    "h": 113
+  },
+  "slitherwing-back": {
+    "w": 111,
+    "h": 122
+  },
+  "roaringmoon-front": {
+    "w": 155,
+    "h": 163
+  },
+  "roaringmoon-back": {
+    "w": 155,
+    "h": 155
+  },
+  "walkingwake-front": {
+    "w": 106,
+    "h": 96
+  },
+  "koraidon-front": {
+    "w": 147,
+    "h": 111
+  },
+  "walkingwake-back": {
+    "w": 175,
+    "h": 97
+  },
+  "koraidon-back": {
+    "w": 209,
+    "h": 111
+  },
+  "gougingfire-front": {
+    "w": 90,
+    "h": 91
+  },
+  "ragingbolt-front": {
+    "w": 74,
+    "h": 135
+  },
+  "gougingfire-back": {
+    "w": 179,
+    "h": 86
+  },
+  "ragingbolt-back": {
+    "w": 106,
+    "h": 129
   }
 }

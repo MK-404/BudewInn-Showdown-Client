@@ -11,12 +11,11 @@
 
 "use strict";
 
-import fs from 'node:fs';
+const fs = require('node:fs');
 
-import dexModule from '../caches/pokemon-showdown/dist/sim/dex.js';
+process.chdir(__dirname + '/..');
 
-process.chdir(import.meta.dirname + '/..');
-
+const thisFile = 'build-tools/build-learnsets';
 const Dex = require('../caches/BudewInn-Showdown-Server/dist/sim/dex').Dex;
 const toID = Dex.toID;
 
