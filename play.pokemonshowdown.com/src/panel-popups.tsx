@@ -688,7 +688,9 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 
 			<p style="clear:both">
-				<button class="button" data-href="avatars">Avatar...</button>
+				<button class="button" data-href="avatars">Normal Avatar</button> { }
+				<button class="button" data-href="avatarsinn">Custom Avatar</button> { }
+				<button class="button" data-href="avatarsgym">Gym</button>
 			</p>
 
 			{PS.user.named && (PS.user.registered?.userid === PS.user.userid ?
@@ -1006,101 +1008,107 @@ const BUDEWINN_GYM_AVATARS: { gen8: string[]; gen9: string[] } = {
 	],
 };
 
+function renderCustomAvatarButton(avatar: string) {
+	return <button
+		key={avatar}
+		data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
+		class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
+		style={`background:url(https://budewinn.it/sprites/trainers/${avatar}.png) no-repeat`}
+	></button>;
+}
+
 class AvatarsPanel extends PSRoomPanel {
 	static readonly id = 'avatars';
 	static readonly routes = ['avatars'];
 	static readonly location = 'modal-popup';
 
-	declare state: {
-		tab?: 'normal' | 'custom' | 'gym';
-		customAvatars?: string[] | null;
-		customError?: boolean;
-	};
+	override render() {
+		const room = this.props.room;
 
-	switchTab = (tab: 'normal' | 'custom' | 'gym') => {
-		this.setState({ tab });
-		if (tab === 'custom' && !this.state.customAvatars && !this.state.customError) {
-			this.loadCustomAvatars();
-		}
-	};
-	loadCustomAvatars = async () => {
-		try {
-			const response = await fetch('https://api.budewinn.it/avatar');
-			const avatars = await response.json();
-			this.setState({ customAvatars: avatars });
-		} catch {
-			this.setState({ customError: true });
-		}
-	};
-
-	renderNormal() {
 		const avatars: [number, string][] = [];
 		for (let i = 1; i <= 293; i++) {
 			if (i === 162 || i === 168) continue;
 			avatars.push([i, window.BattleAvatarNumbers?.[i] || `${i}`]);
 		}
 
-		return <div class="avatarlist">
-			{avatars.map(([i, avatar]) => (
-				<button
-					data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
-					class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
-					style={`background-position: -${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`}
-				></button>
-			))}
-		</div>;
-	}
-	renderCustomAvatarButton(avatar: string) {
-		return <button
-			key={avatar}
-			data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
-			class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
-			style={`background:url(https://budewinn.it/sprites/trainers/${avatar}.png) no-repeat`}
-		></button>;
-	}
-	renderCustom() {
-		if (this.state.customError) {
-			return <p class="message-error">Failed to load custom avatars.</p>;
-		}
-		if (!this.state.customAvatars) {
-			return <p>Loading...</p>;
-		}
-		return <div class="avatarlistinn">
-			{this.state.customAvatars.map(avatar => this.renderCustomAvatarButton(avatar))}
-		</div>;
-	}
-	renderGym() {
-		return <div class="avatarlistinn">
-			<p style="font-size: large; font-weight: bold">Paldea</p>
-			{BUDEWINN_GYM_AVATARS.gen9.map(avatar => this.renderCustomAvatarButton(avatar))}
+		return <PSPanelWrapper room={room} width={1210}><div class="pad">
+			<label class="optlabel"><strong>Choose an avatar or </strong>
+				<button class="button" data-cmd="/close"> Cancel</button>
+			</label>
+			<div class="avatarlist">
+				{avatars.map(([i, avatar]) => (
+					<button
+						data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
+						class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
+						style={`background-position: -${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`}
+					></button>
+				))}
+			</div>
 			<div style="clear:left"></div>
-			<p style="font-size: large; font-weight: bold">Galar</p>
-			{BUDEWINN_GYM_AVATARS.gen8.map(avatar => this.renderCustomAvatarButton(avatar))}
-		</div>;
+			<p><button class="button" data-cmd="/close">Cancel</button></p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+class CustomAvatarsPanel extends PSRoomPanel {
+	static readonly id = 'avatarsinn';
+	static readonly routes = ['avatarsinn'];
+	static readonly location = 'modal-popup';
+
+	declare state: {
+		customAvatars?: string[] | null;
+		customError?: boolean;
+	};
+
+	override componentDidMount() {
+		super.componentDidMount();
+		fetch('https://api.budewinn.it/avatar')
+			.then(response => response.json())
+			.then(avatars => this.setState({ customAvatars: avatars }))
+			.catch(() => this.setState({ customError: true }));
 	}
 
 	override render() {
 		const room = this.props.room;
-		const tab = this.state.tab || 'normal';
 
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
 			<label class="optlabel"><strong>Choose an avatar or </strong>
 				<button class="button" data-cmd="/close"> Cancel</button>
 			</label>
-			<p>
-				<button class={`button${tab === 'normal' ? ' cur' : ''}`} onClick={() => this.switchTab('normal')}>
-					Normal Avatar
-				</button> {}
-				<button class={`button${tab === 'custom' ? ' cur' : ''}`} onClick={() => this.switchTab('custom')}>
-					Custom Avatar
-				</button> {}
-				<button class={`button${tab === 'gym' ? ' cur' : ''}`} onClick={() => this.switchTab('gym')}>
-					Gym
-				</button>
-			</p>
-			{tab === 'normal' && this.renderNormal()}
-			{tab === 'custom' && this.renderCustom()}
-			{tab === 'gym' && this.renderGym()}
+			{this.state.customError ? (
+				<p class="message-error">Failed to load custom avatars.</p>
+			) : !this.state.customAvatars ? (
+				<p>Loading...</p>
+			) : (
+				<div class="avatarlistinn">
+					{this.state.customAvatars.map(avatar => renderCustomAvatarButton(avatar))}
+				</div>
+			)}
+			<div style="clear:left"></div>
+			<p><button class="button" data-cmd="/close">Cancel</button></p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+class GymAvatarsPanel extends PSRoomPanel {
+	static readonly id = 'avatarsgym';
+	static readonly routes = ['avatarsgym'];
+	static readonly location = 'modal-popup';
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={1210}><div class="pad">
+			<label class="optlabel"><strong>Choose an avatar or </strong>
+				<button class="button" data-cmd="/close"> Cancel</button>
+			</label>
+			<div class="avatarlistinn">
+				<p style="font-size: large; font-weight: bold">Paldea</p>
+				{BUDEWINN_GYM_AVATARS.gen9.map(avatar => renderCustomAvatarButton(avatar))}
+				<div style="clear:left"></div>
+				<p style="font-size: large; font-weight: bold">Galar</p>
+				{BUDEWINN_GYM_AVATARS.gen8.map(avatar => renderCustomAvatarButton(avatar))}
+			</div>
 			<div style="clear:left"></div>
 			<p><button class="button" data-cmd="/close">Cancel</button></p>
 		</div></PSPanelWrapper>;
@@ -2107,6 +2115,8 @@ PS.addRoomType(
 	OptionsPanel,
 	LoginPanel,
 	AvatarsPanel,
+	CustomAvatarsPanel,
+	GymAvatarsPanel,
 	ChangePasswordPanel,
 	RegisterPanel,
 	BattleForfeitPanel,
