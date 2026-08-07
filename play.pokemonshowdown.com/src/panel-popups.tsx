@@ -678,9 +678,9 @@ class OptionsPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const serverSettings = PS.prefs.serversettings;
 		return <PSPanelWrapper room={room} width={340}><div class="pad">
-			<p style="padding-left:50px">
+			<p style="padding-left:90px;min-height:80px">
 				<img
-					class="trainersprite yours" width="40" height="40" style={{ float: 'left', marginLeft: '-50px' }}
+					class="trainersprite yours" width="80" height="80" style={{ float: 'left', marginLeft: '-90px' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)} data-href="avatars"
 				/> { }
 				<strong>{PS.user.name}</strong>

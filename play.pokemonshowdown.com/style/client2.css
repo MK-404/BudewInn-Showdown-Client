@@ -2423,6 +2423,13 @@ pre.textbox.textbox-empty[placeholder]:before {
 .bglist {
 	margin: 0 -7px;
 }
+.avatarlistinn {
+	/* floated buttons alone don't establish a reliable shrink-to-fit width
+	   for the popup when the list is short (e.g. only a handful of gym
+	   avatars), so the popup ends up rendering too narrow; force one */
+	min-width: 700px;
+	overflow: hidden;
+}
 .avatarlist button,
 .avatarlistinn button,
 .formlist button,
