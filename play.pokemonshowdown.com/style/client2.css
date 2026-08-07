@@ -2566,6 +2566,7 @@ select.select::picker-icon {
 	margin: 0 -7px;
 }
 .avatarlist button,
+.avatarlistinn button,
 .formlist button,
 .bglist button {
 	display: block;
@@ -2583,6 +2584,11 @@ select.select::picker-icon {
 	height: 80px;
 	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
 }
+.avatarlistinn button {
+	width: 80px;
+	height: 80px;
+	background-size: cover;
+}
 .bglist button span {
 	display: block;
 	width: 144px;
@@ -2590,12 +2596,15 @@ select.select::picker-icon {
 	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
 }
 .avatarlist button.cur,
+.avatarlistinn button.cur,
 .formlist button.cur,
 .bglist button.cur {
 	border-color: #999999;
 }
 .avatarlist button:hover,
 .avatarlist button.cur:hover,
+.avatarlistinn button:hover,
+.avatarlistinn button.cur:hover,
 .formlist button:hover,
 .formlist button.cur:hover,
 .bglist button:hover,
