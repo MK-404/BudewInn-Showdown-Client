@@ -21806,5 +21806,61 @@
   "ragingbolt-back": {
     "w": 106,
     "h": 129
+  },
+  "chiyu-front": {
+    "w": 50,
+    "h": 49
+  },
+  "chienpao-front": {
+    "w": 133,
+    "h": 74
+  },
+  "tinglu-front": {
+    "w": 99,
+    "h": 91
+  },
+  "wochien-front": {
+    "w": 93,
+    "h": 93
+  },
+  "tinglu-back": {
+    "w": 92,
+    "h": 76
+  },
+  "chienpao-back": {
+    "w": 130,
+    "h": 71
+  },
+  "chiyu-back": {
+    "w": 63,
+    "h": 54
+  },
+  "wochien-back": {
+    "w": 102,
+    "h": 86
+  },
+  "okidogi-front": {
+    "w": 129,
+    "h": 104
+  },
+  "fezandipiti-front": {
+    "w": 148,
+    "h": 131
+  },
+  "munkidori-front": {
+    "w": 39,
+    "h": 71
+  },
+  "fezandipiti-back": {
+    "w": 135,
+    "h": 128
+  },
+  "okidogi-back": {
+    "w": 108,
+    "h": 93
+  },
+  "munkidori-back": {
+    "w": 37,
+    "h": 70
   }
 }
