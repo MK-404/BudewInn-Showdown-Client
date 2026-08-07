@@ -50,6 +50,7 @@ export class ChatRoom extends PSRoom {
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
+	connectError: string | null = null;
 	tour: ChatTournament | null = null;
 	lastMessage: Args | null = null;
 	lastViewedTime: number | null = null;
@@ -122,25 +123,23 @@ export class ChatRoom extends PSRoom {
 			return;
 
 		case 'noinit':
-			if (this.battle && args[1] === 'joinfailed') {
-				this.receiveLine(['bigerror', args[2]]);
-				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
-				]);
+			if (this.connectMode === 'deleted') {
+				if (args[2]) this.connectError = args[2];
+			} else if (this.battle && args[1] === 'joinfailed') {
+				this.connectError = args[2] || 'Not found';
 			} else if (this.battle) {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
-				const message = args[2] ? BattleLog.escapeHTML(args[2]) : `Chatroom "${BattleLog.escapeHTML(this.title)}" not found`;
-				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><h3>${message}</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
-				]);
+				this.connectError = args[2] || `Chatroom "${this.title}" not found`;
 			}
+			this.update(null);
 			return;
 		case 'expire':
 			this.connected = false;
-			this.connectMode = 'expired';
-			this.receiveLine(['', `This room has expired (you can't chat in it anymore)`]);
+			this.connectMode = 'deleted';
+			this.connectError = args[1] || "This room has expired (you can't chat in it anymore)";
+			this.update(null);
 			return;
 
 		case 'chat': case 'c':
@@ -282,11 +281,14 @@ export class ChatRoom extends PSRoom {
 			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 		}
 	}
-	static isHighlightableChatMessage(message: string) {
+	static isHighlightableChatMessage(message: string, isDM = false) {
 		if (!message.startsWith('/')) return true;
 		const [cmd] = PSUtils.splitFirst(message.slice(1), ' ');
 		if (['raw', 'nonotify', 'text', 'error'].includes(cmd)) {
 			return false;
+		}
+		if (['uhtml', 'uhtmlchange'].includes(cmd)) {
+			return isDM;
 		}
 		if (cmd === 'subtlenotify') {
 			return 'subtle';
@@ -333,7 +335,8 @@ export class ChatRoom extends PSRoom {
 		if (!message) return false;
 		if (userid === PS.user.userid) return false;
 
-		const highlightType = ChatRoom.isHighlightableChatMessage(message);
+		const isDM = this.id.startsWith("dm-");
+		const highlightType = ChatRoom.isHighlightableChatMessage(message, isDM);
 		const isIgnored = PS.prefs.ignore?.[userid];
 		if (isIgnored || !highlightType) return false;
 		if (highlightType === 'subtle') {
@@ -341,7 +344,7 @@ export class ChatRoom extends PSRoom {
 			return false;
 		}
 
-		if (this.id.startsWith("dm-")) {
+		if (isDM) {
 			this.notify({
 				title: `${this.title}`,
 				body: this.getChatNotificationBody(message),
@@ -483,7 +486,7 @@ export class ChatRoom extends PSRoom {
 			PSLoginServer.query("ladderget", {
 				user: targets[0],
 			}).then(data => {
-				if (!data || !Array.isArray(data)) return this.add(`|error|Error: corrupted ranking data`);
+				if (!data || !Array.isArray(data)) return this.errorReply(`Error: corrupted ranking data`);
 				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
 				if (!data.length) {
 					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
@@ -499,7 +502,7 @@ export class ChatRoom extends PSRoom {
 				buffer += '</tr>';
 				const hiddenFormats = [];
 				for (const row of data) {
-					if (!row) return this.add(`|error|Error: corrupted ranking data`);
+					if (!row) return this.errorReply(`Error: corrupted ranking data`);
 					const formatId = toID(row.formatid);
 					const matchesTarget = (
 						formats[formatId] ||
@@ -516,7 +519,7 @@ export class ChatRoom extends PSRoom {
 					// Validate all the numerical data
 					for (const value of [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t]) {
 						if (typeof value !== 'number' && typeof value !== 'string') {
-							return this.add(`|error|Error: corrupted ranking data`);
+							return this.errorReply(`Error: corrupted ranking data`);
 						}
 					}
 
@@ -578,7 +581,7 @@ export class ChatRoom extends PSRoom {
 		// battle-specific commands
 		// ------------------------
 		'play'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			if (this.battle.atQueueEnd) {
 				if (this.battle.ended) this.battle.isReplay = true;
 				this.battle.reset();
@@ -587,12 +590,12 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'pause'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			this.battle.pause();
 			this.update(null);
 		},
 		'ffto,fastfowardto'(target, cmd, parentElem) {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			if (!target) {
 				PS.prompt("Turn number?", {
 					defaultValue: `${this.battle.turn}`,
@@ -624,46 +627,50 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'switchsides'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			this.battle.switchViewpoint();
 		},
-		'cancel,undo'() {
+		'cancel,undo,cancelone'(_target, cmd) {
 			if (!this.battle) return this.send('/cancelchallenge');
 
 			const room = this as any as BattleRoom;
 			if (!room.choices || !room.request) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				this.errorReply(`/choose - You are not a player in this battle`);
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
 				// we _could_ check choices.noCancel, but the server will check anyway
 				this.sendDirect('/undo');
 			}
-			room.choices = new BattleChoiceBuilder(room.request);
+			if (cmd === 'cancel') {
+				room.choices = new BattleChoiceBuilder(room.request);
+			} else {
+				room.choices = room.choices.previous();
+			}
+			room.updateChoiceNotification();
 			this.update(null);
 		},
 		'move,switch,team,pass,shift,choose'(target, cmd) {
 			if (!this.battle) return this.errorReply('You are not in a battle');
 			const room = this as any as BattleRoom;
-			if (!room.choices) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+			if (!room.choices || !room.request) {
+				this.errorReply(`/choose - You are not a player in this battle`);
 				return;
 			}
+
+			const choices = cmd === 'choose' ? new BattleChoiceBuilder(room.request) : room.choices;
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
-			if (target === 'choose auto' || target === 'choose default') {
-				this.sendDirect('/choose default');
-				room.overlayActive = null;
-				this.update(null);
-				return;
-			}
-			const possibleError = room.choices.addChoice(target);
+			const possibleError = choices.addChoices(target);
 			if (possibleError) {
 				this.errorReply(possibleError);
 				return;
 			}
-			if (room.choices.isDone()) {
-				this.sendDirect(`/choose ${room.choices.toString()}`);
+
+			room.choices = choices;
+			if (choices.isDone()) {
+				this.sendDirect(`/choose ${choices.toString()}`);
 			}
+			room.updateChoiceNotification();
 			room.overlayActive = null;
 			this.update(null);
 		},
@@ -685,7 +692,7 @@ export class ChatRoom extends PSRoom {
 	});
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.add(`|error|Can only be used in a PM.`);
+			this.errorReply(`Can only be used in a PM.`);
 			return;
 		}
 		this.challengeMenuOpen = true;
@@ -693,7 +700,7 @@ export class ChatRoom extends PSRoom {
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.add(`|error|Can only be used in a PM.`);
+			this.errorReply(`Can only be used in a PM.`);
 			return;
 		}
 		if ((this.teamSent && this.challengeMenuOpen) || this.challenging) {
@@ -1380,6 +1387,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	};
 	renderControls() {
 		const room = this.props.room;
+		const connectError = this.renderConnectError();
 
 		const defaultFormat = room.args?.format as string | undefined;
 		if (defaultFormat?.startsWith('!!')) {
@@ -1434,8 +1442,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		if (!challengeTo && !challengeFrom && !PS.isOffline) return null;
+		if (!challengeTo && !challengeFrom && !PS.isOffline && !connectError) return null;
 		return <>
+			{connectError}
 			{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
 				<button class="button" data-cmd="/reconnect">
 					<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
@@ -1443,6 +1452,16 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				<ReconnectTimer />
 			</p>}
 		</>;
+	}
+	renderConnectError() {
+		const room = this.props.room;
+		if (room.connectMode !== 'deleted' && room.connectMode !== 'not-found') {
+			return null;
+		}
+		return <div class="pad"><div class="broadcast-red pad">
+			<h3>{room.connectError || "Error"}</h3>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p>
+		</div></div>;
 	}
 
 	override render() {
@@ -1619,8 +1638,8 @@ export class PSTextarea extends preact.Component<{
 		const textboxTest = this.base!.querySelector<HTMLTextAreaElement>('textarea.heighttester')!;
 		textboxTest.style.width = `${textbox.offsetWidth}px`;
 		textboxTest.value = textbox.value;
-		const newHeight = Math.max(textboxTest.scrollHeight + 40, 50);
-		textbox.style.height = `${newHeight}px`;
+		// +2 for the borders
+		textbox.style.height = `${textboxTest.scrollHeight + 2}px`;
 	};
 	handleInput = (e: Event) => {
 		if (this.props.singleLine) {
@@ -1662,7 +1681,7 @@ export class PSTextarea extends preact.Component<{
 			/>
 			{!this.cssAutosize && <div><textarea
 				class={`${className} heighttester`}
-				style="visibility:hidden;position:absolute;left:-200px"
+				style="visibility:hidden;position:absolute;left:-200px;height:10px;overflow-y:hidden"
 			/></div>}
 		</div>;
 	}

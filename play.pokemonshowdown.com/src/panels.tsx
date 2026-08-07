@@ -11,7 +11,7 @@
 
 import preact from "../js/lib/preact";
 import type { Pokemon, ServerPokemon } from "./battle";
-import { Dex, toID } from "./battle-dex";
+import { Dex, PSUtils, toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
@@ -254,7 +254,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.leave(this.props.room.id);
 	}
 	componentDidCatch(err: Error) {
-		this.props.room.caughtError = err.stack || err.message;
+		this.props.room.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	receiveLine(args: Args) {}
@@ -266,7 +266,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	chooseParentValue(value: string) {
 		const dropdownButton = this.props.room.parentElem as HTMLButtonElement;
 		dropdownButton.value = value;
-		if (dropdownButton.getAttribute('data-href') !== '/formatdropdown') {
+		if (!dropdownButton.getAttribute('data-href')) {
 			// button was made by |html| rather than <FormatDropdown>
 			dropdownButton.innerText = value;
 		}
@@ -344,7 +344,7 @@ export function PSPanelWrapper(props: {
 
 export class PSPanelErrorBoundary extends preact.Component<{ room: PSRoom }> {
 	componentDidCatch(err: Error) {
-		this.props.room.caughtError = err.stack || err.message;
+		this.props.room.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	override render() {
@@ -452,7 +452,6 @@ export class PSView extends preact.Component {
 		if (this.scrollFrame) {
 			if (this.useScrollFrame()) {
 				this.scrollFrame.scrollLeft = Math.max(this.scrollFrame.scrollLeft, window.scrollX);
-				if (window.scrollX) window.scrollTo(0, window.scrollY);
 			} else if (this.scrollFrame.scrollLeft) {
 				this.scrollFrame.scrollLeft = 0;
 			}
@@ -1148,13 +1147,6 @@ export class PSView extends preact.Component {
 			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
 			const shiftKey = !ev.ctrlKey && !ev.altKey && !ev.metaKey && ev.shiftKey;
 			const kc = ev.keyCode;
-			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
-				PS.arrowKeysUsed = true;
-				PS.focusUnreadRoom('left');
-			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
-				PS.arrowKeysUsed = true;
-				PS.focusUnreadRoom('right');
-			}
 			if (altKey && kc === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
@@ -1183,7 +1175,13 @@ export class PSView extends preact.Component {
 
 			if (isNonEmptyTextInput) return;
 
-			if (altKey && kc === 37) { // alt + left
+			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('left');
+			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('right');
+			} else if (altKey && kc === 37) { // alt + left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
 			} else if (altKey && kc === 39) { // alt + right
@@ -1487,7 +1485,7 @@ export class PSView extends preact.Component {
 		return false;
 	}
 	componentDidCatch(err: Error) {
-		PS.mainmenu.caughtError = err.stack || err.message;
+		PS.mainmenu.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	static containingRoomid(elem: HTMLElement) {
@@ -1525,7 +1523,7 @@ export class PSView extends preact.Component {
 
 		return { display: 'none' };
 	}
-	static getPopupStyle(room: PSRoom, width?: number | 'auto', fullSize?: boolean): any {
+	static getPopupStyle(room: PSRoom, maxWidth?: number | 'auto', fullSize?: boolean): any {
 		if (fullSize) {
 			return { width: '90%', maxHeight: '90%', maxWidth: 'none', position: 'relative', margin: '5vh auto 0' };
 		}
@@ -1538,7 +1536,7 @@ export class PSView extends preact.Component {
 		}
 
 		if (!room.parentElem || !source) {
-			return { maxWidth: width || 480 };
+			return { maxWidth: maxWidth || 480 };
 		}
 		if (!room.width || !room.height) {
 			room.focusNextUpdate = true;
@@ -1550,7 +1548,7 @@ export class PSView extends preact.Component {
 				margin: 0,
 				top: 0,
 				left: 0,
-				...(width ? { maxWidth: typeof width === 'number' ? width - 2 : width } : {}),
+				...(maxWidth ? { maxWidth: typeof maxWidth === 'number' ? maxWidth - 2 : maxWidth } : {}),
 			};
 		}
 		// nonmodal popup: should be positioned near source element
@@ -1574,7 +1572,7 @@ export class PSView extends preact.Component {
 		const sourceLeft = source.left + offsetLeft;
 
 		const height = room.height;
-		width = width || room.width;
+		const width = room.width;
 
 		if (room.rightPopup) {
 
@@ -1587,7 +1585,7 @@ export class PSView extends preact.Component {
 				style.top = Math.max(0, availableHeight - height);
 			}
 			const popupLeft = sourceLeft + sourceWidth;
-			if (width !== 'auto' && popupLeft + width > availableWidth) {
+			if (popupLeft + width > availableWidth) {
 				// can't fit, give up and put it in the normal place
 				style = {
 					position: 'absolute',
@@ -1613,7 +1611,7 @@ export class PSView extends preact.Component {
 			}
 
 			const availableAlignedWidth = availableWidth - sourceLeft;
-			if (width !== 'auto' && availableAlignedWidth < width + 10) {
+			if (availableAlignedWidth < width + 10) {
 				// while `right: 10` would be simpler, it doesn't work if there is horizontal scrolling,
 				// like in the mobile layout
 				style.left = Math.max(availableWidth - width - 10, offsetLeft);
@@ -1624,7 +1622,7 @@ export class PSView extends preact.Component {
 		}
 
 		// -2 to exclude 1px border on each side
-		if (width) style.maxWidth = typeof width === 'number' ? width - 2 : width;
+		if (maxWidth) style.maxWidth = typeof maxWidth === 'number' ? maxWidth - 2 : maxWidth;
 
 		return style;
 	}
@@ -1638,7 +1636,7 @@ export class PSView extends preact.Component {
 	}
 	renderDebugMenu() {
 		if (PSView.debugMenu === 'panels') {
-			return `room: ${JSON.stringify(PS.room?.id)}\n` +
+			return `room: ${JSON.stringify(PS.room?.id)} (connected: ${JSON.stringify(PS.room?.connected)}) (connectMode: ${JSON.stringify(PS.room?.connectMode)})\n` +
 				`onepanel: ${JSON.stringify(PS.prefs.onepanel)}, leftPanelWidth: ${JSON.stringify(PS.leftPanelWidth)}\n` +
 				`panel: ${JSON.stringify(PS.panel?.id)}, left: ${JSON.stringify(PS.leftPanel?.id)}, right: ${JSON.stringify(PS.rightPanel?.id)}\n` +
 				`popups: ${JSON.stringify(PS.popups)}`;

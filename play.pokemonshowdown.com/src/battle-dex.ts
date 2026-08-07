@@ -163,6 +163,17 @@ export const PSUtils = new class {
 		if (!callback) return (array as any[]).sort(PSUtils.compare);
 		return array.sort((a, b) => PSUtils.compare(callback(a), callback(b)));
 	}
+	normalizeError(err: any): string {
+		const stack = err.stack || '';
+		const messagePrefix = `${err.name}: ${err.message}`;
+
+		// Firefox doesn't put the error message inside the stack trace,
+		// but Chrome/Safari does
+		if (stack && !stack.startsWith(messagePrefix)) {
+			return `${messagePrefix}\n${stack}`;
+		}
+		return stack || messagePrefix;
+	}
 };
 
 /**
@@ -296,6 +307,9 @@ export const Dex = new class implements ModdedDex {
 			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
 		if (avatar.includes('.')) {
+			if (!window.Config?.server) {
+				return Dex.resourcePrefix + 'sprites/trainers/unknown.png';
+			}
 			// previously checked `&& window.Config?.server?.registered`
 			// currently doesn't, bc server registration isn't a thing anymore
 			// custom avatar served by the server
