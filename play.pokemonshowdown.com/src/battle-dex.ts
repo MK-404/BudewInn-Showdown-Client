@@ -184,6 +184,17 @@ export function toRoomid(roomid: string) {
 	return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
 }
 
+/** Mods that use Champions battle mechanics (20 PP cap, stat points, ...). */
+export const CHAMPIONS_MODS = ['champions', 'championsgen9learnsets'] as ID[];
+/**
+ * Which Champions mod a `[Gen 9 Champions]` format uses. The BudewInn Sinafeia
+ * formats keep Champions' mechanics but run on the standard Gen 9 dex and
+ * learnsets, which is a separate server mod.
+ */
+export function championsModid(formatid: string): ID {
+	return (formatid.includes('sinafeia') ? 'championsgen9learnsets' : 'champions') as ID;
+}
+
 export function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
 	name = `${name}`.replace(/[|\s[\],\u202e]+/g, ' ').trim();
@@ -294,7 +305,7 @@ export const Dex = new class implements ModdedDex {
 			dex = Dex.mod('gen8bdsp' as ID);
 		}
 		if (dex.gen === 9 && formatid.includes('champions')) {
-			dex = Dex.mod('champions' as ID);
+			dex = Dex.mod(championsModid(formatid));
 		}
 		return dex;
 	}
@@ -976,8 +987,8 @@ export class ModdedDex {
 	constructor(modid: ID) {
 		this.modid = modid;
 		let gen = parseInt(modid.charAt(3), 10);
-		if (this.modid === 'champions') gen = 9;
-		if ((modid !== 'champions' && !modid.startsWith('gen')) || !gen) throw new Error("Unsupported modid");
+		if (CHAMPIONS_MODS.includes(modid)) gen = 9;
+		if ((!CHAMPIONS_MODS.includes(modid) && !modid.startsWith('gen')) || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
 	moves = {

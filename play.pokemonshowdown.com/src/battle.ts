@@ -31,7 +31,7 @@
 import { BattleSceneStub } from './battle-scene-stub';
 import { BattleLog } from './battle-log';
 import { BattleScene, type PokemonSprite, BattleStatusAnims } from './battle-animations';
-import { Dex, PSUtils, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
+import { championsModid, Dex, PSUtils, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
 import { Teams } from './battle-teams';
 declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | undefined;
@@ -3520,7 +3520,7 @@ export class Battle {
 				this.dex = Dex.mod('gen9ssb' as ID);
 			}
 			if (this.tier.includes(`Champions`)) {
-				this.dex = Dex.mod('champions' as ID);
+				this.dex = Dex.mod(championsModid(toID(this.tier)));
 			}
 			this.log(args);
 			break;

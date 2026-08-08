@@ -70,6 +70,8 @@ export class TeamEditorState extends PSModel {
 	isNatDex = false;
 	isBDSP = false;
 	isChampions = false;
+	/** Champions' Stat Points system specifically - excludes Sinafeia, which uses standard EVs. */
+	isChampionsStatPoints = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
@@ -104,6 +106,7 @@ export class TeamEditorState extends PSModel {
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
 		this.isChampions = formatid.includes('champions');
+		this.isChampionsStatPoints = this.isChampions && !formatid.includes('sinafeia');
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
 		} else {
@@ -537,7 +540,7 @@ export class TeamEditorState extends PSModel {
 	defaultIVs(set: Dex.PokemonSet, noGuess = !!set.ivs): Record<Dex.StatName, number> {
 		const useIVs = this.gen > 2;
 		const defaultIVs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
-		if (this.isChampions) return defaultIVs;
+		if (this.isChampionsStatPoints) return defaultIVs;
 		if (!useIVs) {
 			for (const stat of Dex.statNames) defaultIVs[stat] = 15;
 		}
@@ -688,7 +691,7 @@ export class TeamEditorState extends PSModel {
 		const baseStat = species.baseStats[stat];
 		const iv = ivOverride;
 		let ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
-		if (this.isChampions) ev *= 8;
+		if (this.isChampionsStatPoints) ev *= 8;
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
@@ -3301,7 +3304,7 @@ class StatForm extends preact.Component<{
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
 		const autoSpread = set.ivs && editor.defaultIVs(set, false);
 		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
-		if (editor.isChampions) return null;
+		if (editor.isChampionsStatPoints) return null;
 		if (!hpIVdata) {
 			return <select name="ivspread" class="select" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
@@ -3715,8 +3718,8 @@ class StatForm extends preact.Component<{
 	};
 	maxEVs() {
 		const editor = this.props.editor;
-		const useCappedEVs = !editor.isLetsGo && editor.gen >= 3 && !editor.isChampions;
-		return editor.isChampions ? 66 : useCappedEVs ? 510 : Infinity;
+		const useCappedEVs = !editor.isLetsGo && editor.gen >= 3 && !editor.isChampionsStatPoints;
+		return editor.isChampionsStatPoints ? 66 : useCappedEVs ? 510 : Infinity;
 	}
 	override render() {
 		const { editor, set } = this.props;
@@ -3725,9 +3728,9 @@ class StatForm extends preact.Component<{
 
 		const baseStats = species.baseStats;
 
-		const useEVs = !editor.isLetsGo && !editor.isChampions;
+		const useEVs = !editor.isLetsGo && !editor.isChampionsStatPoints;
 		// const useAVs = editor.isLetsGo && team.format.endsWith('norestrictions');
-		const maxEV = editor.isChampions ? 32 : useEVs ? 252 : 200;
+		const maxEV = editor.isChampionsStatPoints ? 32 : useEVs ? 252 : 200;
 		const stepEV = useEVs ? 4 : 1;
 		const defaultEV = useEVs && editor.gen <= 2 && !set.evs ? maxEV : 0;
 		const useIVs = editor.gen > 2;
@@ -3760,7 +3763,7 @@ class StatForm extends preact.Component<{
 		if (maxEVs < 6 * 252) {
 			let totalEv = 0;
 			for (const ev of Object.values(set.evs || {})) totalEv += ev;
-			if (totalEv <= maxEVs && !editor.isChampions) {
+			if (totalEv <= maxEVs && !editor.isChampionsStatPoints) {
 				remaining = (totalEv > (maxEVs - 2) ? 0 : (maxEVs - 2) - totalEv);
 			} else {
 				remaining = maxEVs - totalEv;
@@ -3778,9 +3781,9 @@ class StatForm extends preact.Component<{
 						<th>{/* Stat name */}</th>
 						<th>Base</th>
 						<th class="setstatbar">{/* Stat bar */}</th>
-						<th>{editor.isLetsGo ? 'AVs' : editor.isChampions ? 'Points' : 'EVs'}</th>
+						<th>{editor.isLetsGo ? 'AVs' : editor.isChampionsStatPoints ? 'Points' : 'EVs'}</th>
 						<th>{/* EV slider */}</th>
-						{!editor.isChampions && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
+						{!editor.isChampionsStatPoints && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
 						<th>{/* Final stat */}</th>
 					</tr>
 					{stats.map(([statID, statName, stat]) => <tr>
@@ -3797,7 +3800,7 @@ class StatForm extends preact.Component<{
 							type="range" class="evslider" tabIndex={-1} aria-hidden
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
-						{!editor.isChampions && <td><input
+						{!editor.isChampionsStatPoints && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`}
 							style={narrow ? "width:22px" : "width:40px"} type={narrow ? 'text' : 'number'} inputMode="numeric"
 							class="textbox default-placeholder stat-input" onInput={this.changeIV}

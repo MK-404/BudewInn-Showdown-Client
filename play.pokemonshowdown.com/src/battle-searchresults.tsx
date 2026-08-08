@@ -8,7 +8,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { Dex, toID, type ID } from "./battle-dex";
+import { CHAMPIONS_MODS, Dex, toID, type ID } from "./battle-dex";
 import type { DexSearch, SearchRow, SearchType } from "./battle-dex-search";
 import { Config } from "./client-main";
 
@@ -203,7 +203,7 @@ export class PSSearchResults extends preact.Component<{
 
 		let pp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 		if (search.dex.gen < 3) pp = Math.min(61, pp);
-		if (search.dex.modid === 'champions') {
+		if (CHAMPIONS_MODS.includes(search.dex.modid)) {
 			pp = move.pp > 20 ? 20 : move.pp;
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}

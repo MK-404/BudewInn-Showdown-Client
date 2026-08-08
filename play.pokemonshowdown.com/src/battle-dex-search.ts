@@ -649,7 +649,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'rs' | 'frlg' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' |
 		'nfe' | 'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'svdlc1' | 'svdlc1doubles' | 'stadium' | 'lc' |
-		'champions' | 'natdexchampions' | null = null;
+		'champions' | 'natdexchampions' | 'championsgen9lsets' | null = null;
 	isDoubles = false;
 
 	/**
@@ -712,6 +712,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'stadium';
 			format = format.slice(7) as ID;
 			if (!format) format = 'ou' as ID;
+		}
+		if (format.includes('champions') && format.includes('sinafeia')) {
+			// Champions move/ability/item data, but the standard Gen 9 dex, tiers and
+			// learnsets, so none of the Gen 9 tables below get overridden.
+			this.formatType = 'championsgen9lsets';
+			this.dex = Dex.mod('championsgen9learnsets' as ID);
+			format = format.replace('champions', '') as ID;
+			this.isDoubles = format.includes('doubles');
 		}
 		if (format.includes('champions')) {
 			this.formatType = 'champions';
@@ -977,7 +985,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		let table = window.BattleTeambuilderTable;
 		const gen = this.dex.gen;
-		const tableKey = this.formatType === 'doubles' ? `gen${gen}doubles` :
+		const tableKey = this.formatType === 'doubles' ||
+			(this.formatType === 'championsgen9lsets' && this.isDoubles) ? `gen${gen}doubles` :
 			this.formatType === 'letsgo' ? 'gen7letsgo' :
 			this.formatType === 'bdsp' ? 'gen8bdsp' :
 			this.formatType === 'bdspdoubles' ? 'gen8bdspdoubles' :
@@ -1477,6 +1486,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table[`gen${this.dex.gen}metronome`];
 		} else if (this.formatType === 'champions') {
 			table = table[`champions`];
+		} else if (this.formatType === 'championsgen9lsets') {
+			table = table[`championsgen9learnsets`];
 		} else if (this.formatType === 'natdexchampions') {
 			table = table[`natdexchampions`];
 		} else if (this.dex.gen < 9) {

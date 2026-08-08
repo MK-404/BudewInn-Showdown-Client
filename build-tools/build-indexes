@@ -1306,8 +1306,30 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
+	// Champions mechanics on the standard Gen 9 dex/learnsets (BudewInn Sinafeia).
+	// Species/move/item availability there is the union of what Gen 9 and
+	// Champions each allow (see data/mods/championsgen9learnsets/scripts.ts on
+	// the server), so the item list is Gen 9's list plus whatever Champions
+	// additionally unlocks (Mega Stones and other reintroduced held items).
+	// Tiers/learnsets aren't set here: they're left to fall through to the
+	// root (Gen 9) table, which is what they should show already.
+	{
+		const gen9ItemIds = new Set(BattleTeambuilderTable.items.filter(r => typeof r === 'string'));
+		const championsOnlyItems = BattleTeambuilderTable['champions'].items.filter(
+			r => typeof r === 'string' && !gen9ItemIds.has(r)
+		);
+		BattleTeambuilderTable['championsgen9learnsets'] = {
+			overrideTier: {},
+			items: [
+				...BattleTeambuilderTable.items,
+				...(championsOnlyItems.length ? [['header', "Champions-exclusive items"], ...championsOnlyItems] : []),
+			],
+		};
+	}
+
 	for (const mod of [
 		'gen3rs', 'gen3frlg', 'gen5bw1', 'gen7letsgo', 'gen8bdsp', 'gen9ssb', 'champions',
+		'championsgen9learnsets',
 	]) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
