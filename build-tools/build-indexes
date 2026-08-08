@@ -1308,45 +1308,71 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	// Champions mechanics on the standard Gen 9 dex/learnsets (BudewInn Sinafeia).
 	// Species/move/item availability there is the union of what Gen 9 and
-	// Champions each allow (see data/mods/championsgen9learnsets/scripts.ts on
-	// the server). Champions' own tier list only covers its curated ~300-species
-	// allowlist, so - unlike items, where Gen 9's list is already the larger
-	// side - the tier list (which is what actually controls which Pokémon show
-	// up in teambuilder search; tier "Illegal" hides a species even once
-	// overrideSpeciesData clears its isNonstandard) has to start from Gen 9's
-	// full, properly-bucketed list and have Champions' extras (old-gen
-	// returnees, Mega formes) appended on top, grouped by Champions' own tier
-	// for them. Learnsets aren't set here: they fall through to the root
-	// (Gen 9) table.
+	// Champions each allow, plus prevos of any now-available species Champions
+	// only curated the final evolution of (Machop/Machoke for Machamp) - see
+	// data/mods/championsgen9learnsets/scripts.ts on the server, which is the
+	// actual source of truth queried below via `sinafeiaDex`, rather than
+	// re-deriving the same "what's extra vs Gen 9" logic here (which would
+	// miss those force-unlocked prevos, since Champions doesn't curate them
+	// either).
 	{
+		const sinafeiaDex = Dex.mod('championsgen9learnsets');
+
 		const gen9ItemIds = new Set(BattleTeambuilderTable.items.filter(r => typeof r === 'string'));
 		const championsOnlyItems = BattleTeambuilderTable['champions'].items.filter(
 			r => typeof r === 'string' && !gen9ItemIds.has(r)
 		);
 
+		// Tier list: Gen 9's own (properly bucketed) list, plus every species
+		// this mod additionally allows, grouped by this mod's own tier for them
+		// (tier "Illegal" hides a species from teambuilder search even once its
+		// isNonstandard is cleared).
 		const gen9SpeciesIds = new Set(BattleTeambuilderTable.tiers.filter(r => typeof r === 'string'));
-		const championsExtraOverrideTier = {};
-		const championsExtrasByTier = new Map();
-		for (const row of BattleTeambuilderTable['champions'].tiers) {
-			if (typeof row !== 'string' || gen9SpeciesIds.has(row)) continue;
-			const tier = Dex.mod('champions').species.get(row).tier || 'Other';
-			championsExtraOverrideTier[row] = tier;
-			if (!championsExtrasByTier.has(tier)) championsExtrasByTier.set(tier, []);
-			championsExtrasByTier.get(tier).push(row);
+		const sinafeiaExtraOverrideTier = {};
+		const sinafeiaExtrasByTier = new Map();
+		for (const id in sinafeiaDex.data.Pokedex) {
+			if (gen9SpeciesIds.has(id) || sinafeiaDex.species.get(id).isNonstandard) continue;
+			const tier = sinafeiaDex.species.get(id).tier || 'Other';
+			sinafeiaExtraOverrideTier[id] = tier;
+			if (!sinafeiaExtrasByTier.has(tier)) sinafeiaExtrasByTier.set(tier, []);
+			sinafeiaExtrasByTier.get(tier).push(id);
 		}
-		const championsExtraTiers = [];
-		for (const [tier, ids] of championsExtrasByTier) {
-			championsExtraTiers.push(['header', `Champions-exclusive: ${tier}`], ...ids);
+		const sinafeiaExtraTiers = [];
+		for (const [tier, ids] of sinafeiaExtrasByTier) {
+			sinafeiaExtraTiers.push(['header', `Champions-exclusive: ${tier}`], ...ids);
+		}
+
+		// Learnset list: Gen 9's own (real, multi-gen) learnsets for species Gen 9
+		// natively supports, plus a synthetic all-moves-available-now one
+		// (matching how Champions itself tags its own reintroduced species) for
+		// every other species. This can't just check "does root already have an
+		// entry for this id" - Gen 9's *real* learnset data covers every
+		// historically-existing Pokémon, valid or not, it's just that Gen 9
+		// itself has zero moves confirmed on a restricted species (no move ends
+		// in the "a" tag getBaseResults()'s regionBornLegality requires), so
+		// root's entry for e.g. Machamp exists but resolves to an empty movepool.
+		const sinafeiaLearnsets = {};
+		for (const id in sinafeiaDex.data.Learnsets) {
+			if (Dex.species.get(id).isNonstandard) {
+				if (sinafeiaDex.species.get(id).isNonstandard) continue; // still restricted either way
+				const learnset = sinafeiaDex.data.Learnsets[id].learnset;
+				if (!learnset) continue;
+				sinafeiaLearnsets[id] = {};
+				for (const moveid in learnset) sinafeiaLearnsets[id][moveid] = '9a';
+			} else if (learnsets[id]) {
+				sinafeiaLearnsets[id] = learnsets[id];
+			}
 		}
 
 		BattleTeambuilderTable['championsgen9learnsets'] = {
-			tiers: [...BattleTeambuilderTable.tiers, ...championsExtraTiers],
-			overrideTier: { ...BattleTeambuilderTable.overrideTier, ...championsExtraOverrideTier },
+			tiers: [...BattleTeambuilderTable.tiers, ...sinafeiaExtraTiers],
+			overrideTier: { ...BattleTeambuilderTable.overrideTier, ...sinafeiaExtraOverrideTier },
 			formatSlices: BattleTeambuilderTable.formatSlices,
 			items: [
 				...BattleTeambuilderTable.items,
 				...(championsOnlyItems.length ? [['header', "Champions-exclusive items"], ...championsOnlyItems] : []),
 			],
+			learnsets: sinafeiaLearnsets,
 		};
 	}
 
