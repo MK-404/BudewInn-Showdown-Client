@@ -985,8 +985,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		let table = window.BattleTeambuilderTable;
 		const gen = this.dex.gen;
-		const tableKey = this.formatType === 'doubles' ||
-			(this.formatType === 'championsgen9lsets' && this.isDoubles) ? `gen${gen}doubles` :
+		const tableKey = this.formatType === 'doubles' ? `gen${gen}doubles` :
 			this.formatType === 'letsgo' ? 'gen7letsgo' :
 			this.formatType === 'bdsp' ? 'gen8bdsp' :
 			this.formatType === 'bdspdoubles' ? 'gen8bdspdoubles' :
@@ -1004,6 +1003,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			this.formatType === 'champions' ? `champions` :
+			this.formatType === 'championsgen9lsets' ? `championsgen9learnsets` :
 			this.formatType === 'natdexchampions' ? `natdexchampions` :
 			`gen${gen}`;
 		if (table?.[tableKey]) {
@@ -1105,6 +1105,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table[`gen${dex.gen}`];
 		} else if (this.formatType === 'champions') {
 			table = table[`champions`];
+		} else if (this.formatType === 'championsgen9lsets') {
+			table = table[`championsgen9learnsets`];
 		} else if (this.formatType === 'natdexchampions') {
 			table = table[`natdexchampions`];
 		} else if (isVGCOrBS) {

@@ -1309,17 +1309,40 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Champions mechanics on the standard Gen 9 dex/learnsets (BudewInn Sinafeia).
 	// Species/move/item availability there is the union of what Gen 9 and
 	// Champions each allow (see data/mods/championsgen9learnsets/scripts.ts on
-	// the server), so the item list is Gen 9's list plus whatever Champions
-	// additionally unlocks (Mega Stones and other reintroduced held items).
-	// Tiers/learnsets aren't set here: they're left to fall through to the
-	// root (Gen 9) table, which is what they should show already.
+	// the server). Champions' own tier list only covers its curated ~300-species
+	// allowlist, so - unlike items, where Gen 9's list is already the larger
+	// side - the tier list (which is what actually controls which Pokémon show
+	// up in teambuilder search; tier "Illegal" hides a species even once
+	// overrideSpeciesData clears its isNonstandard) has to start from Gen 9's
+	// full, properly-bucketed list and have Champions' extras (old-gen
+	// returnees, Mega formes) appended on top, grouped by Champions' own tier
+	// for them. Learnsets aren't set here: they fall through to the root
+	// (Gen 9) table.
 	{
 		const gen9ItemIds = new Set(BattleTeambuilderTable.items.filter(r => typeof r === 'string'));
 		const championsOnlyItems = BattleTeambuilderTable['champions'].items.filter(
 			r => typeof r === 'string' && !gen9ItemIds.has(r)
 		);
+
+		const gen9SpeciesIds = new Set(BattleTeambuilderTable.tiers.filter(r => typeof r === 'string'));
+		const championsExtraOverrideTier = {};
+		const championsExtrasByTier = new Map();
+		for (const row of BattleTeambuilderTable['champions'].tiers) {
+			if (typeof row !== 'string' || gen9SpeciesIds.has(row)) continue;
+			const tier = Dex.mod('champions').species.get(row).tier || 'Other';
+			championsExtraOverrideTier[row] = tier;
+			if (!championsExtrasByTier.has(tier)) championsExtrasByTier.set(tier, []);
+			championsExtrasByTier.get(tier).push(row);
+		}
+		const championsExtraTiers = [];
+		for (const [tier, ids] of championsExtrasByTier) {
+			championsExtraTiers.push(['header', `Champions-exclusive: ${tier}`], ...ids);
+		}
+
 		BattleTeambuilderTable['championsgen9learnsets'] = {
-			overrideTier: {},
+			tiers: [...BattleTeambuilderTable.tiers, ...championsExtraTiers],
+			overrideTier: { ...BattleTeambuilderTable.overrideTier, ...championsExtraOverrideTier },
+			formatSlices: BattleTeambuilderTable.formatSlices,
 			items: [
 				...BattleTeambuilderTable.items,
 				...(championsOnlyItems.length ? [['header', "Champions-exclusive items"], ...championsOnlyItems] : []),
